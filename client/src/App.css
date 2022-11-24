@@ -1,0 +1,21 @@
+.neumorphism-plain {
+  border-radius: 76px;
+  background: #e0e0e0;
+  box-shadow: 5px 5px 16px #bebebe, -5px -5px 16px #ffffff;
+}
+.neumorphism-pressed {
+  border-radius: 76px;
+  background: #e0e0e0;
+  box-shadow: inset 5px 5px 16px #bebebe, inset -5px -5px 16px #ffffff;
+}
+.neumorphism-plate {
+  border-radius: 76px;
+  background: linear-gradient(145deg, #cacaca, #f0f0f0);
+  box-shadow: 5px 5px 16px #bebebe, -5px -5px 16px #ffffff;
+}
+
+.neumorphism-button {
+  border-radius: 76px;
+  background: linear-gradient(145deg, #f0f0f0, #cacaca);
+  box-shadow: 5px 5px 16px #bebebe, -5px -5px 16px #ffffff;
+}
