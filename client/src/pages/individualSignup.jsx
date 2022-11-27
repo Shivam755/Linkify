@@ -1,0 +1,192 @@
+import Axios from "axios";
+import React from "react";
+import { useState } from "react";
+import NavBar from "../components/navbar";
+
+// import { numStringToBytes32 } from "../utilities/bytes32";
+
+const IndividualSignUp = ({ drizzle, drizzleState }) => {
+  const [name, setName] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [differenPassword, setDifferentPassword] = useState(false);
+  const [dob, setDOB] = useState();
+  const [stackId, setStackId] = useState();
+  let qualifications = [
+    "Select a value",
+    "Not admitted yet",
+    "Pre-primary",
+    "Primary",
+    "Secondary",
+    "Higher Secondary",
+    "Graduation",
+    "Diploma",
+    "Post-Graduation",
+    "Phd",
+  ];
+
+  // update states
+  const updateQualification = (e) => {
+    setQualification(e.target.value);
+  };
+  const updateName = (e) => {
+    setName(e.target.value);
+  };
+  const updateDesignation = (e) => {
+    setDesignation(e.target.value);
+  };
+  const updatePassword = (e) => {
+    setPassword(e.target.value);
+  };
+  const updateConfirmPassword = (e) => {
+    setConfirmPassword(e.target.value);
+    if (password !== confirmPassword) {
+      setDifferentPassword(true);
+    } else {
+      setDifferentPassword(false);
+    }
+  };
+  const updateDOB = (e) => {
+    setDOB(e.target.value);
+  };
+
+  // create a new user!
+  const saveData = async () => {
+    if (differenPassword) {
+      alert("Password and confirm Password don't match!!!");
+      return;
+    }
+    let result = await Axios.post(
+      "http://localhost:3002/api/Individual/createUser",
+      {
+        metamaskId: window.ethereum.selectedAddress,
+        name: name,
+        birthDate: dob,
+        qualification: qualification,
+        designation: designation,
+        password: password,
+        confirmPassword: confirmPassword,
+        documentList: [],
+      }
+    );
+    console.log(result);
+    if (result.data.status === "Success") {
+      let hash = result.data.hash;
+      hash = "0x" + hash;
+      console.log(hash);
+      try {
+        const { Account } = drizzle.contracts;
+        let temp = Account.methods["createIndividualAccount"].cacheSend(hash, {
+          from: drizzleState.accounts[0],
+        });
+        setStackId(temp);
+        alert(result.data.message);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      alert(result.data.message);
+    }
+  };
+
+  const getTxStatus = () => {
+    // get the transaction states from the drizzle state
+    const { transactions, transactionStack } = drizzleState;
+
+    // get the transaction hash using our saved `stackId`
+    const txHash = transactionStack[stackId];
+
+    // if transaction hash does not exist, don't display anything
+    if (!txHash) return null;
+
+    // otherwise, return the transaction status
+    return transactions[txHash] && transactions[txHash].status;
+  };
+
+  return (
+    <div className="flex flex-col h-screen justify-center items-center">
+      <NavBar className=""></NavBar>
+      <form className="w-1/2 flex flex-col justify-center items-center neumorphism-plain">
+        <h1 className="p-3 m-3 font-bold text-6xl">Sign Up</h1>
+        <div className="flex justify-between">
+          Name:
+          <input
+            type="text"
+            value={name}
+            placeholder="Full name"
+            onChange={updateName}
+            required
+          />
+        </div>
+        {/* name */}
+        <div>
+          Date of Birth:{" "}
+          <input
+            className="neumorphism-pressed"
+            type="date"
+            onChange={updateDOB}
+            required
+          />
+        </div>
+        {/* Qualification */}
+        <div>
+          Qualification:
+          <select
+            className="neumorphism-pressed"
+            name="qualification"
+            onChange={updateQualification}
+            required
+          >
+            {qualifications.map((e) => {
+              return <option key={e}>{e}</option>;
+            })}
+          </select>
+        </div>
+        {/* Designation */}
+        <div>
+          Designation:
+          <input
+            type="text"
+            className="neumorphism-pressed"
+            placeholder="Designation"
+            value={designation}
+            onChange={updateDesignation}
+            required
+          />
+        </div>
+        {/* Password */}
+        <div>
+          Password:
+          <input
+            className="neumorphism-pressed"
+            type="password"
+            value={password}
+            onChange={updatePassword}
+            required
+          />
+        </div>
+        {/* Confirm Password */}
+        <div>
+          Confirm Password:
+          <input
+            type="password"
+            className="neumorphism-pressed"
+            value={confirmPassword}
+            onChange={updateConfirmPassword}
+            required
+          />
+        </div>
+        <button
+          className="border-slate-800 rounded-md border-2 p-2 m-2 neumorphism-button"
+          onClick={saveData}
+        >
+          Sign Up
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default IndividualSignUp;

@@ -2,7 +2,7 @@ import React from "react";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const MetamaskConnect = () => {
+const MetamaskConnect = ({ type }) => {
   const navigate = useNavigate();
   const toHex = (stringToConvert) =>
     stringToConvert

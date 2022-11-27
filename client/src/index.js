@@ -1,26 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import {Drizzle} from '@drizzle/store';
+import { Provider } from 'react-redux';
+
 import './index.css';
 import App from './App';
-import Account from "./contracts/Account.json";
+import store from './utilities/store';
 
-const options = {
-  contracts:[Account],
-  web3:{
-    fallback:{
-      type: "http",
-      url: "http://127.0.0.1:9545",
-    }
-  }
-}
-
-const drizzle = new Drizzle(options);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <React.StrictMode>
-    <App drizzle={drizzle}/>
-  </React.StrictMode>
+  <Provider store={store}>
+    <App />
+  </Provider>
 );
 

@@ -1,9 +1,9 @@
 // import client from "./mongoDbConnect";
 const hash = require("crypto").createHash;
-const {recoverPersonalSignature} = require("@metamask/eth-sig-util")
+const {recoverPersonalSignature} = require("@metamask/eth-sig-util");
 const nodeApp = require("./mongoDbConnect").client.db("NodeApp");
 const {app} = require("./expressSetup")
-const {toHex} = require("./utilities");
+const {toHex, validateIndividualJson} = require("./utilities");
 
 const port = 3002;
 
@@ -31,23 +31,14 @@ app.post("/verifySignature",(req,res)=>{
     });
 });
 
-//creatingIndividualUser
+//IndividualUser
 app.post("/api/Individual/createUser",async(req,res)=>{
     try{
         // console.log(req.body);
         // const data=req.body;
-        const error = false;
         //Validation
-        let {metamaskId,name,birthdate,qualification,designation,documentList,password,rePassword} = req.body;
+        const error = validateIndividualJson(req.body);
 
-        if (!(metamaskId && name && birthdate && qualification && designation && documentList && password && rePassword)){
-            error = true;
-        }
-
-        if (password !== rePassword){
-            error = true;
-        }
-        
         if (error){
             res.send({
                 "status":"Failed",
@@ -57,7 +48,6 @@ app.post("/api/Individual/createUser",async(req,res)=>{
 
         //Calculating the hash
         let digest = hash("sha256").update(JSON.stringify(req.body)).digest("hex");
-        console.log(digest)
 
         //Saving it in mongo db
         const IndividualUsers = nodeApp.collection("IndividualUsers");
@@ -76,7 +66,11 @@ app.post("/api/Individual/createUser",async(req,res)=>{
     }
 })
 
-//creatingIndividualUser
+app.post("/api/Individual/login",(req,res)=>{
+
+})
+
+//Institutes
 app.post("/api/Institute/createUser",async(req,res)=>{
     const Institutes = nodeApp.collection("Institutes");
     console.log(req.body);

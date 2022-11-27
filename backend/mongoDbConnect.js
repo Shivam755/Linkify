@@ -4,7 +4,7 @@
 const dotenv = require("dotenv");
 const mongodb = require('mongodb');
 dotenv.config();
-const uri = `mongodb+srv://Superslayer4:${process.env.PASSWORD}@firsttest.dyrwxa0.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.MONGOUSERNAME}:${process.env.MONGOPASSWORD}@firsttest.dyrwxa0.mongodb.net/?retryWrites=true&w=majority`;
 const client = new mongodb.MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: mongodb.ServerApiVersion.v1 });
 module.exports= {client};
 // export default client;
