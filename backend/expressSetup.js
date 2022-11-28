@@ -6,6 +6,6 @@ app.use(express.json())
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true}))
 
-module.exports({
+module.exports = {
     app
-})
+}

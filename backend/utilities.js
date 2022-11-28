@@ -40,4 +40,4 @@ const validateIndividualJson = data =>{
     
 }
 
-module.exports({toHex, validateIndividualJson})
+module.exports= {toHex, validateIndividualJson}

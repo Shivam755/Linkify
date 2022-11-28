@@ -17,6 +17,7 @@ app.get("/nonce",(req,res)=>{
 });
 
 app.post("/verifySignature",(req,res)=>{
+    console.log("verify signature called");
     const ogNonce = req.body.ogNonce;
     const sig = req.body.signature;
     const address = req.body.address;
@@ -25,6 +26,7 @@ app.post("/verifySignature",(req,res)=>{
         data: `0x${toHex(ogNonce)}`,
         signature: sig,
     });
+    console.log("verify signature ended");
 
     return res.send({
         verified: (verifiedNonce === address),
@@ -82,10 +84,10 @@ app.post("/api/Institute/createUser",async(req,res)=>{
     })
 })
 
-app.post("/api/checkId",async(req,res)=>{
+app.post("/api/Individual/checkId",async(req,res)=>{
     let address = req.body.address;
     try{
-        const IndividualUsers = nodeApp.collection("IndividualUsers");
+        const IndividualUsers = nodeApp.collection("Individual");
         const result = await IndividualUsers.findOne({metamaskId: address})
         .catch(err=>res.status(500).send({
             msg:"Couldn't connect to database!!",
@@ -102,6 +104,30 @@ app.post("/api/checkId",async(req,res)=>{
         })
     }catch(err){
         res.status(500).send({
+            msg:err
+        })
+    }
+})
+app.post("/api/Institute/checkId",async(req,res)=>{
+    let address = req.body.address;
+    try{
+        const Institute = nodeApp.collection("Institute");
+        const result = await Institute.findOne({metamaskId: address})
+        .catch(err=>res.status(500).send({
+            msg:"Couldn't connect to database!!",
+
+        }));
+        console.log(result);
+        if (result){
+            return res.send({
+                "Existing":true
+            })
+        }
+        return res.send({
+            "Existing":false
+        })
+    }catch(err){
+        res.send({
             msg:err
         })
     }

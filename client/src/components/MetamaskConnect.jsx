@@ -34,15 +34,15 @@ const MetamaskConnect = ({ type }) => {
         if (data.data.verified) {
           alert("Signature verified!!");
 
-          data = await Axios.post("http://localhost:3002/api/checkId", {
+          data = await Axios.post(`http://localhost:3002/api/${type}/checkId`, {
             address: window.ethereum.selectedAddress,
           });
 
           if (data.data.Existing) {
-            navigate("/login");
+            navigate(`/${type}/login`);
           }
 
-          navigate("/signUp");
+          navigate(`/${type}/signUp`);
         } else {
           alert("Signature rejected!!");
         }

@@ -88,9 +88,9 @@ function App() {
                     />
                   }
                 />
-                <Route path="/Institue" exact element={<Institute />} />
+                <Route path="/Institute" exact element={<Institute />} />
                 <Route
-                  path="/Institue/signup"
+                  path="/Institute/signup"
                   element={
                     <InstituteSignup
                       drizzle={drizzle}
