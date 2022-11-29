@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const NavBar = () => {
   let links = useSelector((state) => state.navSlice.value);
-  console.log(links);
+  // console.log(links);
   return (
     <ul className="list-none flex justify-around items-center m-5 p-5 w-9/10 neumorphism-plain">
       {links.map((e) => (

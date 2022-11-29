@@ -6,7 +6,7 @@ const toHex = (stringToConvert) =>stringToConvert.split('').map((c) => c.charCod
 const validateIndividualJson = data =>{
     const validPasswordLength = {min:8,max:30};
     const validNameLength = {min:2,max:20};
-    let {metamaskId,name,birthdate,qualification,designation,documentList,password,rePassword} = req.body;
+    let {metamaskId,name,birthdate,qualification,designation,documentList,password,rePassword} = data;
 
     if (!(metamaskId && name && birthdate && qualification && designation && documentList && password && rePassword)){
         return false;

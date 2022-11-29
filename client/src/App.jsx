@@ -13,6 +13,7 @@ import IndividualLogin from "./pages/individualLogin";
 import Institute from "./pages/institute";
 import InstituteSignup from "./pages/instituteSignup";
 import InstituteLogin from "./pages/instituteLogin";
+import Dashboard from "./pages/dashboard";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -105,6 +106,12 @@ function App() {
                       drizzle={drizzle}
                       drizzleState={drizzleState}
                     />
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <Dashboard drizzle={drizzle} drizzleState={drizzleState} />
                   }
                 />
               </Routes>

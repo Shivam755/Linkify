@@ -42,6 +42,8 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   };
   const updateConfirmPassword = (e) => {
     setConfirmPassword(e.target.value);
+    console.log(password);
+    console.log(confirmPassword);
     if (password !== confirmPassword) {
       setDifferentPassword(true);
     } else {
@@ -53,7 +55,8 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   };
 
   // create a new user!
-  const saveData = async () => {
+  const saveData = async (e) => {
+    e.preventDefault();
     if (differenPassword) {
       alert("Password and confirm Password don't match!!!");
       return;
@@ -106,85 +109,89 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen justify-center items-center">
+    <div className="flex flex-col h-screen">
       <NavBar className=""></NavBar>
-      <form className="w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-        <h1 className="p-3 m-3 font-bold text-6xl">Sign Up</h1>
-        <div className="flex justify-between">
-          Name:
-          <input
-            type="text"
-            value={name}
-            placeholder="Full name"
-            onChange={updateName}
-            required
-          />
-        </div>
-        {/* name */}
-        <div>
-          Date of Birth:{" "}
-          <input
-            className="neumorphism-pressed"
-            type="date"
-            onChange={updateDOB}
-            required
-          />
-        </div>
-        {/* Qualification */}
-        <div>
-          Qualification:
-          <select
-            className="neumorphism-pressed"
-            name="qualification"
-            onChange={updateQualification}
-            required
+      <div className="flex h-4/5 justify-center items-center">
+        <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
+          <h1 className="p-3 m-4 font-bold text-6xl">Individual Sign Up</h1>
+          {/* name */}
+          <div className="m-1 flex items-center justify-between">
+            Name:
+            <input
+              type="text"
+              className="m-1 neumorphism-pressed px-4 py-2"
+              value={name}
+              placeholder="Full name"
+              onChange={updateName}
+              required
+            />
+          </div>
+          {/* Dob */}
+          <div className="m-1 flex items-center justify-between">
+            Date of Birth:{" "}
+            <input
+              className="m-1 neumorphism-pressed px-4 py-2"
+              type="date"
+              onChange={updateDOB}
+              required
+            />
+          </div>
+          {/* Qualification */}
+          <div className="m-1 flex items-center justify-between">
+            Qualification:
+            <select
+              className="m-1 neumorphism-pressed px-4 py-2"
+              name="qualification"
+              onChange={updateQualification}
+              required
+            >
+              {qualifications.map((e) => {
+                return <option key={e}>{e}</option>;
+              })}
+            </select>
+          </div>
+          {/* Designation */}
+          <div className="m-1 flex items-center justify-between">
+            Designation:
+            <input
+              type="text"
+              className="m-1 neumorphism-pressed px-4 py-2"
+              placeholder="Designation"
+              value={designation}
+              onChange={updateDesignation}
+              required
+            />
+          </div>
+          {/* Password */}
+          <div className="m-1 flex items-center justify-between">
+            Password:
+            <input
+              className="m-1 neumorphism-pressed px-4 py-2"
+              type="password"
+              value={password}
+              onChange={updatePassword}
+              required
+            />
+          </div>
+          {/* Confirm Password */}
+          <div className="m-1 flex items-center justify-between">
+            Confirm Password:
+            <input
+              type="password"
+              className="m-1 neumorphism-pressed px-4 py-2"
+              value={confirmPassword}
+              onChange={updateConfirmPassword}
+              required
+            />
+          </div>
+          <button
+            className="m-2 neumorphism-button px-4 py-2"
+            onClick={saveData}
           >
-            {qualifications.map((e) => {
-              return <option key={e}>{e}</option>;
-            })}
-          </select>
-        </div>
-        {/* Designation */}
-        <div>
-          Designation:
-          <input
-            type="text"
-            className="neumorphism-pressed"
-            placeholder="Designation"
-            value={designation}
-            onChange={updateDesignation}
-            required
-          />
-        </div>
-        {/* Password */}
-        <div>
-          Password:
-          <input
-            className="neumorphism-pressed"
-            type="password"
-            value={password}
-            onChange={updatePassword}
-            required
-          />
-        </div>
-        {/* Confirm Password */}
-        <div>
-          Confirm Password:
-          <input
-            type="password"
-            className="neumorphism-pressed"
-            value={confirmPassword}
-            onChange={updateConfirmPassword}
-            required
-          />
-        </div>
-        <button
-          className="border-slate-800 rounded-md border-2 p-2 m-2 neumorphism-button"
-          onClick={saveData}
-        >
-          Sign Up
-        </button>
-      </form>
+            Sign Up
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

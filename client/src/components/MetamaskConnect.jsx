@@ -14,6 +14,8 @@ const MetamaskConnect = ({ type }) => {
   const connect = async (e) => {
     if (window.ethereum !== "undefined") {
       try {
+        // connecting to metamask
+        await window.ethereum.request({ method: "eth_requestAccounts" });
         //Fetching nonce
         let data = await Axios.get("http://localhost:3002/nonce");
         const nonce = data.data.nonce;
@@ -34,12 +36,13 @@ const MetamaskConnect = ({ type }) => {
         if (data.data.verified) {
           alert("Signature verified!!");
 
-          data = await Axios.post(`http://localhost:3002/api/${type}/checkId`, {
+          data = await Axios.post(`http://localhost:3002/api/checkId`, {
             address: window.ethereum.selectedAddress,
+            type: type,
           });
-
+          console.log(data.data);
           if (data.data.Existing) {
-            navigate(`/${type}/login`);
+            return navigate(`/${type}/login`);
           }
 
           navigate(`/${type}/signUp`);
@@ -60,10 +63,10 @@ const MetamaskConnect = ({ type }) => {
   };
 
   return (
-    <div>
+    <div className="flex justify-center content-center">
       <button
         onClick={connect}
-        className="flex flex-row w-max justify-center items-center px-5 py-3 neumorphism-plain"
+        className="flex flex-row w-max justify-center items-center m-5 px-5 py-3 neumorphism-plain"
       >
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
