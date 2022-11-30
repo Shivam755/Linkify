@@ -111,11 +111,7 @@ app.post("/api/login",async(req,res)=>{
     try{
         const collection = nodeApp.collection(type);
         const result = await collection.findOne({metamaskId: address})
-        // .then(res => res.json())
-        // .catch(err=>res.status(500).send({
-        //     msg:"Couldn't connect to database!!",
-        // }));
-        console.log(result);
+
         if (result){
             let pass = hash("sha512").update(req.body.password).digest("hex");
             if (pass === result.password){
@@ -175,18 +171,40 @@ app.post("/api/Individual/createUser",async(req,res)=>{
     }
 })
 
-
-
 //Institutes
 app.post("/api/Institute/createUser",async(req,res)=>{
-    const Institutes = nodeApp.collection("Institutes");
-    console.log(req.body);
-    await Institutes.insertOne(req.body).catch(res=>{
-        console.log(object);
-    });
-    res.send({
-        "Status":"Success!!"
-    })
+    try{
+        // console.log(req.body);
+        // const data=req.body;
+        //Validation
+        const error = validateIndividualJson(req.body);
+
+        if (error){
+            res.send({
+                "status":"Failed",
+                "message":"Sent data is not valid!"
+            })
+        }
+
+        //Calculating the hash
+        let digest = hash("sha256").update(JSON.stringify(req.body)).digest("hex");
+        req.body.password = hash("sha512").update(req.body.password).digest("hex");
+        //Saving it in mongo db
+        const Individual = nodeApp.collection("Institute");
+        await Individual.insertOne({_id:digest,...req.body});
+        res.send({
+                "status":"Success",
+                "message":"User Created successfully!!",
+                "hash":digest
+            });
+        
+    }catch(err){
+        console.log(err);
+        res.send({
+            "status":"Failed!!",
+            "message":err
+        });
+    }
 })
 
 

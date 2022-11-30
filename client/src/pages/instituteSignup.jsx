@@ -2,17 +2,18 @@ import Axios from "axios";
 import React from "react";
 import { useState } from "react";
 import NavBar from "../components/navbar";
+import { isAddress } from "ethereum-address";
 
 const InstituteSignup = ({ drizzle, drizzleState }) => {
   const [name, setName] = useState("");
   const [ceoId, setCeoId] = useState("");
   const [type, setType] = useState("");
-  const [roles, setRoles] = useState("");
+  // const [roles, setRoles] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [differenPassword, setDifferentPassword] = useState(false);
   const [stackId, setStackId] = useState();
-  let qualifications = ["Select a value", "Educational", "Corporate"];
+  let typeList = ["Select a value", "Educational", "Corporate"];
 
   // update states
   const updateName = (e) => {
@@ -20,6 +21,9 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
   };
   const updateCeoId = (e) => {
     setCeoId(e.target.value);
+  };
+  const updateType = (e) => {
+    setType(e.target.value);
   };
   const updatePassword = (e) => {
     setPassword(e.target.value);
@@ -34,9 +38,14 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
   };
 
   // create a new user!
-  const saveData = async () => {
+  const saveData = async (e) => {
+    e.preventDefault();
     if (differenPassword) {
       alert("Password and confirm Password don't match!!!");
+      return;
+    }
+    if (!isAddress(ceoId)) {
+      alert("Invalid CEO wallet ID");
       return;
     }
     let result = await Axios.post(
@@ -44,6 +53,9 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
       {
         metamaskId: window.ethereum.selectedAddress,
         name: name,
+        ceoId: ceoId,
+        instituteType: type,
+        roles: [],
         password: password,
         confirmPassword: confirmPassword,
       }
@@ -99,16 +111,28 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
               required
             />
           </div>
+          {/* Ceo ID */}
+          <div className="m-1 flex items-center justify-between">
+            CEO wallet ID:
+            <input
+              className="m-1 neumorphism-pressed px-4 py-2"
+              type="text"
+              value={ceoId}
+              placeholder="eg. 0x7f9845e768...."
+              onChange={updateCeoId}
+              required
+            />
+          </div>
           {/* Qualification */}
           <div className="m-1 flex items-center justify-between">
             Type:
             <select
               className="m-1 neumorphism-pressed px-4 py-2"
               name="qualification"
-              // onChange={}
+              onChange={updateType}
               required
             >
-              {qualifications.map((e) => {
+              {typeList.map((e) => {
                 return <option key={e}>{e}</option>;
               })}
             </select>

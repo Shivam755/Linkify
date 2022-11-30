@@ -39,5 +39,31 @@ const validateIndividualJson = data =>{
     }
     
 }
+const validateInstituteJson = data =>{
+    const validPasswordLength = {min:8,max:30};
+    const validNameLength = {min:2,max:20};
+    let {metamaskId,name,birthdate,qualification,designation,documentList,password,rePassword} = data;
 
-module.exports= {toHex, validateIndividualJson}
+    if (!(metamaskId && name && birthdate && qualification && designation && documentList && password && rePassword)){
+        return false;
+    }
+    // metamask id validation
+    if (!ethereum_address.isAddress(metamaskId)) {
+        return false;
+    }
+
+    //name validation
+    if (name.length < validNameLength.min || name.length > validNameLength.max){
+        return false;
+    }
+
+    //password validation
+    if (password.length < validPasswordLength.min || password.length > validPasswordLength.max){
+        return false;
+    }
+    else if (password !== rePassword){
+        return false;
+    }
+    
+}
+module.exports= {toHex, validateIndividualJson,validateInstituteJson}
