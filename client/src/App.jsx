@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Drizzle } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
 
+import NavBar from "./components/navbar";
 import "./App.css";
 import Loading from "./components/loading";
 import Account from "./contracts/Account.json";
@@ -26,36 +27,34 @@ const drizzleOptions = {
 };
 
 function App() {
-  // const [loading, setLoading] = useState(true);
-  // const drizzleState = useSelector((state) => state.state);
-  // const unsubscribe = useSelector((state) => state.unsubscribe);
-  // const dispatch = useDispatch();
-
-  // if (drizzleState != null) {
-  //   setLoading(false);
-  // }
-  // //analogous to component will mount
-  // useEffect(() => {
-  //   console.log("use effect called!");
-  //   //analogous to component will mount
-  //   dispatch(initDrizzleState());
-  //   //component will unmount
-  //   return () => unsubscribe();
-  // }, []);
-  // if (loading) {
-  //   return <div>Component is loading</div>;
-  // }
-  // return (
-  //   <div>
-  //     <BrowserRouter>
-  //       <Routes>
-  //         <Route path="/" element={<MetamaskConnect />} />
-  //         <Route path="/signUp" element={<SignUp />} />
-  //       </Routes>
-  //     </BrowserRouter>
-  //   </div>
-  // );
   const drizzle = new Drizzle(drizzleOptions);
+  const [loading, setLoading] = useState(false);
+  const [metaConnect, setMetaConnect] = useState(false);
+  let reason;
+
+  window.ethereum.on("accountsChanged", (accounts) => {
+    console.log(accounts);
+    if (accounts.length <= 0) {
+      setMetaConnect(false);
+    } else {
+      setMetaConnect(true);
+    }
+  });
+
+  useEffect(() => {
+    if (window.ethereum.selectedAddress !== null) {
+      setMetaConnect(true);
+    }
+  }, []);
+
+  const updateLoading = (status, text = "Loading") => {
+    reason = text;
+    setLoading(status);
+  };
+
+  if (loading) {
+    return <Loading text={reason} />;
+  }
   return (
     <DrizzleContext.Provider drizzle={drizzle}>
       <DrizzleContext.Consumer>
@@ -64,57 +63,71 @@ function App() {
 
           if (!initialized) {
             return <Loading />;
+          } else if (!metaConnect) {
+            console.log(metaConnect);
+            return (
+              <div>
+                <Loading />
+                <p>Metamask NOt connected</p>
+              </div>
+            );
           }
-
           return (
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/Individual" exact element={<Individual />} />
-                <Route
-                  path="/Individual/signUp"
-                  element={
-                    <IndividualSignUp
-                      drizzle={drizzle}
-                      drizzleState={drizzleState}
-                    />
-                  }
-                />
-                <Route
-                  path="/Individual/login"
-                  element={
-                    <IndividualLogin
-                      drizzle={drizzle}
-                      drizzleState={drizzleState}
-                    />
-                  }
-                />
-                <Route path="/Institute" exact element={<Institute />} />
-                <Route
-                  path="/Institute/signup"
-                  element={
-                    <InstituteSignup
-                      drizzle={drizzle}
-                      drizzleState={drizzleState}
-                    />
-                  }
-                />
-                <Route
-                  path="/Institute/login"
-                  element={
-                    <InstituteLogin
-                      drizzle={drizzle}
-                      drizzleState={drizzleState}
-                    />
-                  }
-                />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <Dashboard drizzle={drizzle} drizzleState={drizzleState} />
-                  }
-                />
-              </Routes>
+              <div>
+                <NavBar metaConnect={metaConnect}></NavBar>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/Individual" exact element={<Individual />} />
+                  <Route
+                    path="/Individual/signUp"
+                    element={
+                      <IndividualSignUp
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                        updateLoading={updateLoading}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Individual/login"
+                    element={
+                      <IndividualLogin
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route path="/Institute" exact element={<Institute />} />
+                  <Route
+                    path="/Institute/signup"
+                    element={
+                      <InstituteSignup
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Institute/login"
+                    element={
+                      <InstituteLogin
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/dashboard/:type"
+                    element={
+                      <Dashboard
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                </Routes>
+              </div>
             </BrowserRouter>
           );
         }}

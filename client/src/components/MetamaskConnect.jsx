@@ -17,7 +17,9 @@ const MetamaskConnect = ({ type }) => {
         // connecting to metamask
         await window.ethereum.request({ method: "eth_requestAccounts" });
         //Fetching nonce
-        let data = await Axios.get("http://localhost:3002/nonce");
+        let data = await Axios.get(
+          process.env.REACT_APP_SERVER_HOST + "/nonce"
+        );
         const nonce = data.data.nonce;
 
         //Asking user to sign nonce
@@ -27,19 +29,25 @@ const MetamaskConnect = ({ type }) => {
         });
 
         //Verifying signature
-        data = await Axios.post("http://localhost:3002/verifySignature", {
-          address: window.ethereum.selectedAddress,
-          ogNonce: nonce,
-          signature: sig,
-        });
+        data = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/verifySignature",
+          {
+            address: window.ethereum.selectedAddress,
+            ogNonce: nonce,
+            signature: sig,
+          }
+        );
 
         if (data.data.verified) {
           alert("Signature verified!!");
 
-          data = await Axios.post(`http://localhost:3002/api/checkId`, {
-            address: window.ethereum.selectedAddress,
-            type: type,
-          });
+          data = await Axios.post(
+            process.env.REACT_APP_SERVER_HOST + `/api/checkId`,
+            {
+              address: window.ethereum.selectedAddress,
+              type: type,
+            }
+          );
           console.log(data.data);
           if (data.data.Existing) {
             return navigate(`/${type}/login`);

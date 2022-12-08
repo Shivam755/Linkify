@@ -1,7 +1,6 @@
 import Axios from "axios";
 import React from "react";
 import { useState } from "react";
-import NavBar from "../components/navbar";
 import { isAddress } from "ethereum-address";
 
 const InstituteSignup = ({ drizzle, drizzleState }) => {
@@ -49,7 +48,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
       return;
     }
     let result = await Axios.post(
-      "http://localhost:3002/api/Institute/createUser",
+      process.env.REACT_APP_SERVER_HOST + "/api/Institute/createUser",
       {
         metamaskId: window.ethereum.selectedAddress,
         name: name,
@@ -95,7 +94,6 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
 
   return (
     <div className="flex flex-col h-screen">
-      <NavBar className=""></NavBar>
       <div className="flex flex-col h-screen justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="p-3 m-4 font-bold text-6xl">Institute Sign Up</h1>

@@ -1,17 +1,18 @@
 import Axios from "axios";
 import React from "react";
 import { useState } from "react";
-import NavBar from "../components/navbar";
+import { useNavigate } from "react-router-dom";
 
 // import { numStringToBytes32 } from "../utilities/bytes32";
 
-const IndividualSignUp = ({ drizzle, drizzleState }) => {
+const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [qualification, setQualification] = useState("");
   const [designation, setDesignation] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [differenPassword, setDifferentPassword] = useState(false);
+  // const [differenPassword, setDifferentPassword] = useState(false);
   const [dob, setDOB] = useState();
   const [stackId, setStackId] = useState();
   let qualifications = [
@@ -42,13 +43,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   };
   const updateConfirmPassword = (e) => {
     setConfirmPassword(e.target.value);
-    console.log(password);
-    console.log(confirmPassword);
-    if (password !== confirmPassword) {
-      setDifferentPassword(true);
-    } else {
-      setDifferentPassword(false);
-    }
   };
   const updateDOB = (e) => {
     setDOB(e.target.value);
@@ -57,12 +51,14 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   // create a new user!
   const saveData = async (e) => {
     e.preventDefault();
-    if (differenPassword) {
+    updateLoading(true, "Processing...");
+    if (password !== confirmPassword) {
+      updateLoading(false);
       alert("Password and confirm Password don't match!!!");
       return;
     }
     let result = await Axios.post(
-      "http://localhost:3002/api/Individual/createUser",
+      process.env.REACT_APP_SERVER_HOST + "/api/Individual/createUser",
       {
         metamaskId: window.ethereum.selectedAddress,
         name: name,
@@ -80,18 +76,40 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
       hash = "0x" + hash;
       console.log(hash);
       try {
+        console.log(drizzle);
         const { Account } = drizzle.contracts;
         let temp = Account.methods["createIndividualAccount"].cacheSend(hash, {
-          from: drizzleState.accounts[0],
+          from: window.ethereum.selectedAddress,
         });
         setStackId(temp);
-        alert(result.data.message);
+
+        await checkStatus();
+        updateLoading(false);
+        alert("User created Successfully!!");
+        navigate("/Individual/login");
+        // alert(result.data.message);
       } catch (err) {
         console.log(err);
+        updateLoading(false);
       }
     } else {
-      alert(result.data.message);
+      updateLoading(false);
+      alert(result.data.status);
     }
+  };
+
+  const checkStatus = async () => {
+    return new Promise((resolve) => {
+      let done = false;
+      while (!done) {
+        let status = getTxStatus();
+        if (status !== null) {
+          done = true;
+          console.log(status);
+        }
+        setTimeout(() => {}, 1000);
+      }
+    });
   };
 
   const getTxStatus = () => {
@@ -110,7 +128,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
 
   return (
     <div className="flex flex-col h-screen">
-      <NavBar className=""></NavBar>
       <div className="flex h-4/5 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="p-3 m-4 font-bold text-6xl">Individual Sign Up</h1>
