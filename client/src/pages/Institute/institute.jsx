@@ -1,4 +1,4 @@
-import MetamaskConnect from "../components/MetamaskConnect";
+import MetamaskConnect from "../../components/MetamaskConnect";
 import React from "react";
 
 const Institute = () => {

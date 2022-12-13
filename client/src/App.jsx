@@ -8,13 +8,14 @@ import "./App.css";
 import Loading from "./components/loading";
 import Account from "./contracts/Account.json";
 import Home from "./pages/home";
-import Individual from "./pages/individual";
-import IndividualSignUp from "./pages/individualSignup";
-import IndividualLogin from "./pages/individualLogin";
-import Institute from "./pages/institute";
-import InstituteSignup from "./pages/instituteSignup";
-import InstituteLogin from "./pages/instituteLogin";
+import Individual from "./pages/Individual/individual";
+import IndividualSignUp from "./pages/Individual/individualSignup";
+import IndividualLogin from "./pages/Individual/individualLogin";
+import Institute from "./pages/Institute/institute";
+import InstituteSignup from "./pages/Institute/instituteSignup";
+import InstituteLogin from "./pages/Institute/instituteLogin";
 import Dashboard from "./pages/dashboard";
+import Profile from "./pages/profile";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -124,6 +125,12 @@ function App() {
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />
+                    }
+                  />
+                  <Route
+                    path="/profile/:id"
+                    element={
+                      <Profile drizzle={drizzle} drizzleState={drizzleState} />
                     }
                   />
                 </Routes>

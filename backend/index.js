@@ -12,8 +12,6 @@ const Institute = require("./model/Institute");
 const port = 3002;
 const validTypes = ["Individual", "Institute"];
 
-console.log(client);
-
 //methods for digital signature
 app.get("/nonce", (req, res) => {
   const generatedNonce = Math.floor(Math.random() * 1000000).toString();
@@ -140,45 +138,46 @@ app.post("/api/login", async (req, res) => {
     });
   }
   try {
-    // const collection = nodeApp.collection(type);
-    // const result = await collection.findOne({ metamaskId: address });
-    const result = await client
-      .then(async () => {
-        let res;
-        if (type === validTypes[0]) {
-          res = await Individual.findOne({ metamaskId: address });
-        } else {
-          res = await Institute.findOne({ metamaskId: address });
+    let result;
+    if (type === validTypes[0]) {
+      result = await Individual.findOne({ metamaskId: address });
+    } else {
+      result = await Institute.findOne({ metamaskId: address });
+    }
+    // console.log(result);
+    if (result) {
+      // let pass = hash("sha512").update(req.body.password).digest("hex");
+      result.comparePassword(req.body.password, (err, isMatch = false) => {
+        if (err) {
+          return res.send({
+            status: "Failed",
+            msg: "Wrong Password!!",
+          });
         }
-        return res;
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({
-          msg: "Couldn't connect to database!!",
+        if (isMatch) {
+          let authToken = jwt.sign(
+            { _id: result._id },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "2h",
+            }
+          );
+          return res.send({
+            status: "Success",
+            msg: "Login successful!!",
+            auth: authToken,
+          });
+        }
+        return res.send({
+          status: "Failed",
+          msg: "Wrong Password!!",
         });
       });
-
-    if (result) {
-      let pass = hash("sha512").update(req.body.password).digest("hex");
-      if (pass === result.password) {
-        let authToken = jwt.sign({ _id: result._id }, process.env.JWT_SECRET, {
-          expiresIn: "2h",
-        });
-        return res.send({
-          status: "Success",
-          msg: "Login successful!!",
-          auth: authToken,
-        });
-      }
+    } else {
       return res.send({
-        status: "Failed",
-        msg: "Wrong Password!!",
+        msg: "No Account exists with the given wallet ID",
       });
     }
-    return res.send({
-      msg: "No Account exists with the given wallet ID",
-    });
   } catch (err) {
     console.log(err);
     // return res.send({
@@ -187,7 +186,41 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-app.post("/api/profile", passport.authenticate("jwt", {}), async (req, res) => {
+// app.post("/api/profile", passport.authenticate("jwt", {}), async (req, res) => {
+//   let type = req.body.type;
+//   let address = req.body.address;
+//   if (!validTypes.includes(type)) {
+//     res.send({
+//       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+//     });
+//   }
+//   try {
+//     const collection = nodeApp.collection(type);
+//     const result = await collection
+//       .findOne({ metamaskId: address })
+//       // .then(res => res.json())
+//       .catch((err) => {
+//         console.log(err);
+//         res.status(500).send({
+//           msg: "Couldn't connect to database!!",
+//         });
+//       });
+//     console.log(result.password);
+//     if (result) {
+//       return res.send({
+//         name: result,
+//       });
+//     }
+//     return res.send({
+//       msg: "No Account exists with the given wallet ID",
+//     });
+//   } catch (err) {
+//     res.send({
+//       msg: err,
+//     });
+//   }
+// });
+app.post("/api/profile", async (req, res) => {
   let type = req.body.type;
   let address = req.body.address;
   if (!validTypes.includes(type)) {
@@ -196,28 +229,42 @@ app.post("/api/profile", passport.authenticate("jwt", {}), async (req, res) => {
     });
   }
   try {
-    const collection = nodeApp.collection(type);
-    const result = await collection
-      .findOne({ metamaskId: address })
-      // .then(res => res.json())
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({
-          msg: "Couldn't connect to database!!",
-        });
-      });
+    // const collection = nodeApp.collection(type);
+    let result;
+    if (type === validTypes[0]) {
+      result = await Individual.findOne({ metamaskId: address });
+    } else {
+      result = await Institute.findOne({ metamaskId: address });
+    }
+    console.log(result);
+    // const result = await collection
+    //   .findOne({ metamaskId: address })
+    //   // .then(res => res.json())
+    //   .catch((err) => {
+    //     console.log(err);
+    //     res.status(500).send({
+    //       msg: "Couldn't connect to database!!",
+    //     });
+    //   });
     console.log(result.password);
     if (result) {
       return res.send({
-        name: result,
+        profile: {
+          metamaskId: result.metamaskId,
+          name: result.name,
+          birthDate: result.birthDate,
+          qualification: result.qualification,
+          designation: result.designation,
+        },
       });
     }
     return res.send({
       msg: "No Account exists with the given wallet ID",
     });
   } catch (err) {
+    console.log(err);
     res.send({
-      msg: err,
+      msg: "some error occured!!",
     });
   }
 });
@@ -275,7 +322,7 @@ app.post("/api/Individual/createUser", async (req, res) => {
     //   return res;
     // });
     let result = await Individual.create({ _id: digest, ...body });
-    result = result.save();
+    result = await result.save();
     // return result;
     console.log(result);
     res.send({

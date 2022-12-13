@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 // app.use(session);
-// app.use(passport.initialize());
+app.use(passport.initialize());
 // app.use(passport.session());
 module.exports = {
   app,

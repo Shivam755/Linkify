@@ -1,13 +1,17 @@
 import Axios from "axios";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { indivLogin } from "../../utilities/navSlice";
+import { setToken } from "../../utilities/tokenSlice";
 
 const IndividualLogin = ({ drizzle, drizzleState }) => {
   const [currentId, setCurrentId] = useState(window.ethereum.selectedAddress);
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   console.log(drizzleState);
 
   // useEffect(async () => {
@@ -37,7 +41,10 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
     );
     if (result.data.status === "Success") {
       console.log(result.data.auth);
-      sessionStorage.setItem("authToken", JSON.stringify(result.data.auth));
+      dispatch(setToken(result.data.auth));
+      // sessionStorage.setItem("authToken", JSON.stringify(result.data.auth));
+      console.log(indivLogin);
+      dispatch(indivLogin());
       navigate("/dashboard/Individual");
     } else {
       alert("Login failed!!");

@@ -83,7 +83,7 @@ const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
         });
         setStackId(temp);
 
-        await checkStatus();
+        // await checkStatus();
         updateLoading(false);
         alert("User created Successfully!!");
         navigate("/Individual/login");

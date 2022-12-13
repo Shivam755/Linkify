@@ -1,5 +1,5 @@
 import React from "react";
-import MetamaskConnect from "../components/MetamaskConnect";
+import MetamaskConnect from "../../components/MetamaskConnect";
 
 const Individual = () => {
   return (

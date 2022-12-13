@@ -12,10 +12,10 @@ const passport = require("passport");
 //   console.log(token);
 //   return token;
 // };
-
+// console.log(process.env.JWT_SECRET);
 let opts = {
   secretOrKey: process.env.JWT_SECRET,
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: ExtractJwt.fromHeader("authorization"),
   jsonWebTokenOptions: {
     maxAge: "2d",
   },
@@ -24,9 +24,8 @@ let opts = {
 passport.use(
   new JwtStrategy(opts, (payload, done) => {
     console.log(payload);
-    console.log(User);
     // return done(null, payload);
-    Individual.findOne({ id: payload.sub }, function (err, user) {
+    Individual.findOne({ _id: payload._id }, function (err, user) {
       if (err) {
         console.log(payload);
         return done(err, false);
