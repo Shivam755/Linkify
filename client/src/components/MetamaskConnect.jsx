@@ -1,8 +1,10 @@
 import React from "react";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { updateToast } from "../utilities/toastify";
 
-const MetamaskConnect = ({ type }) => {
+const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
   const navigate = useNavigate();
   const toHex = (stringToConvert) =>
     stringToConvert
@@ -12,6 +14,7 @@ const MetamaskConnect = ({ type }) => {
 
   //Connect to metamask
   const connect = async (e) => {
+    const id = toast.loading("Verifying signature!!");
     if (window.ethereum !== "undefined") {
       try {
         // connecting to metamask
@@ -25,46 +28,64 @@ const MetamaskConnect = ({ type }) => {
         //Asking user to sign nonce
         const sig = await window.ethereum.request({
           method: "personal_sign",
-          params: [`0x${toHex(nonce)}`, window.ethereum.selectedAddress],
+          params: [`0x${toHex(nonce)}`, drizzleState.accounts[0]],
         });
 
         //Verifying signature
         data = await Axios.post(
           process.env.REACT_APP_SERVER_HOST + "/verifySignature",
           {
-            address: window.ethereum.selectedAddress,
+            address: drizzleState.accounts[0],
             ogNonce: nonce,
             signature: sig,
           }
         );
 
         if (data.data.verified) {
-          alert("Signature verified!!");
+          updateToast(id, "Signature Verified!!!", "success");
 
-          data = await Axios.post(
-            process.env.REACT_APP_SERVER_HOST + `/api/checkId`,
-            {
-              address: window.ethereum.selectedAddress,
-              type: type,
-            }
-          );
-          console.log(data.data);
-          if (data.data.Existing) {
+          // data = await Axios.post(
+          //   process.env.REACT_APP_SERVER_HOST + `/api/checkId`,
+          //   {
+          //     address: window.ethereum.selectedAddress,
+          //     type: type,
+          //   }
+          // );
+          // console.log(drizzle);
+          const { Account } = drizzle.contracts;
+          let dataKey;
+          if (type == "Individual") {
+            dataKey = await Account.methods.indivCheckId().call();
+          } else {
+            dataKey = await Account.methods.institCheckId().call();
+          }
+          console.log(dataKey);
+          // console.log(Account.checkId[dataKey]);
+          if (dataKey) {
             return navigate(`/${type}/login`);
           }
 
           navigate(`/${type}/signUp`);
         } else {
-          alert("Signature rejected!!");
+          // alert("Signature rejected!!");
+          updateToast(id, "Signature rejected!!", "error");
         }
       } catch (error) {
         // User denied account access
-        alert("You denied web3 access or there's been an error!");
+        updateToast(
+          id,
+          "You denied web3 access or there's been an error!",
+          "error"
+        );
+
+        // alert("You denied web3 access or there's been an error!");
         console.error("User denied web3 access", error);
         return;
       }
     } else {
-      alert("No web3 provider detected");
+      // alert("No web3 provider detected");
+      updateToast(id, "No web3 provider detected", "error");
+      // toast.error("No web3 provider detected");
       console.error("No web3 provider detected");
       return;
     }

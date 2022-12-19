@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Drizzle } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import NavBar from "./components/navbar";
 import "./App.css";
@@ -15,10 +17,12 @@ import Institute from "./pages/Institute/institute";
 import InstituteSignup from "./pages/Institute/instituteSignup";
 import InstituteLogin from "./pages/Institute/instituteLogin";
 import Dashboard from "./pages/dashboard";
-import Profile from "./pages/profile";
+import IndividualProfile from "./pages/Individual/individualProfile";
+import { useSelector } from "react-redux";
 
 const drizzleOptions = {
   contracts: [Account],
+  // events: [],
   web3: {
     fallback: {
       type: "http",
@@ -29,6 +33,8 @@ const drizzleOptions = {
 
 function App() {
   const drizzle = new Drizzle(drizzleOptions);
+  // const drizzle = useSelector((state) => state.drizzleSlice.value);
+  console.log(drizzle);
   const [loading, setLoading] = useState(false);
   const [metaConnect, setMetaConnect] = useState(false);
   let reason;
@@ -65,7 +71,6 @@ function App() {
           if (!initialized) {
             return <Loading />;
           } else if (!metaConnect) {
-            console.log(metaConnect);
             return (
               <div>
                 <Loading />
@@ -76,10 +81,18 @@ function App() {
           return (
             <BrowserRouter>
               <div>
-                <NavBar metaConnect={metaConnect}></NavBar>
+                <NavBar
+                  drizzle={drizzle}
+                  metaConnect={metaConnect}
+                  drizzleState={drizzleState}
+                ></NavBar>
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/Individual" exact element={<Individual />} />
+                  <Route
+                    path="/Individual"
+                    exact
+                    element={<Individual drizzle={drizzle} />}
+                  />
                   <Route
                     path="/Individual/signUp"
                     element={
@@ -94,6 +107,15 @@ function App() {
                     path="/Individual/login"
                     element={
                       <IndividualLogin
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Individual/profile/:id"
+                    element={
+                      <IndividualProfile
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />
@@ -127,13 +149,11 @@ function App() {
                       />
                     }
                   />
-                  <Route
-                    path="/profile/:id"
-                    element={
-                      <Profile drizzle={drizzle} drizzleState={drizzleState} />
-                    }
-                  />
                 </Routes>
+                <ToastContainer
+                  draggable={true}
+                  position={toast.POSITION.BOTTOM_RIGHT}
+                />
               </div>
             </BrowserRouter>
           );

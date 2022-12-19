@@ -2,6 +2,8 @@ import Axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { updateToast } from "../../utilities/toastify";
 
 // import { numStringToBytes32 } from "../utilities/bytes32";
 
@@ -51,16 +53,22 @@ const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
   // create a new user!
   const saveData = async (e) => {
     e.preventDefault();
+    const id = toast.loading("Creating user!");
     updateLoading(true, "Processing...");
     if (password !== confirmPassword) {
       updateLoading(false);
-      alert("Password and confirm Password don't match!!!");
+      // alert("Password and confirm Password don't match!!!");
+      updateToast(
+        id,
+        "Password and confirm Password don't match!!!",
+        "warning"
+      );
       return;
     }
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/Individual/createUser",
       {
-        metamaskId: window.ethereum.selectedAddress,
+        metamaskId: drizzleState.accounts[0],
         name: name,
         birthDate: dob,
         qualification: qualification,
@@ -79,13 +87,14 @@ const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
         console.log(drizzle);
         const { Account } = drizzle.contracts;
         let temp = Account.methods["createIndividualAccount"].cacheSend(hash, {
-          from: window.ethereum.selectedAddress,
+          from: drizzleState.accounts[0],
         });
         setStackId(temp);
 
         // await checkStatus();
         updateLoading(false);
-        alert("User created Successfully!!");
+        // alert("User created Successfully!!");
+        updateToast(id, "User created Successfully!", "success");
         navigate("/Individual/login");
         // alert(result.data.message);
       } catch (err) {

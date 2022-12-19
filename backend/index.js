@@ -130,7 +130,7 @@ app.post("/api/getName", async (req, res) => {
 });
 
 app.post("/api/login", async (req, res) => {
-  let address = req.body.address;
+  let hash = req.body.hash;
   let type = req.body.type;
   if (!validTypes.includes(type)) {
     res.send({
@@ -140,9 +140,9 @@ app.post("/api/login", async (req, res) => {
   try {
     let result;
     if (type === validTypes[0]) {
-      result = await Individual.findOne({ metamaskId: address });
+      result = await Individual.findOne({ _id: hash });
     } else {
-      result = await Institute.findOne({ metamaskId: address });
+      result = await Institute.findOne({ _id: hash });
     }
     // console.log(result);
     if (result) {
@@ -155,13 +155,9 @@ app.post("/api/login", async (req, res) => {
           });
         }
         if (isMatch) {
-          let authToken = jwt.sign(
-            { _id: result._id },
-            process.env.JWT_SECRET,
-            {
-              expiresIn: "2h",
-            }
-          );
+          let authToken = jwt.sign({ _id: hash }, process.env.JWT_SECRET, {
+            expiresIn: "2h",
+          });
           return res.send({
             status: "Success",
             msg: "Login successful!!",
@@ -222,7 +218,7 @@ app.post("/api/login", async (req, res) => {
 // });
 app.post("/api/profile", async (req, res) => {
   let type = req.body.type;
-  let address = req.body.address;
+  let hash = req.body.hash;
   if (!validTypes.includes(type)) {
     res.send({
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -232,9 +228,20 @@ app.post("/api/profile", async (req, res) => {
     // const collection = nodeApp.collection(type);
     let result;
     if (type === validTypes[0]) {
-      result = await Individual.findOne({ metamaskId: address });
+      result = await Individual.findOne({ _id: hash });
+      if (result) {
+        return res.send({
+          profile: {
+            metamaskId: result.metamaskId,
+            name: result.name,
+            birthDate: result.birthDate,
+            qualification: result.qualification,
+            designation: result.designation,
+          },
+        });
+      }
     } else {
-      result = await Institute.findOne({ metamaskId: address });
+      result = await Institute.findOne({ _id: hash });
     }
     console.log(result);
     // const result = await collection
@@ -246,18 +253,7 @@ app.post("/api/profile", async (req, res) => {
     //       msg: "Couldn't connect to database!!",
     //     });
     //   });
-    console.log(result.password);
-    if (result) {
-      return res.send({
-        profile: {
-          metamaskId: result.metamaskId,
-          name: result.name,
-          birthDate: result.birthDate,
-          qualification: result.qualification,
-          designation: result.designation,
-        },
-      });
-    }
+
     return res.send({
       msg: "No Account exists with the given wallet ID",
     });

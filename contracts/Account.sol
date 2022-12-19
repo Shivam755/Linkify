@@ -20,8 +20,11 @@ contract Account {
         address owner;
         bytes32 infoHash;
     }
-    event UserAdded(address id);
-    event InstitudeAdded(address id);
+    event IndividualAdded(address id);
+    event InstituteAdded(address id);
+    event IndividualUpdated(address id);
+    event InstituteUpdated(address id);
+    event roleAdded(address id, string role);
     // mapping(address => bytes32) private _individualAccounts;
     account[] private _individual;
     // mapping(address => bytes32) private _instituteAccounts;
@@ -33,6 +36,7 @@ contract Account {
         // }
         // _individualAccounts[msg.sender] = hash;
         _individual.push(account(msg.sender, hash));
+        emit IndividualAdded(msg.sender);
     }
 
     function createInstituteAccount(bytes32 hash) public {
@@ -41,31 +45,81 @@ contract Account {
         // }
         // _instituteAccounts[msg.sender] = hash;
         _institute.push(account(msg.sender, hash));
+        emit InstituteAdded(msg.sender);
     }
 
-    function listIndividualUsers() public view returns (account[] memory) {
-        return _individual;
-    }
-
-    function listInstituteUsers() public view returns (account[] memory) {
-        return _institute;
-    }
-
-    function checkId() public view returns (bool) {
+    function indivCheckId() public view returns (bool) {
         uint256 i = 0;
         while (i < _individual.length) {
-            if (_individual[0].owner == msg.sender) {
-                return true;
-            }
-            i++;
-        }
-        i = 0;
-        while (i < _institute.length) {
-            if (_institute[0].owner == msg.sender) {
+            if (_individual[i].owner == msg.sender) {
                 return true;
             }
             i++;
         }
         return false;
+    }
+
+    function institCheckId() public view returns (bool) {
+        uint256 i = 0;
+        while (i < _institute.length) {
+            if (_institute[i].owner == msg.sender) {
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    function indivData() public view returns (bytes32) {
+        uint256 i = 0;
+        while (i < _individual.length) {
+            if (_individual[i].owner == msg.sender) {
+                return _individual[i].infoHash;
+            }
+            i++;
+        }
+        return 0x0;
+    }
+
+    function institData() public view returns (bytes32) {
+        uint256 i = 0;
+        while (i < _institute.length) {
+            if (_institute[i].owner == msg.sender) {
+                return _institute[i].infoHash;
+            }
+            i++;
+        }
+        return 0x0;
+    }
+
+    function updateIndivData(bytes32 hash) public returns (bool) {
+        uint256 i = 0;
+        while (i < _individual.length) {
+            if (_individual[i].owner == msg.sender) {
+                _individual[i].infoHash = hash;
+                emit IndividualUpdated(msg.sender);
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    function updateInstitData(bytes32 hash) public returns (bool) {
+        uint256 i = 0;
+        while (i < _institute.length) {
+            if (_institute[i].owner == msg.sender) {
+                _institute[i].infoHash = hash;
+                emit InstituteUpdated(msg.sender);
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    function addRole(bytes32 hash, string memory role) public {
+        updateInstitData(hash);
+        emit roleAdded(msg.sender, role);
     }
 }

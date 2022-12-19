@@ -5,14 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { indivLogin } from "../../utilities/navSlice";
 import { setToken } from "../../utilities/tokenSlice";
+import { toast } from "react-toastify";
+import { updateToast } from "../../utilities/toastify";
 
 const IndividualLogin = ({ drizzle, drizzleState }) => {
-  const [currentId, setCurrentId] = useState(window.ethereum.selectedAddress);
+  const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  console.log(drizzleState);
+  // console.log(drizzleState);
 
   // useEffect(async () => {
   //   let data = await Axios.post(process.env.REACT_APP_SERVER_HOST+`/api/getName`, {
@@ -30,24 +32,32 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
     setPassword(e.target.value);
   };
   const Login = async (e) => {
+    const id = toast.loading("Logging in!!");
     e.preventDefault();
+
+    const { Account } = drizzle.contracts;
+    let hash = await Account.methods.indivData().call();
+    // console.log(hash.slice(2));
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/login",
       {
-        address: currentId,
+        hash: hash.slice(2),
         type: "Individual",
         password: password,
       }
     );
+    // console.log(result);
     if (result.data.status === "Success") {
+      updateToast(id, "Login successful!!", "success");
       console.log(result.data.auth);
       dispatch(setToken(result.data.auth));
       // sessionStorage.setItem("authToken", JSON.stringify(result.data.auth));
-      console.log(indivLogin);
+      // console.log(indivLogin);
       dispatch(indivLogin());
       navigate("/dashboard/Individual");
     } else {
-      alert("Login failed!!");
+      // alert("Login failed!!");
+      updateToast(id, "Login Failed!!", "error");
     }
   };
 

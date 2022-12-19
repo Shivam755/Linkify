@@ -2,8 +2,9 @@ import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-const Profile = () => {
+const InstituteProfile = () => {
   const [res, setRes] = useState(null);
   let { id } = useParams();
   let token = useSelector((state) => state.tokenSlice.value);
@@ -13,7 +14,7 @@ const Profile = () => {
         process.env.REACT_APP_SERVER_HOST + "/api/profile",
         {
           address: id,
-          type: "Individual",
+          type: "Institute",
         },
         {
           authorization: token,
@@ -24,6 +25,12 @@ const Profile = () => {
     };
     fetchdata();
   }, []);
+
+  const editProfile = (e) => {
+    e.preventDefault();
+    return toast("Edit profile clicked!!");
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex h-4/5 justify-center items-center">
@@ -44,10 +51,11 @@ const Profile = () => {
                 </div>
               );
             })}
+          <button onClick={editProfile}>Edit Profile</button>
         </form>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default InstituteProfile;

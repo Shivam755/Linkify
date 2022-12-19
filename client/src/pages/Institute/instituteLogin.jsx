@@ -2,32 +2,38 @@ import Axios from "axios";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { updateToast } from "../../utilities/toastify";
 
-const InstituteLogin = () => {
-  const [currentId, setCurrentId] = useState(window.ethereum.selectedAddress);
+const InstituteLogin = ({ drizzle, drizzleState }) => {
+  const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const navigate = useNavigate();
 
   const updatePassword = (e) => {
     setPassword(e.target.value);
   };
   const Login = async (e) => {
+    const id = toast.loading("Logging in!!");
     e.preventDefault();
+    const { Account } = drizzle.contracts;
+    let hash = await Account.methods.institData().call();
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/login",
       {
-        address: currentId,
+        hash: hash,
         type: "Institute",
         password: password,
       }
     );
     if (result.data.status === "Success") {
+      updateToast(id, "Login Successful!!", "success");
       console.log(result.data.auth);
       sessionStorage.setItem("authToken", JSON.stringify(result.data.auth));
       navigate("/dashboard/Institute");
     } else {
-      alert("Login failed!!");
+      updateToast(id, "Login failed!!", "error");
     }
   };
 

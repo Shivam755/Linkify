@@ -2,6 +2,8 @@ import Axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { isAddress } from "ethereum-address";
+import { toast } from "react-toastify";
+import { updateToast } from "../../utilities/toastify";
 
 const InstituteSignup = ({ drizzle, drizzleState }) => {
   const [name, setName] = useState("");
@@ -38,19 +40,26 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
 
   // create a new user!
   const saveData = async (e) => {
+    const id = toast.loading("Creating account!!");
     e.preventDefault();
     if (differenPassword) {
-      alert("Password and confirm Password don't match!!!");
+      // alert("Password and confirm Password don't match!!!");
+      updateToast(
+        id,
+        "Password and confirm Password don't match!!!",
+        "warning"
+      );
       return;
     }
     if (!isAddress(ceoId)) {
-      alert("Invalid CEO wallet ID");
+      updateToast(id, "Invalid CEO wallet ID", "warning");
+      // alert("Invalid CEO wallet ID");
       return;
     }
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/Institute/createUser",
       {
-        metamaskId: window.ethereum.selectedAddress,
+        metamaskId: drizzleState.accounts[0],
         name: name,
         ceoId: ceoId,
         instituteType: type,
@@ -69,12 +78,13 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
           from: drizzleState.accounts[0],
         });
         setStackId(temp);
-        alert(result.data.message);
+        updateToast(id, result.data.message, "success");
+        // alert(result.data.message);
       } catch (err) {
         console.log(err);
       }
     } else {
-      alert(result.data.message);
+      updateToast(id, result.data.message, "error");
     }
   };
 
