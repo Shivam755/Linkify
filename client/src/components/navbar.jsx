@@ -9,7 +9,7 @@ import {
   initValue,
 } from "../utilities/navSlice";
 import { tokenKey, deleteToken } from "../utilities/tokenSlice";
-import Logout from "../assets/logout.png";
+import { LogOut } from "react-feather";
 
 let updateNav;
 
@@ -86,7 +86,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
             onClick={logout}
             className="h-10 w-10 p-3 mx-3 neumorphism-plain"
           >
-            <img className="h-6 w-6" src={Logout} />
+            <LogOut className="h-6 w-6" />
           </button>
         </div>
       )}

@@ -2,6 +2,7 @@ import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { IndivProfileOptions } from "../../utilities/defaultValues";
 import { tokenKey } from "../../utilities/tokenSlice";
 
 const IndividualProfile = ({ drizzle }) => {
@@ -42,12 +43,17 @@ const IndividualProfile = ({ drizzle }) => {
           <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
           {res !== null &&
             Object.keys(res).map((keyName, keyIndex) => {
+              console.log(keyName + " " + IndivProfileOptions);
+              console.log(keyName in IndivProfileOptions);
+              if (!IndivProfileOptions.includes(keyName)) {
+                return;
+              }
               return (
                 <div className="m-1 flex items-center justify-between">
                   {keyName.charAt(0).toUpperCase() + keyName.slice(1)}:
                   <input
                     type="text"
-                    className="m-1 neumorphism-pressed px-4 py-2"
+                    className="m-1 px-4 py-2"
                     value={res[keyName]}
                     placeholder={keyName}
                     disabled
@@ -56,11 +62,17 @@ const IndividualProfile = ({ drizzle }) => {
               );
             })}
           <Link
+            className="neumorphism-plain px-5 py-3 m-2"
             to={"/Individual/updateProfile/" + window.ethereum.selectedAddress}
           >
             Edit Profile
           </Link>
-          <button onClick={changePassword}>Change Password</button>
+          <button
+            className="neumorphism-plain px-5 py-3 m-2"
+            onClick={changePassword}
+          >
+            Change Password
+          </button>
         </form>
       </div>
     </div>

@@ -56,7 +56,7 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
         navigate("/dashboard/Individual");
       } else {
         // alert("Login failed!!");
-        updateToast(id, "Login Failed!!", "error");
+        updateToast(id, result.data.msg, "error");
       }
     } catch (err) {
       updateToast(

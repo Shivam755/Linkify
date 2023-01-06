@@ -11,4 +11,12 @@ let qualifications = [
   "Phd",
 ];
 
-export { qualifications };
+let IndivProfileOptions = [
+  "metamaskId",
+  "name",
+  "birthDate",
+  "qualification",
+  "designation",
+];
+
+export { qualifications, IndivProfileOptions };

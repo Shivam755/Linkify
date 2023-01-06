@@ -36,99 +36,6 @@ app.post("/verifySignature", (req, res) => {
   });
 });
 
-app.post("/api/checkId", async (req, res) => {
-  let address = req.body.address;
-  let type = req.body.type;
-  if (!validTypes.includes(type)) {
-    res.send({
-      status: "Failed!",
-      msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
-    });
-  }
-  try {
-    // const collection = nodeApp.collection(type);
-    // const result = await collection
-    //   .findOne({ metamaskId: address })
-    // .catch((err) =>
-    //   res.status(500).send({
-    //     status: "Failed!",
-    //     msg: "Couldn't connect to database!!",
-    //   })
-    // );
-    // console.log(client);
-    // const result = await client
-    //   .then(async () => {
-    //     let res;
-    //     if (type === validTypes[0]) {
-    //       res = await Individual.findOne({ metamaskId: address });
-    //     } else {
-    //       res = await Institute.findOne({ metamaskId: address });
-    //     }
-    //     return res;
-    //   })
-    //   .catch((err) =>
-    //     res.status(500).send({
-    //       status: "Failed!",
-    //       msg: "Couldn't connect to database!!",
-    //     })
-    //   );
-    let result;
-    if (type === validTypes[0]) {
-      result = await Individual.findOne({ metamaskId: address });
-    } else {
-      result = await Institute.findOne({ metamaskId: address });
-    }
-    // console.log(result);
-    if (result) {
-      return res.send({
-        Existing: true,
-      });
-    }
-    return res.send({
-      Existing: false,
-    });
-  } catch (err) {
-    res.send({
-      status: "Failed!",
-      msg: err,
-    });
-  }
-});
-
-app.post("/api/getName", async (req, res) => {
-  let address = req.body.address;
-  let type = req.body.type;
-  if (!validTypes.includes(type)) {
-    res.send({
-      msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
-    });
-  }
-  try {
-    const collection = nodeApp.collection(type);
-    const result = await collection.findOne({ metamaskId: address });
-    // .then(res => res.json())
-    // .catch((err) => {
-    //   console.log(err);
-    //   res.status(500).send({
-    //     msg: "Couldn't connect to database!!",
-    //   });
-    // });
-    console.log(result.password);
-    if (result) {
-      return res.send({
-        name: result.name,
-      });
-    }
-    return res.send({
-      msg: "No Account exists with the given wallet ID",
-    });
-  } catch (err) {
-    res.send({
-      msg: err,
-    });
-  }
-});
-
 app.post("/api/login", async (req, res) => {
   let hash = req.body.hash;
   let type = req.body.type;
@@ -216,6 +123,7 @@ app.post("/api/login", async (req, res) => {
 //     });
 //   }
 // });
+
 app.post("/api/profile", async (req, res) => {
   let type = req.body.type;
   let hash = req.body.hash;
@@ -229,13 +137,13 @@ app.post("/api/profile", async (req, res) => {
     let result;
     if (type === validTypes[0]) {
       result = await Individual.findOne({ _id: hash });
-      if (result) {
-        return res.send({
-          profile: result,
-        });
-      }
     } else {
       result = await Institute.findOne({ _id: hash });
+    }
+    if (result) {
+      return res.send({
+        profile: result,
+      });
     }
     console.log(result);
 
@@ -250,23 +158,35 @@ app.post("/api/profile", async (req, res) => {
   }
 });
 
-// app.post("/api/logout", (req, res) => {
-//   req.session.destroy((err) => {
-//     if (err) {
-//       return res.send({
-//         msg: "Error logging out",
-//         err: err,
-//         status: "Failed",
-//       });
-//     }
-//     return res.send({
-//       status: "Success",
-//       msg: "Successfully Logged out!!",
-//     });
-//   });
-// });
+app.post("/api/changePassword", async (req, res) => {
+  let type = req.body.type;
+  let hash = req.body.hash;
+  if (!validTypes.includes(type)) {
+    res.send({
+      msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+    });
+  }
+  try {
+    let result;
+    if (type === validTypes[0]) {
+      result = await Individual.findOne({ _id: hash });
+    } else {
+      result = await Institute.findOne({ _id: hash });
+    }
+    if (!result) {
+      return res.send({
+        msg: "No Account exists with the given wallet ID",
+      });
+    }
+    console.log(result);
+  } catch (err) {
+    console.log(err);
+    res.send({
+      msg: "some error occured!!",
+    });
+  }
+});
 
-//IndividualUser
 app.post("/api/Individual/createUser", async (req, res) => {
   try {
     // console.log(req.body);
@@ -383,7 +303,6 @@ app.post("/api/Individual/updateUser", async (request, response) => {
       });
     }
     let result = await Individual.findOne({ _id: request.body._id });
-    console.log(request.body);
     let body = {
       metamaskId: request.body.metamaskId,
       name: request.body.name,
@@ -399,8 +318,10 @@ app.post("/api/Individual/updateUser", async (request, response) => {
 
     result = await Individual.create({ _id: digest, ...body });
     result = await result.save();
-    // return result;
-    console.log(result);
+    await Individual.updateOne(
+      { _id: digest },
+      { password: request.body.password }
+    );
     response.send({
       status: "Success",
       message: "User Updated successfully!!",
