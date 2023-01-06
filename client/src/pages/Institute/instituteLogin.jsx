@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
+import { setToken } from "../../utilities/tokenSlice";
+import { institLogin } from "../../utilities/navSlice";
 
 const InstituteLogin = ({ drizzle, drizzleState }) => {
   const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
@@ -30,7 +32,8 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
     if (result.data.status === "Success") {
       updateToast(id, "Login Successful!!", "success");
       console.log(result.data.auth);
-      sessionStorage.setItem("authToken", JSON.stringify(result.data.auth));
+      setToken(result.data.auth);
+      institLogin();
       navigate("/dashboard/Institute");
     } else {
       updateToast(id, "Login failed!!", "error");

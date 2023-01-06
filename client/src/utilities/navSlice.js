@@ -1,5 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
-
+const navKey = "navSlice";
 const noLogin = [
   { text: "Home", link: "/" },
   { text: "Institute login/signup", link: "/Institute" },
@@ -9,26 +8,45 @@ const Individual = [{ text: "DashBoard", link: "/dashboard/Individual" }];
 
 const Institute = [{ text: "Dashboard", link: "/dashboard/Institute" }];
 
-export const navSlice = createSlice({
-  name: "nav",
-  initialState: {
-    value: noLogin,
-  },
-  reducers: {
-    institLogin: (state) => {
-      state.value = Institute;
-    },
-    indivLogin: (state) => {
-      console.log("indivLogin");
-      state.value = Individual;
-    },
-    logout: (state) => {
-      state.value = noLogin;
-    },
-  },
-});
+const institLogin = () => {
+  sessionStorage.setItem(navKey, JSON.stringify(Institute));
+};
+const indivLogin = () => {
+  sessionStorage.setItem(navKey, JSON.stringify(Individual));
+};
 
-// Action creators are generated for each case reducer function
-export const { institLogin, indivLogin, logout } = navSlice.actions;
+const initValue = () => {
+  // let value = JSON.parse(sessionStorage.getItem(navKey));
+  // if (!value) {
+  //   sessionStorage.setItem(navKey, JSON.stringify(noLogin));
+  // }
+  sessionStorage.setItem(navKey, JSON.stringify(noLogin));
+};
 
-export default navSlice.reducer;
+export { navKey, institLogin, indivLogin, initValue };
+
+// import { createSlice } from "@reduxjs/toolkit";
+
+// export const navSlice = createSlice({
+//   name: "nav",
+//   initialState: {
+//     value: noLogin,
+//   },
+//   reducers: {
+//     institLogin: (state) => {
+//       state.value = Institute;
+//     },
+//     indivLogin: (state) => {
+//       console.log("indivLogin");
+//       state.value = Individual;
+//     },
+//     logout: (state) => {
+//       state.value = noLogin;
+//     },
+//   },
+// });
+
+// // Action creators are generated for each case reducer function
+// export const { institLogin, indivLogin, logout } = navSlice.actions;
+
+// export default navSlice.reducer;

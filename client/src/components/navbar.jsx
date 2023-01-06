@@ -1,12 +1,37 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import Axios from "axios";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  navKey,
+  indivLogin,
+  institLogin,
+  initValue,
+} from "../utilities/navSlice";
+import { tokenKey, deleteToken } from "../utilities/tokenSlice";
+import Logout from "../assets/logout.png";
+
+let updateNav;
 
 const NavBar = ({ drizzle, drizzleState }) => {
-  let links = useSelector((state) => state.navSlice.value);
-  let token = useSelector((state) => state.tokenSlice.value);
+  const [links, setLinks] = useState(
+    JSON.parse(sessionStorage.getItem(navKey))
+  );
+  let token = JSON.parse(sessionStorage.getItem(tokenKey));
   const [res, setRes] = useState(null);
+  const navigate = useNavigate();
+
+  updateNav = (type) => {
+    if (type === "Individual") {
+      indivLogin();
+    } else if (type === "Institute") {
+      institLogin();
+    } else {
+      initValue();
+      setRes(null);
+    }
+    setLinks(JSON.parse(sessionStorage.getItem(navKey)));
+  };
 
   const fetchdata = async () => {
     const { Account } = drizzle.contracts;
@@ -31,6 +56,15 @@ const NavBar = ({ drizzle, drizzleState }) => {
   if (token !== null && res === null) {
     fetchdata();
   }
+
+  const logout = () => {
+    deleteToken();
+    token = null;
+    updateNav();
+    navigate("/");
+    toast.success("Logout successful!!");
+  };
+
   // console.log(links);
   return (
     <ul className="list-none flex justify-around items-center m-5 p-5 w-9/10 neumorphism-pressed">
@@ -41,17 +75,24 @@ const NavBar = ({ drizzle, drizzleState }) => {
       ))}
 
       {res !== null && (
-        <li>
+        <div className="flex flex-row items-center justify-center">
           <Link
             to={"/Individual/profile/" + drizzleState.accounts[0]}
             className="py-3 px-5 neumorphism-plain"
           >
             {res.profile.name}
           </Link>
-        </li>
+          <button
+            onClick={logout}
+            className="h-10 w-10 p-3 mx-3 neumorphism-plain"
+          >
+            <img className="h-6 w-6" src={Logout} />
+          </button>
+        </div>
       )}
     </ul>
   );
 };
 
 export default NavBar;
+export { updateNav };

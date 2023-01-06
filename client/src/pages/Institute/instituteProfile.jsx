@@ -1,13 +1,13 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { tokenKey } from "../../utilities/tokenSlice";
 
 const InstituteProfile = () => {
   const [res, setRes] = useState(null);
   let { id } = useParams();
-  let token = useSelector((state) => state.tokenSlice.value);
+  let token = JSON.parse(sessionStorage.getItem(tokenKey));
   useEffect(() => {
     const fetchdata = async () => {
       let result = await Axios.post(

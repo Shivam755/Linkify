@@ -4,13 +4,14 @@ const bcrypt = require("bcrypt");
 const SALT_WORK_FACTOR = 10;
 const Individual = new mongoose.Schema({
   _id: { type: String, required: true },
-  metamaskId: String,
-  name: String,
-  birthDate: Date,
-  qualification: String,
-  designation: String,
-  password: String,
+  metamaskId: { type: String, required: true },
+  name: { type: String, required: true },
+  birthDate: { type: Date, required: true },
+  qualification: { type: String, required: true },
+  designation: { type: String, required: true },
+  password: { type: String, required: true },
   documentList: [String],
+  prevId: { type: String, required: true },
 });
 
 Individual.pre("save", function (next) {

@@ -24,23 +24,24 @@ const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
           process.env.REACT_APP_SERVER_HOST + "/nonce"
         );
         const nonce = data.data.nonce;
-
+        console.log(drizzleState.accounts);
         //Asking user to sign nonce
         const sig = await window.ethereum.request({
           method: "personal_sign",
-          params: [`0x${toHex(nonce)}`, drizzleState.accounts[0]],
+          params: [`0x${toHex(nonce)}`, window.ethereum.selectedAddress],
         });
 
+        console.log(drizzleState.accounts);
         //Verifying signature
         data = await Axios.post(
           process.env.REACT_APP_SERVER_HOST + "/verifySignature",
           {
-            address: drizzleState.accounts[0],
+            address: window.ethereum.selectedAddress,
             ogNonce: nonce,
             signature: sig,
           }
         );
-
+        console.log(data.data);
         if (data.data.verified) {
           updateToast(id, "Signature Verified!!!", "success");
 

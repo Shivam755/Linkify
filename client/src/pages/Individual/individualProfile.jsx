@@ -1,13 +1,13 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { tokenKey } from "../../utilities/tokenSlice";
 
 const IndividualProfile = ({ drizzle }) => {
   const [res, setRes] = useState(null);
   // let { id } = useParams();
-  let token = useSelector((state) => state.tokenSlice.value);
+  let token = JSON.parse(sessionStorage.getItem(tokenKey));
   useEffect(() => {
     const fetchdata = async () => {
       const { Account } = drizzle.contracts;
@@ -30,9 +30,9 @@ const IndividualProfile = ({ drizzle }) => {
     fetchdata();
   }, []);
 
-  const editProfile = (e) => {
+  const changePassword = (e) => {
     e.preventDefault();
-    return toast("Edit profile clicked!!");
+    return toast("Change password clicked!!");
   };
 
   return (
@@ -55,7 +55,12 @@ const IndividualProfile = ({ drizzle }) => {
                 </div>
               );
             })}
-          <button onClick={editProfile}>Edit Profile</button>
+          <Link
+            to={"/Individual/updateProfile/" + window.ethereum.selectedAddress}
+          >
+            Edit Profile
+          </Link>
+          <button onClick={changePassword}>Change Password</button>
         </form>
       </div>
     </div>

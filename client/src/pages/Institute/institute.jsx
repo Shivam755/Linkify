@@ -2,6 +2,7 @@ import MetamaskConnect from "../../components/MetamaskConnect";
 import React from "react";
 
 const Institute = ({ drizzle, drizzleState }) => {
+  console.log(drizzleState);
   return (
     <div className="h-screen">
       <div className="flex h-4/5 justify-center  items-center">

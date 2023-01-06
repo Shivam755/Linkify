@@ -18,7 +18,8 @@ import InstituteSignup from "./pages/Institute/instituteSignup";
 import InstituteLogin from "./pages/Institute/instituteLogin";
 import Dashboard from "./pages/dashboard";
 import IndividualProfile from "./pages/Individual/individualProfile";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
+import IndividualUpdateProfile from "./pages/Individual/individualUpdateProfile";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -33,8 +34,6 @@ const drizzleOptions = {
 
 function App() {
   const drizzle = new Drizzle(drizzleOptions);
-  // const drizzle = useSelector((state) => state.drizzleSlice.value);
-  console.log(drizzle);
   const [loading, setLoading] = useState(false);
   const [metaConnect, setMetaConnect] = useState(false);
   let reason;
@@ -67,7 +66,6 @@ function App() {
       <DrizzleContext.Consumer>
         {(drizzleContext) => {
           const { drizzle, drizzleState, initialized } = drizzleContext;
-
           if (!initialized) {
             return <Loading />;
           } else if (!metaConnect) {
@@ -78,6 +76,7 @@ function App() {
               </div>
             );
           }
+
           return (
             <BrowserRouter>
               <div>
@@ -91,7 +90,12 @@ function App() {
                   <Route
                     path="/Individual"
                     exact
-                    element={<Individual drizzle={drizzle} />}
+                    element={
+                      <Individual
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
                   />
                   <Route
                     path="/Individual/signUp"
@@ -121,7 +125,25 @@ function App() {
                       />
                     }
                   />
-                  <Route path="/Institute" exact element={<Institute />} />
+                  <Route
+                    path="/Individual/updateProfile/:id"
+                    element={
+                      <IndividualUpdateProfile
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Institute"
+                    exact
+                    element={
+                      <Institute
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
                   <Route
                     path="/Institute/signup"
                     element={

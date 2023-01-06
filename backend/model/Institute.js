@@ -1,16 +1,17 @@
-const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-
+const SALT_WORK_FACTOR = 10;
 const Institute = new mongoose.Schema({
-  _id: { type: ObjectId, required: true },
-  metamaskId: String,
-  name: String,
-  birthDate: Date,
-  ceoId: String,
-  instituteType: String,
+  _id: { type: String, required: true },
+  metamaskId: { type: String, required: true },
+  name: { type: String, required: true },
+  foundationDate: { type: Date, required: true },
+  ceoId: { type: String, required: true },
+  instituteType: { type: String, required: true },
   roles: [String],
-  password: String,
+  password: { type: String, required: true },
+  location: { type: mongoose.Schema.Types.Map, required: true },
+  prevId: { type: String, required: true },
 });
 
 Institute.pre("save", function (next) {

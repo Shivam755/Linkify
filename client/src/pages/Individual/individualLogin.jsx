@@ -2,18 +2,17 @@ import Axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { indivLogin } from "../../utilities/navSlice";
+import { updateNav } from "../../components/navbar";
 import { setToken } from "../../utilities/tokenSlice";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 
 const IndividualLogin = ({ drizzle, drizzleState }) => {
-  const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
+  // console.log(drizzleState);
+  const [currentId, setCurrentId] = useState(window.ethereum.selectedAddress);
   const [password, setPassword] = useState("");
   // const [name, setName] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   // console.log(drizzleState);
 
   // useEffect(async () => {
@@ -36,31 +35,38 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
     e.preventDefault();
 
     const { Account } = drizzle.contracts;
+    console.log(window.ethereum.selectedAddress);
     let hash = await Account.methods.indivData().call();
-    // console.log(hash.slice(2));
-    let result = await Axios.post(
-      process.env.REACT_APP_SERVER_HOST + "/api/login",
-      {
-        hash: hash.slice(2),
-        type: "Individual",
-        password: password,
+    console.log(hash);
+    try {
+      let result = await Axios.post(
+        process.env.REACT_APP_SERVER_HOST + "/api/login",
+        {
+          hash: hash.slice(2),
+          type: "Individual",
+          password: password,
+        }
+      );
+      console.log(result);
+      if (result.data.status === "Success") {
+        updateToast(id, "Login successful!!", "success");
+        console.log(result.data.auth);
+        updateNav("Individual");
+        setToken(result.data.auth);
+        navigate("/dashboard/Individual");
+      } else {
+        // alert("Login failed!!");
+        updateToast(id, "Login Failed!!", "error");
       }
-    );
-    // console.log(result);
-    if (result.data.status === "Success") {
-      updateToast(id, "Login successful!!", "success");
-      console.log(result.data.auth);
-      dispatch(setToken(result.data.auth));
-      // sessionStorage.setItem("authToken", JSON.stringify(result.data.auth));
-      // console.log(indivLogin);
-      dispatch(indivLogin());
-      navigate("/dashboard/Individual");
-    } else {
-      // alert("Login failed!!");
-      updateToast(id, "Login Failed!!", "error");
+    } catch (err) {
+      updateToast(
+        id,
+        "There's some issue while logging in. Please try again",
+        "error"
+      );
+      console.log(err);
     }
   };
-
   // useEffect(() => {
   //   setCurrentId(window.ethereum.selectedAddress);
   // }, [drizzleState]);

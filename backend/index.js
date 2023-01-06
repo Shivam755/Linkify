@@ -8,6 +8,7 @@ const { toHex, validateIndividualJson } = require("./utilities");
 const passport = require("./middlewares/auth");
 const Individual = require("./model/Individual");
 const Institute = require("./model/Institute");
+// const { request } = require("http");
 
 const port = 3002;
 const validTypes = ["Individual", "Institute"];
@@ -30,9 +31,8 @@ app.post("/verifySignature", (req, res) => {
     data: `0x${toHex(ogNonce)}`,
     signature: sig,
   });
-
   return res.send({
-    verified: verifiedNonce === address,
+    verified: verifiedNonce === address.toLowerCase(),
   });
 });
 
@@ -231,28 +231,13 @@ app.post("/api/profile", async (req, res) => {
       result = await Individual.findOne({ _id: hash });
       if (result) {
         return res.send({
-          profile: {
-            metamaskId: result.metamaskId,
-            name: result.name,
-            birthDate: result.birthDate,
-            qualification: result.qualification,
-            designation: result.designation,
-          },
+          profile: result,
         });
       }
     } else {
       result = await Institute.findOne({ _id: hash });
     }
     console.log(result);
-    // const result = await collection
-    //   .findOne({ metamaskId: address })
-    //   // .then(res => res.json())
-    //   .catch((err) => {
-    //     console.log(err);
-    //     res.status(500).send({
-    //       msg: "Couldn't connect to database!!",
-    //     });
-    //   });
 
     return res.send({
       msg: "No Account exists with the given wallet ID",
@@ -304,6 +289,7 @@ app.post("/api/Individual/createUser", async (req, res) => {
       designation: req.body.designation,
       password: req.body.password,
       documentList: req.body.documentList,
+      prevId: "0".repeat(64),
     };
     //Calculating the hash
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
@@ -335,35 +321,94 @@ app.post("/api/Individual/createUser", async (req, res) => {
   }
 });
 
-//Institutes
-app.post("/api/Institute/createUser", async (req, res) => {
+app.post("/api/Institute/createUser", async (request, response) => {
   try {
-    // console.log(req.body);
-    // const data=req.body;
+    // console.log(request.body);
+    // const data=request.body;
     //Validation
-    const error = validateIndividualJson(req.body);
+    const error = validateIndividualJson(request.body);
 
     if (error) {
-      res.send({
+      response.send({
         status: "Failed",
         message: "Sent data is not valid!",
       });
     }
-
+    let body = {
+      metamaskId: request.body.metamaskId,
+      name: request.body.name,
+      foundationDate: request.body.foundationDate,
+      ceoId: request.body.ceoId,
+      instituteType: request.body.instituteType,
+      roles: request.body.roles,
+      password: request.body.password,
+      location: request.body.location,
+      prevId: "0".repeat(64),
+    };
     //Calculating the hash
-    let digest = hash("sha256").update(JSON.stringify(req.body)).digest("hex");
-    req.body.password = hash("sha512").update(req.body.password).digest("hex");
+    let digest = hash("sha256")
+      .update(JSON.stringify(request.body))
+      .digest("hex");
+    // req.body.password = hash("sha512").update(req.body.password).digest("hex");
     //Saving it in mongo db
-    const Individual = nodeApp.collection("Institute");
-    await Individual.insertOne({ _id: digest, ...req.body });
-    res.send({
+    // const Individual = nodeApp.collection("Institute");
+    // await Individual.insertOne({ _id: digest, ...req.body });
+    let result = await Institute.create({ _id: digest, ...body });
+    result = await result.save();
+    // return result;
+    console.log(result);
+    response.send({
       status: "Success",
       message: "User Created successfully!!",
       hash: digest,
     });
   } catch (err) {
     console.log(err);
-    res.send({
+    response.send({
+      status: "Failed!!",
+      message: err,
+    });
+  }
+});
+
+app.post("/api/Individual/updateUser", async (request, response) => {
+  try {
+    //Validation
+    const error = validateIndividualJson(request.body);
+
+    if (error) {
+      response.send({
+        status: "Failed",
+        message: "Sent data is not valid!",
+      });
+    }
+    let result = await Individual.findOne({ _id: request.body._id });
+    console.log(request.body);
+    let body = {
+      metamaskId: request.body.metamaskId,
+      name: request.body.name,
+      birthDate: request.body.birthDate,
+      qualification: request.body.qualification,
+      designation: request.body.designation,
+      password: request.body.password,
+      documentList: request.body.documentList,
+      prevId: request.body._id,
+    };
+    //Calculating the hash
+    let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
+
+    result = await Individual.create({ _id: digest, ...body });
+    result = await result.save();
+    // return result;
+    console.log(result);
+    response.send({
+      status: "Success",
+      message: "User Updated successfully!!",
+      hash: digest,
+    });
+  } catch (err) {
+    console.log(err);
+    response.send({
       status: "Failed!!",
       message: err,
     });

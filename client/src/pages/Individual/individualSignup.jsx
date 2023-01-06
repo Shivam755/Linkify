@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
+import { qualifications } from "../../utilities/defaultValues";
 
 // import { numStringToBytes32 } from "../utilities/bytes32";
 
-const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
+const IndividualSignUp = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [qualification, setQualification] = useState("");
@@ -17,18 +18,6 @@ const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
   // const [differenPassword, setDifferentPassword] = useState(false);
   const [dob, setDOB] = useState();
   const [stackId, setStackId] = useState();
-  let qualifications = [
-    "Select a value",
-    "Not admitted yet",
-    "Pre-primary",
-    "Primary",
-    "Secondary",
-    "Higher Secondary",
-    "Graduation",
-    "Diploma",
-    "Post-Graduation",
-    "Phd",
-  ];
 
   // update states
   const updateQualification = (e) => {
@@ -54,9 +43,7 @@ const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
   const saveData = async (e) => {
     e.preventDefault();
     const id = toast.loading("Creating user!");
-    updateLoading(true, "Processing...");
     if (password !== confirmPassword) {
-      updateLoading(false);
       // alert("Password and confirm Password don't match!!!");
       updateToast(
         id,
@@ -92,18 +79,16 @@ const IndividualSignUp = ({ drizzle, drizzleState, updateLoading }) => {
         setStackId(temp);
 
         // await checkStatus();
-        updateLoading(false);
         // alert("User created Successfully!!");
         updateToast(id, "User created Successfully!", "success");
         navigate("/Individual/login");
         // alert(result.data.message);
       } catch (err) {
         console.log(err);
-        updateLoading(false);
+        updateToast(id, err, "error");
       }
     } else {
-      updateLoading(false);
-      alert(result.data.status);
+      updateToast(id, result.data.status, "info");
     }
   };
 
