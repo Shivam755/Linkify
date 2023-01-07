@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import { setToken } from "../../utilities/tokenSlice";
-import { institLogin } from "../../utilities/navSlice";
+import { updateNav } from "../../components/navbar";
 
 const InstituteLogin = ({ drizzle, drizzleState }) => {
   const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
@@ -24,16 +24,17 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/login",
       {
-        hash: hash,
+        hash: hash.slice(2),
         type: "Institute",
         password: password,
       }
     );
+    console.log(result);
     if (result.data.status === "Success") {
       updateToast(id, "Login Successful!!", "success");
       console.log(result.data.auth);
       setToken(result.data.auth);
-      institLogin();
+      updateNav("Institute");
       navigate("/dashboard/Institute");
     } else {
       updateToast(id, "Login failed!!", "error");

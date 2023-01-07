@@ -17,15 +17,19 @@ const NavBar = ({ drizzle, drizzleState }) => {
   const [links, setLinks] = useState(
     JSON.parse(sessionStorage.getItem(navKey))
   );
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
   const [res, setRes] = useState(null);
+  const [type, setType] = useState(null);
   const navigate = useNavigate();
+  let token = JSON.parse(sessionStorage.getItem(tokenKey));
 
-  updateNav = (type) => {
-    if (type === "Individual") {
+  updateNav = (updateType = null) => {
+    setType(updateType);
+    if (updateType === "Individual") {
       indivLogin();
-    } else if (type === "Institute") {
+      fetchdata(updateType);
+    } else if (updateType === "Institute") {
       institLogin();
+      fetchdata(updateType);
     } else {
       initValue();
       setRes(null);
@@ -33,28 +37,32 @@ const NavBar = ({ drizzle, drizzleState }) => {
     setLinks(JSON.parse(sessionStorage.getItem(navKey)));
   };
 
-  const fetchdata = async () => {
+  const fetchdata = async (type) => {
+    let hash;
     const { Account } = drizzle.contracts;
-    let hash = await Account.methods.indivData().call();
-    // console.log(Account);
-    // console.log(hash);
+    if (type === "Individual") {
+      hash = await Account.methods.indivData().call();
+    } else {
+      hash = await Account.methods.institData().call();
+    }
+
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/profile",
       {
         hash: hash.slice(2),
-        type: "Individual",
+        type: type,
       },
       {
         authorization: token,
       }
     ).catch((err) => console.log(err));
-    console.log(result);
     setRes(result.data);
-    // console.log(result);
   };
 
-  if (token !== null && res === null) {
-    fetchdata();
+  if (token !== null && res === null && type !== null) {
+    fetchdata(type);
+  } else if (token === null && links === null) {
+    updateNav();
   }
 
   const logout = () => {
@@ -65,7 +73,6 @@ const NavBar = ({ drizzle, drizzleState }) => {
     toast.success("Logout successful!!");
   };
 
-  // console.log(links);
   return (
     <ul className="list-none flex justify-around items-center m-5 p-5 w-9/10 neumorphism-pressed">
       {links.map((e) => (
@@ -77,7 +84,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
       {res !== null && (
         <div className="flex flex-row items-center justify-center">
           <Link
-            to={"/Individual/profile/" + drizzleState.accounts[0]}
+            to={"/" + type + "/profile"}
             className="py-3 px-5 neumorphism-plain"
           >
             {res.profile.name}

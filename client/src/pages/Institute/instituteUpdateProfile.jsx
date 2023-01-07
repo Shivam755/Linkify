@@ -1,89 +1,86 @@
 import React, { useEffect, useState } from "react";
+import { isAddress } from "ethereum-address";
 import { toast } from "react-toastify";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { updateToast } from "../../utilities/toastify";
-import { qualifications } from "../../utilities/defaultValues";
 import Loading from "../../components/loading";
+import { InstituteTypes } from "../../utilities/defaultValues";
 import { tokenKey } from "../../utilities/tokenSlice";
 
-const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
+const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [name, setName] = useState("");
-  const [qualification, setQualification] = useState("");
-  const [designation, setDesignation] = useState("");
+  const [institType, setInstitType] = useState("");
+  const [ceoId, setCeoId] = useState("");
   const [stackId, setStackId] = useState();
   const navigate = useNavigate();
   let hash;
   let token = JSON.parse(sessionStorage.getItem(tokenKey));
-  // update states
-  const updateQualification = (e) => {
-    setQualification(e.target.value);
-  };
+
   const updateName = (e) => {
     setName(e.target.value);
   };
-  const updateDesignation = (e) => {
-    setDesignation(e.target.value);
+
+  const updateInstitType = (e) => {
+    setInstitType(e.target.value);
   };
+  const updateCeoId = (e) => {
+    setCeoId(e.target.value);
+  };
+
   useEffect(() => {
     const fetchdata = async () => {
       console.log(drizzle.contracts.Account.methods);
       const Account = drizzle.contracts.Account;
       // console.log(Account);
-      hash = await Account.methods.indivData().call();
+      hash = await Account.methods.institData().call();
       console.log(hash);
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/profile",
         {
           hash: hash.slice(2),
-          type: "Individual",
+          type: "Institute",
         },
         {
           authorization: token,
         }
       ).catch((err) => console.log(err));
+      console.log(result.data.profile);
       setRes(result.data.profile);
       //updating values on successful fetch
       setName(result.data.profile.name);
-      setDesignation(result.data.profile.designation);
-      setQualification(result.data.profile.qualification);
+      setInstitType(result.data.profile.instituteType);
+      setCeoId(result.data.profile.ceoId);
       console.log(result);
     };
     fetchdata();
   }, []);
 
-  //checking if data is fetched
   if (res === null) {
     return <Loading />;
   }
-
   const saveChanges = async (e) => {
     e.preventDefault();
     const id = toast.loading("Updating profile!");
-    if (
-      !(
-        name !== res.name ||
-        qualification !== res.qualification ||
-        designation !== res.designation
-      )
-    ) {
-      updateToast(id, "No changes were made", "info");
-      return navigate("/Individual/profile");
+    if (!isAddress(ceoId)) {
+      updateToast(id, "Invalid CEO wallet ID", "warning");
+      // alert("Invalid CEO wallet ID");
+      return;
     }
-
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/updateUser",
       {
-        type: "Individual",
+        type: "Institute",
         _id: res._id,
         metamaskId: drizzleState.accounts[0],
         name: name,
-        birthDate: res.birthDate,
-        qualification: qualification,
-        designation: designation,
+        ceoId: ceoId,
+        instituteType: institType,
+        foundationDate: res.foundationDate,
         password: res.password,
-        documentList: res.documentList,
+        roles: res.roles,
+        location: res.location,
       }
     );
     console.log(result);
@@ -94,7 +91,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
       try {
         console.log(drizzle);
         const { Account } = drizzle.contracts;
-        let temp = Account.methods["updateIndivData"].cacheSend(hash, {
+        let temp = Account.methods["updateInstitData"].cacheSend(hash, {
           from: drizzleState.accounts[0],
         });
         console.log(temp);
@@ -103,7 +100,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
         // await checkStatus();
         // alert("User created Successfully!!");
         updateToast(id, "User updated Successfully!", "success");
-        navigate("/Individual/profile/");
+        navigate("/Institute/profile/");
         // alert(result.data.message);
       } catch (err) {
         console.log(err);
@@ -113,7 +110,6 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
       updateToast(id, result.data.msg, "error");
     }
   };
-
   return (
     <div className="flex flex-col h-screen">
       <div className="flex h-4/5 justify-center items-center">
@@ -131,33 +127,33 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
               required
             />
           </div>
-          {/* Qualification */}
+          {/* InstituteType */}
           <div className="m-1 flex items-center justify-between">
-            Qualification:
+            Institution Type:
             <select
               className="m-1 neumorphism-pressed px-4 py-2"
-              name="qualification"
-              onChange={updateQualification}
+              name="institType"
+              onChange={updateInstitType}
               required
             >
-              {qualifications.map((e) => {
+              {InstituteTypes.map((e) => {
                 return (
-                  <option key={e} selected={e === qualification ? true : false}>
+                  <option key={e} selected={e === institType ? true : false}>
                     {e}
                   </option>
                 );
               })}
             </select>
           </div>
-          {/* Designation */}
+          {/* Ceo Id */}
           <div className="m-1 flex items-center justify-between">
-            Designation:
+            Ceo Id:
             <input
               type="text"
               className="m-1 neumorphism-pressed px-4 py-2"
-              placeholder="Designation"
-              value={designation}
-              onChange={updateDesignation}
+              value={ceoId}
+              placeholder="0x9802..."
+              onChange={updateCeoId}
               required
             />
           </div>
@@ -173,4 +169,4 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   );
 };
 
-export default IndividualUpdateProfile;
+export default InstituteUpdateProfile;

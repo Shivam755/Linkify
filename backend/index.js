@@ -4,7 +4,11 @@ const { recoverPersonalSignature } = require("@metamask/eth-sig-util");
 // const nodeApp = require("./clientConnect").client.db("NodeApp");
 const client = require("./mongoDbConnect");
 const { app } = require("./expressSetup");
-const { toHex, validateIndividualJson } = require("./utilities");
+const {
+  toHex,
+  validateIndividualJson,
+  validateInstituteJson,
+} = require("./utilities");
 const passport = require("./middlewares/auth");
 const Individual = require("./model/Individual");
 const Institute = require("./model/Institute");
@@ -40,7 +44,7 @@ app.post("/api/login", async (req, res) => {
   let hash = req.body.hash;
   let type = req.body.type;
   if (!validTypes.includes(type)) {
-    res.send({
+    return res.send({
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
     });
   }
@@ -51,9 +55,8 @@ app.post("/api/login", async (req, res) => {
     } else {
       result = await Institute.findOne({ _id: hash });
     }
-    // console.log(result);
+    console.log(hash);
     if (result) {
-      // let pass = hash("sha512").update(req.body.password).digest("hex");
       result.comparePassword(req.body.password, (err, isMatch = false) => {
         if (err) {
           return res.send({
@@ -128,7 +131,7 @@ app.post("/api/profile", async (req, res) => {
   let type = req.body.type;
   let hash = req.body.hash;
   if (!validTypes.includes(type)) {
-    res.send({
+    return res.send({
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
     });
   }
@@ -152,186 +155,265 @@ app.post("/api/profile", async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.send({
+    return res.send({
       msg: "some error occured!!",
     });
   }
 });
 
-app.post("/api/changePassword", async (req, res) => {
+app.post("/api/createUser", async (req, res) => {
   let type = req.body.type;
-  let hash = req.body.hash;
+  //verifying if type of user is valid
   if (!validTypes.includes(type)) {
-    res.send({
+    return res.send({
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
     });
   }
   try {
-    let result;
-    if (type === validTypes[0]) {
-      result = await Individual.findOne({ _id: hash });
+    //Validation
+    let error;
+    if (type == validTypes[0]) {
+      error = validateIndividualJson(req.body);
     } else {
-      result = await Institute.findOne({ _id: hash });
+      error = validateInstituteJson(req.body);
     }
-    if (!result) {
+
+    if (error) {
       return res.send({
-        msg: "No Account exists with the given wallet ID",
-      });
-    }
-    console.log(result);
-  } catch (err) {
-    console.log(err);
-    res.send({
-      msg: "some error occured!!",
-    });
-  }
-});
-
-app.post("/api/Individual/createUser", async (req, res) => {
-  try {
-    // console.log(req.body);
-    // const data=req.body;
-    //Validation
-    const error = validateIndividualJson(req.body);
-
-    if (error) {
-      res.send({
         status: "Failed",
         message: "Sent data is not valid!",
       });
     }
 
-    let body = {
-      metamaskId: req.body.metamaskId,
-      name: req.body.name,
-      birthDate: req.body.birthDate,
-      qualification: req.body.qualification,
-      designation: req.body.designation,
-      password: req.body.password,
-      documentList: req.body.documentList,
-      prevId: "0".repeat(64),
-    };
+    let body;
+    if (type == validTypes[0]) {
+      body = {
+        metamaskId: req.body.metamaskId,
+        name: req.body.name,
+        birthDate: req.body.birthDate,
+        qualification: req.body.qualification,
+        designation: req.body.designation,
+        password: req.body.password,
+        documentList: req.body.documentList,
+        prevId: "0".repeat(64),
+      };
+    } else {
+      body = {
+        metamaskId: req.body.metamaskId,
+        name: req.body.name,
+        foundationDate: req.body.foundationDate,
+        ceoId: req.body.ceoId,
+        instituteType: req.body.instituteType,
+        roles: req.body.roles,
+        password: req.body.password,
+        location: req.body.location,
+        prevId: "0".repeat(64),
+      };
+    }
     //Calculating the hash
+    let result;
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-    // req.body.password = hash("sha512").update(req.body.password).digest("hex");
-    //Saving it in mongo db
-    // const Individual = nodeApp.collection("Individual");
-    // await Individual.insertOne({ _id: digest, ...req.body });
-    // console.log(client);
-    // const res = await client.then(async () => {
-    //   let res = new Individual.create({ _id: digest, ...body });
-    //   res = res.save();
-    //   return res;
-    // });
-    let result = await Individual.create({ _id: digest, ...body });
+    if (type == validTypes[0]) {
+      result = await Individual.create({ _id: digest, ...body });
+    } else {
+      result = await Institute.create({ _id: digest, ...body });
+    }
     result = await result.save();
     // return result;
     console.log(result);
-    res.send({
+    return res.send({
       status: "Success",
       message: "User Created successfully!!",
       hash: digest,
     });
   } catch (err) {
     console.log(err);
-    res.send({
+    return res.send({
       status: "Failed!!",
       message: err,
     });
   }
 });
 
-app.post("/api/Institute/createUser", async (request, response) => {
-  try {
-    // console.log(request.body);
-    // const data=request.body;
-    //Validation
-    const error = validateIndividualJson(request.body);
-
-    if (error) {
-      response.send({
-        status: "Failed",
-        message: "Sent data is not valid!",
-      });
-    }
-    let body = {
-      metamaskId: request.body.metamaskId,
-      name: request.body.name,
-      foundationDate: request.body.foundationDate,
-      ceoId: request.body.ceoId,
-      instituteType: request.body.instituteType,
-      roles: request.body.roles,
-      password: request.body.password,
-      location: request.body.location,
-      prevId: "0".repeat(64),
-    };
-    //Calculating the hash
-    let digest = hash("sha256")
-      .update(JSON.stringify(request.body))
-      .digest("hex");
-    // req.body.password = hash("sha512").update(req.body.password).digest("hex");
-    //Saving it in mongo db
-    // const Individual = nodeApp.collection("Institute");
-    // await Individual.insertOne({ _id: digest, ...req.body });
-    let result = await Institute.create({ _id: digest, ...body });
-    result = await result.save();
-    // return result;
-    console.log(result);
-    response.send({
-      status: "Success",
-      message: "User Created successfully!!",
-      hash: digest,
-    });
-  } catch (err) {
-    console.log(err);
-    response.send({
-      status: "Failed!!",
-      message: err,
+app.post("/api/updateUser", async (request, response) => {
+  let type = request.body.type;
+  //verifying if type of user is valid
+  if (!validTypes.includes(type)) {
+    return res.send({
+      msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
     });
   }
-});
-
-app.post("/api/Individual/updateUser", async (request, response) => {
   try {
     //Validation
-    const error = validateIndividualJson(request.body);
+    let error;
+    if (type == validTypes[0]) {
+      error = validateIndividualJson(request.body);
+    } else {
+      error = validateInstituteJson(request.body);
+    }
 
     if (error) {
-      response.send({
+      return response.send({
         status: "Failed",
         message: "Sent data is not valid!",
       });
     }
-    let result = await Individual.findOne({ _id: request.body._id });
-    let body = {
-      metamaskId: request.body.metamaskId,
-      name: request.body.name,
-      birthDate: request.body.birthDate,
-      qualification: request.body.qualification,
-      designation: request.body.designation,
-      password: request.body.password,
-      documentList: request.body.documentList,
-      prevId: request.body._id,
-    };
+    let result;
+    let body;
+    if (type == validTypes[0]) {
+      result = await Individual.findOne({ _id: request.body._id });
+      body = body = {
+        metamaskId: request.body.metamaskId,
+        name: request.body.name,
+        birthDate: request.body.birthDate,
+        qualification: request.body.qualification,
+        designation: request.body.designation,
+        password: request.body.password,
+        documentList: request.body.documentList,
+        prevId: request.body._id,
+      };
+    } else {
+      result = await Institute.findOne({ _id: request.body._id });
+      body = {
+        metamaskId: request.body.metamaskId,
+        name: request.body.name,
+        foundationDate: request.body.foundationDate,
+        ceoId: request.body.ceoId,
+        instituteType: request.body.instituteType,
+        roles: request.body.roles,
+        password: request.body.password,
+        location: request.body.location,
+        prevId: request.body._id,
+      };
+    }
     //Calculating the hash
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-
-    result = await Individual.create({ _id: digest, ...body });
-    result = await result.save();
-    await Individual.updateOne(
-      { _id: digest },
-      { password: request.body.password }
-    );
-    response.send({
+    if (type == validTypes[0]) {
+      result = await Individual.create({ _id: digest, ...body });
+      result = await result.save();
+      await Individual.updateOne(
+        { _id: digest },
+        { password: request.body.password }
+      );
+    } else {
+      result = await Institute.create({ _id: digest, ...body });
+      result = await result.save();
+      await Institute.updateOne(
+        { _id: digest },
+        { password: request.body.password }
+      );
+    }
+    return response.send({
       status: "Success",
       message: "User Updated successfully!!",
       hash: digest,
     });
   } catch (err) {
     console.log(err);
-    response.send({
+    return response.send({
       status: "Failed!!",
       message: err,
+    });
+  }
+});
+
+app.post("/api/changePassword", async (req, res) => {
+  let type = req.body.type;
+  let id = req.body.id;
+  //verifying if type of user is valid
+  if (!validTypes.includes(type)) {
+    return res.send({
+      msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+    });
+  }
+  try {
+    //fetching the user data
+    let result;
+    if (type === validTypes[0]) {
+      result = await Individual.findOne({ _id: id });
+    } else {
+      result = await Institute.findOne({ _id: id });
+    }
+    if (!result) {
+      return res.send({
+        msg: "No Account exists with the given wallet ID",
+      });
+    }
+
+    //verifying old password
+    let answer = result.comparePassword(
+      req.body.old,
+      async (err, isMatch = false) => {
+        if (err) {
+          return res.send({
+            status: "Failed",
+            msg: "Wrong Password!!",
+          });
+        }
+        if (!isMatch) {
+          return res.send({
+            status: "Failed",
+            msg: "Wrong Old Password!!",
+          });
+        }
+      }
+    );
+    console.log(answer);
+    return;
+    //verify new and confirm password
+    if (req.body.new !== req.body.confirm) {
+      return res.send({
+        status: "Failed",
+        msg: "New and Confirm Passwords don't match!!",
+      });
+    }
+
+    //updating password
+    let body;
+    if (type === validTypes[0]) {
+      body = {
+        metamaskId: result.metamaskId,
+        name: result.name,
+        birthDate: result.birthDate,
+        qualification: result.qualification,
+        designation: result.designation,
+        password: req.body.new,
+        documentList: result.documentList,
+        prevId: result._id,
+      };
+    } else {
+      body = {
+        metamaskId: result.metamaskId,
+        name: result.name,
+        foundationDate: result.foundationDate,
+        ceoId: result.ceoId,
+        instituteType: result.instituteType,
+        roles: result.roles,
+        password: req.body.new,
+        location: result.location,
+        prevId: result._id,
+      };
+    }
+    //Calculating the hash
+    let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
+    //saving changes to database
+    if (type === validTypes[0]) {
+      result = await Individual.create({ _id: digest, ...body });
+    } else {
+      result = await Institute.create({ _id: digest, ...body });
+    }
+    result = await result.save();
+    console.log(result);
+
+    return res.send({
+      status: "Success",
+      message: "Password Changed successfully!!",
+      hash: digest,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.send({
+      msg: "some error occured!!",
     });
   }
 });

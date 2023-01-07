@@ -8,24 +8,9 @@ import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 
 const IndividualLogin = ({ drizzle, drizzleState }) => {
-  // console.log(drizzleState);
-  const [currentId, setCurrentId] = useState(window.ethereum.selectedAddress);
+  const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
   const [password, setPassword] = useState("");
-  // const [name, setName] = useState("");
   const navigate = useNavigate();
-  // console.log(drizzleState);
-
-  // useEffect(async () => {
-  //   let data = await Axios.post(process.env.REACT_APP_SERVER_HOST+`/api/getName`, {
-  //     address: currentId,
-  //     type: "Individual",
-  //   }).catch((err) => {
-  //     alert("Error in name fetching!!");
-  //     console.log(err);
-  //   });
-
-  //   setName(data.data.name);
-  // });
 
   const updatePassword = (e) => {
     setPassword(e.target.value);
@@ -35,7 +20,7 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
     e.preventDefault();
 
     const { Account } = drizzle.contracts;
-    console.log(window.ethereum.selectedAddress);
+    console.log(drizzleState.accounts[0]);
     let hash = await Account.methods.indivData().call();
     console.log(hash);
     try {

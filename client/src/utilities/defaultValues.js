@@ -11,6 +11,8 @@ let qualifications = [
   "Phd",
 ];
 
+let InstituteTypes = ["Select a value", "Educational", "Corporate"];
+
 let IndivProfileOptions = [
   "metamaskId",
   "name",
@@ -18,5 +20,17 @@ let IndivProfileOptions = [
   "qualification",
   "designation",
 ];
+let InstitProfileOptions = [
+  "metamaskId",
+  "name",
+  "foundationDate",
+  "ceoId",
+  "instituteType",
+];
 
-export { qualifications, IndivProfileOptions };
+export {
+  qualifications,
+  InstituteTypes,
+  IndivProfileOptions,
+  InstitProfileOptions,
+};

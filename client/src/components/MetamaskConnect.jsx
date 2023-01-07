@@ -24,11 +24,10 @@ const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
           process.env.REACT_APP_SERVER_HOST + "/nonce"
         );
         const nonce = data.data.nonce;
-        console.log(drizzleState.accounts);
         //Asking user to sign nonce
         const sig = await window.ethereum.request({
           method: "personal_sign",
-          params: [`0x${toHex(nonce)}`, window.ethereum.selectedAddress],
+          params: [`0x${toHex(nonce)}`, drizzleState.accounts[0]],
         });
 
         console.log(drizzleState.accounts);
@@ -36,23 +35,14 @@ const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
         data = await Axios.post(
           process.env.REACT_APP_SERVER_HOST + "/verifySignature",
           {
-            address: window.ethereum.selectedAddress,
+            address: drizzleState.accounts[0],
             ogNonce: nonce,
             signature: sig,
           }
         );
-        console.log(data.data);
         if (data.data.verified) {
           updateToast(id, "Signature Verified!!!", "success");
 
-          // data = await Axios.post(
-          //   process.env.REACT_APP_SERVER_HOST + `/api/checkId`,
-          //   {
-          //     address: window.ethereum.selectedAddress,
-          //     type: type,
-          //   }
-          // );
-          // console.log(drizzle);
           const { Account } = drizzle.contracts;
           let dataKey;
           if (type == "Individual") {
@@ -61,7 +51,6 @@ const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
             dataKey = await Account.methods.institCheckId().call();
           }
           console.log(dataKey);
-          // console.log(Account.checkId[dataKey]);
           if (dataKey) {
             return navigate(`/${type}/login`);
           }

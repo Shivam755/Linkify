@@ -5,6 +5,7 @@ import { isAddress } from "ethereum-address";
 import { toast } from "react-toastify";
 import { useGeolocated } from "react-geolocated";
 import { updateToast } from "../../utilities/toastify";
+import { InstituteTypes } from "../../utilities/defaultValues";
 
 const InstituteSignup = ({ drizzle, drizzleState }) => {
   const [name, setName] = useState("");
@@ -16,7 +17,6 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   // const [differenPassword, setDifferentPassword] = useState(false);
   const [stackId, setStackId] = useState();
-  let typeList = ["Select a value", "Educational", "Corporate"];
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
       positionOptions: {
@@ -65,8 +65,9 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
     }
     try {
       let result = await Axios.post(
-        process.env.REACT_APP_SERVER_HOST + "/api/Institute/createUser",
+        process.env.REACT_APP_SERVER_HOST + "/api/createUser",
         {
+          type: "Institute",
           metamaskId: drizzleState.accounts[0],
           name: name,
           foundationDate: foundationDate,
@@ -179,7 +180,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
               onChange={updateType}
               required
             >
-              {typeList.map((e) => {
+              {InstituteTypes.map((e) => {
                 return <option key={e}>{e}</option>;
               })}
             </select>

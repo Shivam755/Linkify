@@ -9,17 +9,22 @@ import NavBar from "./components/navbar";
 import "./App.css";
 import Loading from "./components/loading";
 import Account from "./contracts/Account.json";
+//Common pages
 import Home from "./pages/home";
+import ChangePassword from "./pages/changePassword";
+import Dashboard from "./pages/dashboard";
+//Individual pages
 import Individual from "./pages/Individual/individual";
 import IndividualSignUp from "./pages/Individual/individualSignup";
 import IndividualLogin from "./pages/Individual/individualLogin";
+import IndividualProfile from "./pages/Individual/individualProfile";
+import IndividualUpdateProfile from "./pages/Individual/individualUpdateProfile";
+//Institute pages
 import Institute from "./pages/Institute/institute";
 import InstituteSignup from "./pages/Institute/instituteSignup";
 import InstituteLogin from "./pages/Institute/instituteLogin";
-import Dashboard from "./pages/dashboard";
-import IndividualProfile from "./pages/Individual/individualProfile";
-// import { useSelector } from "react-redux";
-import IndividualUpdateProfile from "./pages/Individual/individualUpdateProfile";
+import InstituteProfile from "./pages/Institute/instituteProfile";
+import InstituteUpdateProfile from "./pages/Institute/instituteUpdateProfile";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -37,15 +42,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [metaConnect, setMetaConnect] = useState(false);
   let reason;
-
-  window.ethereum.on("accountsChanged", (accounts) => {
-    console.log(accounts);
-    if (accounts.length <= 0) {
-      setMetaConnect(false);
-    } else {
-      setMetaConnect(true);
-    }
-  });
 
   useEffect(() => {
     if (window.ethereum.selectedAddress !== null) {
@@ -66,6 +62,16 @@ function App() {
       <DrizzleContext.Consumer>
         {(drizzleContext) => {
           const { drizzle, drizzleState, initialized } = drizzleContext;
+          window.ethereum.on("accountsChanged", (accounts) => {
+            if (accounts.length <= 0) {
+              setMetaConnect(false);
+            } else {
+              console.log(drizzleState);
+              drizzleState.accounts = accounts;
+              console.log(drizzleState);
+              setMetaConnect(true);
+            }
+          });
           if (!initialized) {
             return <Loading />;
           } else if (!metaConnect) {
@@ -85,6 +91,7 @@ function App() {
                   metaConnect={metaConnect}
                   drizzleState={drizzleState}
                 ></NavBar>
+                {/* Routes for individuals */}
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route
@@ -117,7 +124,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/Individual/profile/:id"
+                    path="/Individual/profile"
                     element={
                       <IndividualProfile
                         drizzle={drizzle}
@@ -126,7 +133,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/Individual/updateProfile/:id"
+                    path="/Individual/updateProfile"
                     element={
                       <IndividualUpdateProfile
                         drizzle={drizzle}
@@ -134,6 +141,7 @@ function App() {
                       />
                     }
                   />
+                  {/* Routes for Institutes */}
                   <Route
                     path="/Institute"
                     exact
@@ -163,9 +171,37 @@ function App() {
                     }
                   />
                   <Route
+                    path="/Institute/profile"
+                    element={
+                      <InstituteProfile
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Institute/updateProfile"
+                    element={
+                      <InstituteUpdateProfile
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  {/* Common routes */}
+                  <Route
                     path="/dashboard/:type"
                     element={
                       <Dashboard
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/changePassword/:type"
+                    element={
+                      <ChangePassword
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />

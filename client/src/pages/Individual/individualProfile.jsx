@@ -1,7 +1,6 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import { IndivProfileOptions } from "../../utilities/defaultValues";
 import { tokenKey } from "../../utilities/tokenSlice";
 
@@ -31,11 +30,6 @@ const IndividualProfile = ({ drizzle }) => {
     fetchdata();
   }, []);
 
-  const changePassword = (e) => {
-    e.preventDefault();
-    return toast("Change password clicked!!");
-  };
-
   return (
     <div className="flex flex-col h-screen">
       <div className="flex h-4/5 justify-center items-center">
@@ -43,8 +37,6 @@ const IndividualProfile = ({ drizzle }) => {
           <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
           {res !== null &&
             Object.keys(res).map((keyName, keyIndex) => {
-              console.log(keyName + " " + IndivProfileOptions);
-              console.log(keyName in IndivProfileOptions);
               if (!IndivProfileOptions.includes(keyName)) {
                 return;
               }
@@ -63,16 +55,16 @@ const IndividualProfile = ({ drizzle }) => {
             })}
           <Link
             className="neumorphism-plain px-5 py-3 m-2"
-            to={"/Individual/updateProfile/" + window.ethereum.selectedAddress}
+            to={"/Individual/updateProfile"}
           >
             Edit Profile
           </Link>
-          <button
+          <Link
+            to="/changePassword/Individual/"
             className="neumorphism-plain px-5 py-3 m-2"
-            onClick={changePassword}
           >
             Change Password
-          </button>
+          </Link>
         </form>
       </div>
     </div>

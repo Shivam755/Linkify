@@ -53,8 +53,9 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
       return;
     }
     let result = await Axios.post(
-      process.env.REACT_APP_SERVER_HOST + "/api/Individual/createUser",
+      process.env.REACT_APP_SERVER_HOST + "/api/createUser",
       {
+        type: "Individual",
         metamaskId: drizzleState.accounts[0],
         name: name,
         birthDate: dob,

@@ -1,19 +1,24 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { InstitProfileOptions } from "../../utilities/defaultValues";
 import { tokenKey } from "../../utilities/tokenSlice";
 
-const InstituteProfile = () => {
+const InstituteProfile = ({ drizzle }) => {
   const [res, setRes] = useState(null);
-  let { id } = useParams();
+  // let { id } = useParams();
   let token = JSON.parse(sessionStorage.getItem(tokenKey));
   useEffect(() => {
     const fetchdata = async () => {
+      const { Account } = drizzle.contracts;
+      console.log(Account);
+      let hash = await Account.methods.institData().call();
+      console.log(hash);
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/profile",
         {
-          address: id,
+          hash: hash.slice(2),
           type: "Institute",
         },
         {
@@ -26,11 +31,6 @@ const InstituteProfile = () => {
     fetchdata();
   }, []);
 
-  const editProfile = (e) => {
-    e.preventDefault();
-    return toast("Edit profile clicked!!");
-  };
-
   return (
     <div className="flex flex-col h-screen">
       <div className="flex h-4/5 justify-center items-center">
@@ -38,6 +38,9 @@ const InstituteProfile = () => {
           <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
           {res !== null &&
             Object.keys(res).map((keyName, keyIndex) => {
+              if (!InstitProfileOptions.includes(keyName)) {
+                return;
+              }
               return (
                 <div className="m-1 flex items-center justify-between">
                   {keyName.charAt(0).toUpperCase() + keyName.slice(1)}:
@@ -51,7 +54,18 @@ const InstituteProfile = () => {
                 </div>
               );
             })}
-          <button onClick={editProfile}>Edit Profile</button>
+          <Link
+            className="neumorphism-plain px-5 py-3 m-2"
+            to={"/Institute/updateProfile"}
+          >
+            Edit Profile
+          </Link>
+          <Link
+            to="/changePassword/Institute/"
+            className="neumorphism-plain px-5 py-3 m-2"
+          >
+            Change Password
+          </Link>
         </form>
       </div>
     </div>
