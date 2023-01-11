@@ -55,7 +55,6 @@ app.post("/api/login", async (req, res) => {
     } else {
       result = await Institute.findOne({ _id: hash });
     }
-    console.log(hash);
     if (result) {
       result.comparePassword(req.body.password, (err, isMatch = false) => {
         if (err) {
@@ -417,5 +416,7 @@ app.post("/api/changePassword", async (req, res) => {
     });
   }
 });
+
+app.post("/api/deleteUser", async (req, res) => {});
 
 app.listen(port, () => console.log(`Server started on ${port}`));

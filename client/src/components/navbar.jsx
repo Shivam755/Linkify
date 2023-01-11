@@ -74,15 +74,19 @@ const NavBar = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <ul className="list-none flex justify-around items-center m-5 p-5 w-9/10 neumorphism-pressed">
+    <ul className="list-none flex justify-end items-center m-5 p-5 w-9/10">
       {links.map((e) => (
-        <Link to={e.link} key={e.text} className="py-3 px-5 neumorphism-plain">
+        <Link
+          to={e.link}
+          key={e.text}
+          className="py-3 px-5 mx-5 neumorphism-plain"
+        >
           {e.text}
         </Link>
       ))}
 
       {res !== null && (
-        <div className="flex flex-row items-center justify-center">
+        <div className="flex flex-row items-center justify-center justify-self-end">
           <Link
             to={"/" + type + "/profile"}
             className="py-3 px-5 neumorphism-plain"

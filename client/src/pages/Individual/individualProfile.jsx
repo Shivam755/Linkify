@@ -1,11 +1,16 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import { IndivProfileOptions } from "../../utilities/defaultValues";
-import { tokenKey } from "../../utilities/tokenSlice";
+import { updateToast } from "../../utilities/toastify";
+import { updateNav } from "../../components/navbar";
+import { tokenKey, deleteToken } from "../../utilities/tokenSlice";
 
-const IndividualProfile = ({ drizzle }) => {
+const IndividualProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
+  const navigate = useNavigate();
   // let { id } = useParams();
   let token = JSON.parse(sessionStorage.getItem(tokenKey));
   useEffect(() => {
@@ -29,6 +34,48 @@ const IndividualProfile = ({ drizzle }) => {
     };
     fetchdata();
   }, []);
+
+  const deleteAccount = async (e) => {
+    const id = toast.loading("Deleting profile!");
+    const { Account } = drizzle.contracts;
+    console.log(Account.methods.deleteIndivData());
+    let result = await Account.methods.deleteIndivData().send();
+    console.log(result);
+    if (result) {
+      updateToast(id, "Account deleted Successfully!", "success");
+      deleteToken();
+      updateNav();
+      navigate("/");
+    } else {
+      updateToast(
+        id,
+        "There some issue with transacting the change. Please try again!",
+        "error"
+      );
+    }
+  };
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    Swal.fire({
+      title: "Do you really want to delete your account?",
+      showDenyButton: true,
+      confirmButtonText: "Yes",
+      denyButtonText: "No",
+      customClass: {
+        actions: "neumorphism-plain",
+        cancelButton: "neumorphism-plain",
+        confirmButton: "neumorphism-plain",
+        denyButton: "neumorphism-plain",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteAccount();
+      } else if (result.isDenied) {
+        toast.info("We're glad you decided to stay!!");
+      }
+    });
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -65,6 +112,12 @@ const IndividualProfile = ({ drizzle }) => {
           >
             Change Password
           </Link>
+          <button
+            className="neumorphism-plain px-5 py-3 m-2"
+            onClick={handleDelete}
+          >
+            Delete Account
+          </button>
         </form>
       </div>
     </div>

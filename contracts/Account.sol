@@ -3,19 +3,6 @@
 pragma solidity ^0.8.16;
 
 contract Account {
-    // struct Individual {
-    //     string name;
-    //     string qualification;
-    //     string designation;
-    //     bytes32[] documentList;
-    // }
-    // struct Institute {
-    //     address owner;
-    //     string InstituteType;
-    //     string[2] geolocation;
-    //     mapping(address => string) memberList;
-    //     string[] designationList;
-    // }
     struct account {
         address owner;
         bytes32 infoHash;
@@ -24,6 +11,9 @@ contract Account {
     event InstituteAdded(address id);
     event IndividualUpdated(address id);
     event InstituteUpdated(address id);
+    event IndividualDeleted(address id);
+    event InstituteDeleted(address id);
+    event passwordChanged(address id);
     event roleAdded(address id, string role);
     // mapping(address => bytes32) private _individualAccounts;
     account[] private _individual;
@@ -31,19 +21,11 @@ contract Account {
     account[] private _institute;
 
     function createIndividualAccount(bytes32 hash) public {
-        // for (uint256 i = 0; i < 2; i++) {
-        //     _individualAccounts[msg.sender][i] = hash[i];
-        // }
-        // _individualAccounts[msg.sender] = hash;
         _individual.push(account(msg.sender, hash));
         emit IndividualAdded(msg.sender);
     }
 
     function createInstituteAccount(bytes32 hash) public {
-        // for (uint256 i = 0; i < 2; i++) {
-        //     _instituteAccounts[msg.sender][i] = hash[i];
-        // }
-        // _instituteAccounts[msg.sender] = hash;
         _institute.push(account(msg.sender, hash));
         emit InstituteAdded(msg.sender);
     }
@@ -116,6 +98,43 @@ contract Account {
             i++;
         }
         return false;
+    }
+
+    function deleteIndivData() public returns (bool) {
+        uint256 i = 0;
+        while (i < _individual.length) {
+            if (_individual[i].owner == msg.sender) {
+                _individual[i] = _individual[_individual.length - 1];
+                _individual.pop();
+                emit IndividualDeleted(msg.sender);
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    function deleteInstitData() public returns (bool) {
+        uint256 i = 0;
+        while (i < _institute.length) {
+            if (_institute[i].owner == msg.sender) {
+                _institute[i] = _institute[_institute.length - 1];
+                _institute.pop();
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    function individualChangePassword(bytes32 hash) public {
+        updateIndivData(hash);
+        emit passwordChanged(msg.sender);
+    }
+
+    function instituteChangePassword(bytes32 hash) public {
+        updateInstitData(hash);
+        emit passwordChanged(msg.sender);
     }
 
     function addRole(bytes32 hash, string memory role) public {
