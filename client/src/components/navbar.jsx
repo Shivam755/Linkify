@@ -9,7 +9,7 @@ import {
   initValue,
 } from "../utilities/navSlice";
 import { tokenKey, deleteToken } from "../utilities/tokenSlice";
-import { LogOut } from "react-feather";
+import { LogOut, User } from "react-feather";
 
 let updateNav;
 
@@ -89,8 +89,9 @@ const NavBar = ({ drizzle, drizzleState }) => {
         <div className="flex flex-row items-center justify-center justify-self-end">
           <Link
             to={"/" + type + "/profile"}
-            className="py-3 px-5 neumorphism-plain"
+            className="py-3 px-5 flex flex-row neumorphism-plain"
           >
+            <User />
             {res.profile.name}
           </Link>
           <button

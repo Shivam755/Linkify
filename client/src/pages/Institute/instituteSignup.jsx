@@ -3,11 +3,13 @@ import React from "react";
 import { useState } from "react";
 import { isAddress } from "ethereum-address";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { useGeolocated } from "react-geolocated";
 import { updateToast } from "../../utilities/toastify";
 import { InstituteTypes } from "../../utilities/defaultValues";
 
 const InstituteSignup = ({ drizzle, drizzleState }) => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [ceoId, setCeoId] = useState("");
   const [type, setType] = useState("");
@@ -74,6 +76,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
           ceoId: ceoId,
           instituteType: type,
           roles: [],
+          members: [],
           password: password,
           confirmPassword: confirmPassword,
           location: {
@@ -93,6 +96,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
           });
           setStackId(temp);
           updateToast(id, result.data.message, "success");
+          navigate("/Institute/login");
           // alert(result.data.message);
         } catch (err) {
           console.log(err);

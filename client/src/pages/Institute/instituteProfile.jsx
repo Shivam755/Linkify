@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { InstitProfileOptions } from "../../utilities/defaultValues";
+import { updateToast } from "../../utilities/toastify";
 import { tokenKey } from "../../utilities/tokenSlice";
 
 const InstituteProfile = ({ drizzle }) => {
@@ -11,10 +12,9 @@ const InstituteProfile = ({ drizzle }) => {
   let token = JSON.parse(sessionStorage.getItem(tokenKey));
   useEffect(() => {
     const fetchdata = async () => {
+      const id = toast.loading("Fetching data");
       const { Account } = drizzle.contracts;
-      console.log(Account);
       let hash = await Account.methods.institData().call();
-      console.log(hash);
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/profile",
         {
@@ -26,7 +26,7 @@ const InstituteProfile = ({ drizzle }) => {
         }
       ).catch((err) => console.log(err));
       setRes(result.data.profile);
-      console.log(result);
+      updateToast(id, "Data fetch complete", "success", false, 500);
     };
     fetchdata();
   }, []);

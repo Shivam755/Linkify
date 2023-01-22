@@ -12,7 +12,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [qualification, setQualification] = useState("");
-  const [designation, setDesignation] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   // const [differenPassword, setDifferentPassword] = useState(false);
@@ -25,9 +24,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   };
   const updateName = (e) => {
     setName(e.target.value);
-  };
-  const updateDesignation = (e) => {
-    setDesignation(e.target.value);
   };
   const updatePassword = (e) => {
     setPassword(e.target.value);
@@ -60,7 +56,7 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
         name: name,
         birthDate: dob,
         qualification: qualification,
-        designation: designation,
+        designation: "Unemployed",
         password: password,
         confirmPassword: confirmPassword,
         documentList: [],
@@ -161,18 +157,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
                 return <option key={e}>{e}</option>;
               })}
             </select>
-          </div>
-          {/* Designation */}
-          <div className="m-1 flex items-center justify-between">
-            Designation:
-            <input
-              type="text"
-              className="m-1 neumorphism-pressed px-4 py-2"
-              placeholder="Designation"
-              value={designation}
-              onChange={updateDesignation}
-              required
-            />
           </div>
           {/* Password */}
           <div className="m-1 flex items-center justify-between">

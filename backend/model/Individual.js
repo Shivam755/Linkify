@@ -14,6 +14,8 @@ const Individual = new mongoose.Schema({
   prevId: { type: String, required: true },
 });
 
+Individual.index({ name: "text", metamskId: "text", birthDate: "text" });
+
 Individual.pre("save", function (next) {
   var user = this;
 

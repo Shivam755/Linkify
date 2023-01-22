@@ -1,11 +1,11 @@
 import { toast } from "react-toastify";
 
-const updateToast = (id, msg, type) => {
+const updateToast = (id, msg, type, isLoading = false, autoClose = 2000) => {
   return toast.update(id, {
     type: type,
     render: msg,
-    isLoading: false,
-    autoClose: 2000,
+    isLoading: isLoading,
+    autoClose: autoClose,
   });
 };
 

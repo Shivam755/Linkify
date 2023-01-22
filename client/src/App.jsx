@@ -19,12 +19,14 @@ import IndividualSignUp from "./pages/Individual/individualSignup";
 import IndividualLogin from "./pages/Individual/individualLogin";
 import IndividualProfile from "./pages/Individual/individualProfile";
 import IndividualUpdateProfile from "./pages/Individual/individualUpdateProfile";
+import SearchInstitutes from "./pages/Individual/searchInstitutes";
 //Institute pages
 import Institute from "./pages/Institute/institute";
 import InstituteSignup from "./pages/Institute/instituteSignup";
 import InstituteLogin from "./pages/Institute/instituteLogin";
 import InstituteProfile from "./pages/Institute/instituteProfile";
 import InstituteUpdateProfile from "./pages/Institute/instituteUpdateProfile";
+import SearchIndividuals from "./pages/Institute/searchIndividuals";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -141,6 +143,15 @@ function App() {
                       />
                     }
                   />
+                  <Route
+                    path="/Individual/searchInstitutes"
+                    element={
+                      <SearchInstitutes
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
                   {/* Routes for Institutes */}
                   <Route
                     path="/Institute"
@@ -183,6 +194,15 @@ function App() {
                     path="/Institute/updateProfile"
                     element={
                       <InstituteUpdateProfile
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Institute/searchIndividuals"
+                    element={
+                      <SearchIndividuals
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />

@@ -9,9 +9,22 @@ const Institute = new mongoose.Schema({
   ceoId: { type: String, required: true },
   instituteType: { type: String, required: true },
   roles: [String],
+  members: [
+    {
+      id: String,
+      role: String,
+    },
+  ],
   password: { type: String, required: true },
   location: { type: mongoose.Schema.Types.Map, required: true },
   prevId: { type: String, required: true },
+});
+
+Institute.index({
+  name: "text",
+  metamaskId: "text",
+  instituteType: "text",
+  foundationDate: "text",
 });
 
 Institute.pre("save", function (next) {

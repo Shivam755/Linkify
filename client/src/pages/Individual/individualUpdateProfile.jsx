@@ -11,7 +11,6 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [name, setName] = useState("");
   const [qualification, setQualification] = useState("");
-  const [designation, setDesignation] = useState("");
   const [stackId, setStackId] = useState();
   const navigate = useNavigate();
   let hash;
@@ -23,9 +22,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   const updateName = (e) => {
     setName(e.target.value);
   };
-  const updateDesignation = (e) => {
-    setDesignation(e.target.value);
-  };
+
   useEffect(() => {
     const fetchdata = async () => {
       console.log(drizzle.contracts.Account.methods);
@@ -46,7 +43,6 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
       setRes(result.data.profile);
       //updating values on successful fetch
       setName(result.data.profile.name);
-      setDesignation(result.data.profile.designation);
       setQualification(result.data.profile.qualification);
       console.log(result);
     };
@@ -63,9 +59,8 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
     const id = toast.loading("Updating profile!");
     if (
       !(
-        name !== res.name ||
-        qualification !== res.qualification ||
-        designation !== res.designation
+        (name !== res.name || qualification !== res.qualification)
+        // designation !== res.designation
       )
     ) {
       updateToast(id, "No changes were made", "info");
@@ -81,7 +76,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
         name: name,
         birthDate: res.birthDate,
         qualification: qualification,
-        designation: designation,
+        // designation: designation,
         password: res.password,
         documentList: res.documentList,
       }
@@ -148,18 +143,6 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
                 );
               })}
             </select>
-          </div>
-          {/* Designation */}
-          <div className="m-1 flex items-center justify-between">
-            Designation:
-            <input
-              type="text"
-              className="m-1 neumorphism-pressed px-4 py-2"
-              placeholder="Designation"
-              value={designation}
-              onChange={updateDesignation}
-              required
-            />
           </div>
           <button
             className="m-2 neumorphism-button px-4 py-2"

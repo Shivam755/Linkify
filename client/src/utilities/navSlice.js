@@ -4,9 +4,15 @@ const noLogin = [
   { text: "Institute login/signup", link: "/Institute" },
   { text: "Individual Login/Signup", link: "/Individual" },
 ];
-const Individual = [{ text: "DashBoard", link: "/dashboard/Individual" }];
+const Individual = [
+  { text: "DashBoard", link: "/dashboard/Individual" },
+  { text: "Find Institutes", link: "/Individual/searchInstitutes" },
+];
 
-const Institute = [{ text: "Dashboard", link: "/dashboard/Institute" }];
+const Institute = [
+  { text: "Dashboard", link: "/dashboard/Institute" },
+  { text: "Find Individuals", link: "/Institute/searchIndividuals" },
+];
 
 const institLogin = () => {
   sessionStorage.setItem(navKey, JSON.stringify(Institute));
