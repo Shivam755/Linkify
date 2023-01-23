@@ -183,13 +183,14 @@ app.post("/api/profile", async (req, res) => {
     } else {
       result = await Institute.findOne({ _id: hash });
     }
+    console.log("Result: " + result);
+
     if (result) {
       return res.send({
         status: SUCCESS,
         profile: result,
       });
     }
-    console.log(result);
 
     return res.send({
       status: FAILED,
@@ -500,6 +501,29 @@ app.post("/api/getMembers", async (req, res) => {
   }
 });
 
+app.post("/api/getRoles", async (req, res) => {
+  let { hash } = req.body;
+  try {
+    let result = await Institute.findOne({ _id: hash });
+    if (!result) {
+      return res.send({
+        status: FAILED,
+        msg: "No Account exists with the given wallet ID",
+      });
+    }
+    return res.send({
+      status: SUCCESS,
+      roles: result.roles,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.send({
+      status: FAILED,
+      msg: "Some error occured!!",
+    });
+  }
+});
+
 app.post("/api/fetchResult", async (req, res) => {
   let type = req.body.type;
   let query = req.body.query;
@@ -549,10 +573,12 @@ app.post("/api/AddRequest", async (req, res) => {
   }
 
   if (
-    senderId.trim.length &&
-    receiverId.trim.length &&
-    msg.trim.length &&
-    role.trim.length
+    !(
+      senderId.trim.length &&
+      receiverId.trim.length &&
+      msg.trim.length &&
+      role.trim.length
+    )
   ) {
     return res.send({
       status: FAILED,
@@ -578,7 +604,7 @@ app.post("/api/AddRequest", async (req, res) => {
       message: "Request added!",
     });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     return res.send({
       status: FAILED,
       message: err,

@@ -1,10 +1,11 @@
 import React from "react";
 import SearchComp from "../../components/search";
+import Title from "../../components/title";
 
 const SearchInstitutes = () => {
   return (
     <div>
-      <h1>Find Institutes</h1>
+      <Title title="Find Institutes" />
       <SearchComp type={"Institute"} />
     </div>
   );

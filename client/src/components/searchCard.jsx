@@ -12,7 +12,7 @@ const SearchCard = ({ type, info }) => {
   };
 
   return (
-    <div className="neumorphism-plain flex items-center justify-between  w-full px-10 py-4">
+    <div className="neumorphism-plain flex items-center justify-between  w-full px-10 py-4 my-4">
       <div>
         <div className="text-5xl font-bold">{info.name}</div>
         <div className="text-2xl ">{info.metamaskId}</div>
