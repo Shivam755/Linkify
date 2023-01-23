@@ -20,20 +20,20 @@ contract Account {
     // mapping(address => bytes32) private _instituteAccounts;
     account[] private _institute;
 
-    function createIndividualAccount(bytes32 hash) public {
-        _individual.push(account(msg.sender, hash));
-        emit IndividualAdded(msg.sender);
+    function createIndividualAccount(address id, bytes32 hash) public {
+        _individual.push(account(id, hash));
+        emit IndividualAdded(id);
     }
 
-    function createInstituteAccount(bytes32 hash) public {
-        _institute.push(account(msg.sender, hash));
-        emit InstituteAdded(msg.sender);
+    function createInstituteAccount(address id, bytes32 hash) public {
+        _institute.push(account(id, hash));
+        emit InstituteAdded(id);
     }
 
-    function indivCheckId() public view returns (bool) {
+    function indivCheckId(address id) public view returns (bool) {
         uint256 i = 0;
         while (i < _individual.length) {
-            if (_individual[i].owner == msg.sender) {
+            if (_individual[i].owner == id) {
                 return true;
             }
             i++;
@@ -41,10 +41,10 @@ contract Account {
         return false;
     }
 
-    function institCheckId() public view returns (bool) {
+    function institCheckId(address id) public view returns (bool) {
         uint256 i = 0;
         while (i < _institute.length) {
-            if (_institute[i].owner == msg.sender) {
+            if (_institute[i].owner == id) {
                 return true;
             }
             i++;
@@ -52,10 +52,10 @@ contract Account {
         return false;
     }
 
-    function indivData() public view returns (bytes32) {
+    function indivData(address id) public view returns (bytes32) {
         uint256 i = 0;
         while (i < _individual.length) {
-            if (_individual[i].owner == msg.sender) {
+            if (_individual[i].owner == id) {
                 return _individual[i].infoHash;
             }
             i++;
@@ -63,10 +63,10 @@ contract Account {
         return 0x0;
     }
 
-    function institData() public view returns (bytes32) {
+    function institData(address id) public view returns (bytes32) {
         uint256 i = 0;
         while (i < _institute.length) {
-            if (_institute[i].owner == msg.sender) {
+            if (_institute[i].owner == id) {
                 return _institute[i].infoHash;
             }
             i++;
@@ -74,12 +74,12 @@ contract Account {
         return 0x0;
     }
 
-    function updateIndivData(bytes32 hash) public returns (bool) {
+    function updateIndivData(address id, bytes32 hash) public returns (bool) {
         uint256 i = 0;
         while (i < _individual.length) {
-            if (_individual[i].owner == msg.sender) {
+            if (_individual[i].owner == id) {
                 _individual[i].infoHash = hash;
-                emit IndividualUpdated(msg.sender);
+                emit IndividualUpdated(id);
                 return true;
             }
             i++;
@@ -87,12 +87,12 @@ contract Account {
         return false;
     }
 
-    function updateInstitData(bytes32 hash) public returns (bool) {
+    function updateInstitData(address id, bytes32 hash) public returns (bool) {
         uint256 i = 0;
         while (i < _institute.length) {
-            if (_institute[i].owner == msg.sender) {
+            if (_institute[i].owner == id) {
                 _institute[i].infoHash = hash;
-                emit InstituteUpdated(msg.sender);
+                emit InstituteUpdated(id);
                 return true;
             }
             i++;
@@ -100,13 +100,13 @@ contract Account {
         return false;
     }
 
-    function deleteIndivData() public returns (bool) {
+    function deleteIndivData(address id) public returns (bool) {
         uint256 i = 0;
         while (i < _individual.length) {
-            if (_individual[i].owner == msg.sender) {
+            if (_individual[i].owner == id) {
                 _individual[i] = _individual[_individual.length - 1];
                 _individual.pop();
-                emit IndividualDeleted(msg.sender);
+                emit IndividualDeleted(id);
                 return true;
             }
             i++;
@@ -114,10 +114,10 @@ contract Account {
         return false;
     }
 
-    function deleteInstitData() public returns (bool) {
+    function deleteInstitData(address id) public returns (bool) {
         uint256 i = 0;
         while (i < _institute.length) {
-            if (_institute[i].owner == msg.sender) {
+            if (_institute[i].owner == id) {
                 _institute[i] = _institute[_institute.length - 1];
                 _institute.pop();
                 return true;
@@ -127,18 +127,22 @@ contract Account {
         return false;
     }
 
-    function individualChangePassword(bytes32 hash) public {
-        updateIndivData(hash);
-        emit passwordChanged(msg.sender);
+    function individualChangePassword(address id, bytes32 hash) public {
+        updateIndivData(id, hash);
+        emit passwordChanged(id);
     }
 
-    function instituteChangePassword(bytes32 hash) public {
-        updateInstitData(hash);
-        emit passwordChanged(msg.sender);
+    function instituteChangePassword(address id, bytes32 hash) public {
+        updateInstitData(id, hash);
+        emit passwordChanged(id);
     }
 
-    function addRole(bytes32 hash, string memory role) public {
-        updateInstitData(hash);
-        emit roleAdded(msg.sender, role);
+    function addRole(
+        address id,
+        bytes32 hash,
+        string memory role
+    ) public {
+        updateInstitData(id, hash);
+        emit roleAdded(id, role);
     }
 }

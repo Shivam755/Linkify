@@ -6,7 +6,7 @@ import { InstitProfileOptions } from "../../utilities/defaultValues";
 import { updateToast } from "../../utilities/toastify";
 import { tokenKey } from "../../utilities/tokenSlice";
 
-const InstituteProfile = ({ drizzle }) => {
+const InstituteProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   // let { id } = useParams();
   let token = JSON.parse(sessionStorage.getItem(tokenKey));
@@ -14,7 +14,9 @@ const InstituteProfile = ({ drizzle }) => {
     const fetchdata = async () => {
       const id = toast.loading("Fetching data");
       const { Account } = drizzle.contracts;
-      let hash = await Account.methods.institData().call();
+      let hash = await Account.methods
+        .institData(drizzleState.accounts[0])
+        .call();
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/profile",
         {

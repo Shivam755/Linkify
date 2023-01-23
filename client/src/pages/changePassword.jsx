@@ -31,9 +31,9 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
     let hash;
     //fetching data id
     if (type === "Individual") {
-      hash = await Account.methods.indivData().call();
+      hash = await Account.methods.indivData(drizzleState.accounts[0]).call();
     } else {
-      hash = await Account.methods.institData().call();
+      hash = await Account.methods.institData(drizzleState.accounts[0]).call();
     }
 
     let result = await Axios.post(
@@ -52,13 +52,13 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
       try {
         let temp;
         if (type === "Individual") {
-          temp = await Account.methods.updateIndivData.cacheSend(hash, {
-            from: drizzleState.accounts[0],
-          });
+          temp = await Account.methods
+            .updateIndivData(drizzleState.accounts[0], hash)
+            .send();
         } else {
-          temp = await Account.methods.updateInstitData.cacheSend(hash, {
-            from: drizzleState.accounts[0],
-          });
+          temp = await Account.methods
+            .updateInstitData(drizzleState.accounts[0], hash)
+            .send();
         }
         setStackId(temp);
         updateToast(id, "Password Changed Successfully!", "success");

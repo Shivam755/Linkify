@@ -46,9 +46,13 @@ const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
           const { Account } = drizzle.contracts;
           let dataKey;
           if (type == "Individual") {
-            dataKey = await Account.methods.indivCheckId().call();
+            dataKey = await Account.methods
+              .indivCheckId(drizzleState.accounts[0])
+              .call();
           } else {
-            dataKey = await Account.methods.institCheckId().call();
+            dataKey = await Account.methods
+              .institCheckId(drizzleState.accounts[0])
+              .call();
           }
           console.log(dataKey);
           if (dataKey) {

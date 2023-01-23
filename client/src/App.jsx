@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Drizzle } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import NavBar from "./components/navbar";
 import "./App.css";
 import Loading from "./components/loading";
@@ -27,6 +26,9 @@ import InstituteLogin from "./pages/Institute/instituteLogin";
 import InstituteProfile from "./pages/Institute/instituteProfile";
 import InstituteUpdateProfile from "./pages/Institute/instituteUpdateProfile";
 import SearchIndividuals from "./pages/Institute/searchIndividuals";
+import InstituteViewInfo from "./pages/Institute/instituteViewInfo";
+import IndividualViewInfo from "./pages/Individual/individualViewInfo";
+import SendRequest from "./pages/sendRequest";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -145,8 +147,12 @@ function App() {
                   />
                   <Route
                     path="/Individual/searchInstitutes"
+                    element={<SearchInstitutes />}
+                  />
+                  <Route
+                    path="/Individual/viewInstituteInfo/:id"
                     element={
-                      <SearchInstitutes
+                      <InstituteViewInfo
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />
@@ -201,8 +207,12 @@ function App() {
                   />
                   <Route
                     path="/Institute/searchIndividuals"
+                    element={<SearchIndividuals />}
+                  />
+                  <Route
+                    path="/Institute/viewIndividualInfo/:id"
                     element={
-                      <SearchIndividuals
+                      <IndividualViewInfo
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />
@@ -222,6 +232,15 @@ function App() {
                     path="/changePassword/:type"
                     element={
                       <ChangePassword
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/makeRequest"
+                    element={
+                      <SendRequest
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />

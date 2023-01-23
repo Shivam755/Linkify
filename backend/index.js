@@ -8,15 +8,17 @@ const {
   toHex,
   validateIndividualJson,
   validateInstituteJson,
+  validInstitTypes,
+  validRequestTypes,
+  RequestStatus,
+  SUCCESS,
+  FAILED,
 } = require("./utilities");
 const passport = require("./middlewares/auth");
 const Individual = require("./model/Individual");
 const Institute = require("./model/Institute");
-
+const Request = require("./model/Request");
 const port = 3002;
-const validTypes = ["Individual", "Institute"];
-const SUCCESS = "Success";
-const FAILED = "Failed";
 
 //methods for digital signature
 app.get("/nonce", (req, res) => {
@@ -42,9 +44,9 @@ app.post("/verifySignature", (req, res) => {
 });
 
 app.post("/api/getName", async (req, res) => {
-  let address = req.body.address;
+  let hash = req.body.hash;
   let type = req.body.type;
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -52,7 +54,7 @@ app.post("/api/getName", async (req, res) => {
   }
   try {
     let result;
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       result = await Individual.findOne({ _id: hash });
     } else {
       result = await Institute.findOne({ _id: hash });
@@ -78,7 +80,7 @@ app.post("/api/getName", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   let hash = req.body.hash;
   let type = req.body.type;
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -86,7 +88,7 @@ app.post("/api/login", async (req, res) => {
   }
   try {
     let result;
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       result = await Individual.findOne({ _id: hash });
     } else {
       result = await Institute.findOne({ _id: hash });
@@ -132,7 +134,7 @@ app.post("/api/login", async (req, res) => {
 // app.post("/api/profile", passport.authenticate("jwt", {}), async (req, res) => {
 //   let type = req.body.type;
 //   let address = req.body.address;
-//   if (!validTypes.includes(type)) {
+//   if (!validInstitTypes.includes(type)) {
 //     res.send({
 //       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
 //     });
@@ -167,7 +169,7 @@ app.post("/api/login", async (req, res) => {
 app.post("/api/profile", async (req, res) => {
   let type = req.body.type;
   let hash = req.body.hash;
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -176,7 +178,7 @@ app.post("/api/profile", async (req, res) => {
   try {
     // const collection = nodeApp.collection(type);
     let result;
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       result = await Individual.findOne({ _id: hash });
     } else {
       result = await Institute.findOne({ _id: hash });
@@ -205,7 +207,7 @@ app.post("/api/profile", async (req, res) => {
 app.post("/api/createUser", async (req, res) => {
   let type = req.body.type;
   //verifying if type of user is valid
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -214,7 +216,7 @@ app.post("/api/createUser", async (req, res) => {
   try {
     //Validation
     let error;
-    if (type == validTypes[0]) {
+    if (type == validInstitTypes[0]) {
       error = validateIndividualJson(req.body);
     } else {
       error = validateInstituteJson(req.body);
@@ -228,7 +230,7 @@ app.post("/api/createUser", async (req, res) => {
     }
 
     let body;
-    if (type == validTypes[0]) {
+    if (type == validInstitTypes[0]) {
       body = {
         metamaskId: req.body.metamaskId,
         name: req.body.name,
@@ -256,14 +258,13 @@ app.post("/api/createUser", async (req, res) => {
     //Calculating the hash
     let result;
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-    if (type == validTypes[0]) {
+    if (type == validInstitTypes[0]) {
       result = await Individual.create({ _id: digest, ...body });
     } else {
       result = await Institute.create({ _id: digest, ...body });
     }
     result = await result.save();
     // return result;
-    console.log(result);
     return res.send({
       status: SUCCESS,
       message: "User Created successfully!!",
@@ -281,7 +282,7 @@ app.post("/api/createUser", async (req, res) => {
 app.post("/api/updateUser", async (request, response) => {
   let type = request.body.type;
   //verifying if type of user is valid
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -290,7 +291,7 @@ app.post("/api/updateUser", async (request, response) => {
   try {
     //Validation
     let error;
-    if (type == validTypes[0]) {
+    if (type == validInstitTypes[0]) {
       error = validateIndividualJson(request.body);
     } else {
       error = validateInstituteJson(request.body);
@@ -304,7 +305,7 @@ app.post("/api/updateUser", async (request, response) => {
     }
     let result;
     let body;
-    if (type == validTypes[0]) {
+    if (type == validInstitTypes[0]) {
       result = await Individual.findOne({ _id: request.body._id });
       body = body = {
         metamaskId: request.body.metamaskId,
@@ -332,7 +333,7 @@ app.post("/api/updateUser", async (request, response) => {
     }
     //Calculating the hash
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-    if (type == validTypes[0]) {
+    if (type == validInstitTypes[0]) {
       result = await Individual.create({ _id: digest, ...body });
       result = await result.save();
       await Individual.updateOne(
@@ -365,7 +366,7 @@ app.post("/api/changePassword", async (req, res) => {
   let type = req.body.type;
   let id = req.body.id;
   //verifying if type of user is valid
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -374,7 +375,7 @@ app.post("/api/changePassword", async (req, res) => {
   try {
     //fetching the user data
     let result;
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       result = await Individual.findOne({ _id: id });
     } else {
       result = await Institute.findOne({ _id: id });
@@ -415,7 +416,7 @@ app.post("/api/changePassword", async (req, res) => {
 
     //updating password
     let body;
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       body = {
         metamaskId: result.metamaskId,
         name: result.name,
@@ -442,7 +443,7 @@ app.post("/api/changePassword", async (req, res) => {
     //Calculating the hash
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
     //saving changes to database
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       result = await Individual.create({ _id: digest, ...body });
     } else {
       result = await Institute.create({ _id: digest, ...body });
@@ -503,7 +504,7 @@ app.post("/api/fetchResult", async (req, res) => {
   let type = req.body.type;
   let query = req.body.query;
   //verifying if type of user is valid
-  if (!validTypes.includes(type)) {
+  if (!validInstitTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -512,7 +513,7 @@ app.post("/api/fetchResult", async (req, res) => {
   try {
     // finding results
     let result;
-    if (type === validTypes[0]) {
+    if (type === validInstitTypes[0]) {
       result = await Individual.find({ $text: { $search: query } });
     } else {
       result = await Institute.find({ $text: { $search: query } });
@@ -533,6 +534,98 @@ app.post("/api/fetchResult", async (req, res) => {
     return res.send({
       status: FAILED,
       msg: "Some error occured. Please contact backend",
+    });
+  }
+});
+
+app.post("/api/AddRequest", async (req, res) => {
+  let { senderId, receiverId, msg, role, type } = req.body;
+
+  if (!validRequestTypes.includes(type)) {
+    return res.send({
+      status: FAILED,
+      msg: "Invalid request type!!!\nPossbile types are 'Recruiting' or 'Joining'.",
+    });
+  }
+
+  if (
+    senderId.trim.length &&
+    receiverId.trim.length &&
+    msg.trim.length &&
+    role.trim.length
+  ) {
+    return res.send({
+      status: FAILED,
+      msg: "Insufficient information provided!\nPlease provide senderId, receiverId, msg & role as non empty strings",
+    });
+  }
+
+  let body = {
+    senderId,
+    receiverId,
+    msg,
+    role,
+    type: type,
+    status: RequestStatus.Pending,
+  };
+
+  try {
+    let result = await Request.create(body);
+    result = result.save();
+    // return result;
+    return res.send({
+      status: SUCCESS,
+      message: "Request added!",
+    });
+  } catch (error) {
+    console.log(err);
+    return res.send({
+      status: FAILED,
+      message: err,
+    });
+  }
+});
+
+app.post("/api/updateRequestStatus", async (req, res) => {
+  let { id, status } = req.body;
+
+  try {
+    // checking if document exists
+    let result = await Request.findById(id);
+    if (!result) {
+      return res.send({
+        status: FAILED,
+        msg: "No Request with given ID",
+      });
+    }
+    //Checking if status is valid
+    let valid = false;
+    for (let status in RequestStatus) {
+      if (RequestStatus[status] === status) {
+        valid = true;
+      }
+    }
+
+    if (!valid) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid status for a request",
+      });
+    }
+
+    //updating document
+    console.log(result);
+    result.updateOne({ status });
+
+    return res.send({
+      status: SUCCESS,
+      message: "Request updated!",
+    });
+  } catch (error) {
+    console.log(err);
+    return res.send({
+      status: FAILED,
+      message: err,
     });
   }
 });

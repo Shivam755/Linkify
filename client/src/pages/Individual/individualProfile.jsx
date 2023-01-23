@@ -17,7 +17,9 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
     const fetchdata = async () => {
       const { Account } = drizzle.contracts;
       console.log(Account);
-      let hash = await Account.methods.indivData().call();
+      let hash = await Account.methods
+        .indivData(drizzleState.accounts[0])
+        .call();
       console.log(hash);
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/profile",

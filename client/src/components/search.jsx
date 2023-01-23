@@ -1,6 +1,7 @@
 import Axios from "axios";
 import React, { useState } from "react";
 import { Search } from "react-feather";
+import SearchCard from "./searchCard";
 
 const SearchComp = ({ title, type }) => {
   const [query, setQuery] = useState("");
@@ -57,19 +58,7 @@ const SearchComp = ({ title, type }) => {
         <div className="p-5 w-11/12 flex flex-col justify-center items-center">
           {result.length > 0 &&
             result.map((e) => {
-              return (
-                <div className="neumorphism-plain flex items-center justify-between  w-full px-10 py-4">
-                  <div>
-                    <div className="text-5xl font-bold">{e.name}</div>
-                    <div className="text-2xl ">{e.metamaskId}</div>
-                  </div>
-                  <div>
-                    <button className="p-4 text-2xl neumorphism-button">
-                      View Profile
-                    </button>
-                  </div>
-                </div>
-              );
+              return <SearchCard type={type} info={e} />;
             })}
           {msg !== null && <div>{msg}</div>}
           {result.length <= 0 && <div>Try searching for something.</div>}

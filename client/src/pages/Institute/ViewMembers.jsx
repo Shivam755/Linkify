@@ -14,7 +14,9 @@ const ViewMembers = () => {
     const fetchdata = async () => {
       const id = toast.loading("Fetching data");
       const { Account } = drizzle.contracts;
-      let hash = await Account.methods.institData().call();
+      let hash = await Account.methods
+        .institData(drizzleState.accounts[0])
+        .call();
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/getMembers",
         {

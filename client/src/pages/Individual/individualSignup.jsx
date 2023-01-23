@@ -70,9 +70,9 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
       try {
         console.log(drizzle);
         const { Account } = drizzle.contracts;
-        let temp = Account.methods["createIndividualAccount"].cacheSend(hash, {
-          from: drizzleState.accounts[0],
-        });
+        let temp = Account.methods
+          .createIndividualAccount(drizzleState.accounts[0], hash)
+          .send();
         setStackId(temp);
 
         // await checkStatus();

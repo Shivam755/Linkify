@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import Axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   navKey,
   indivLogin,
@@ -20,6 +21,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [type, setType] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   let token = JSON.parse(sessionStorage.getItem(tokenKey));
 
   updateNav = (updateType = null) => {
@@ -41,9 +43,9 @@ const NavBar = ({ drizzle, drizzleState }) => {
     let hash;
     const { Account } = drizzle.contracts;
     if (type === "Individual") {
-      hash = await Account.methods.indivData().call();
+      hash = await Account.methods.indivData(drizzleState.accounts[0]).call();
     } else {
-      hash = await Account.methods.institData().call();
+      hash = await Account.methods.institData(drizzleState.accounts[0]).call();
     }
 
     let result = await Axios.post(
@@ -66,11 +68,28 @@ const NavBar = ({ drizzle, drizzleState }) => {
   }
 
   const logout = () => {
-    deleteToken();
-    token = null;
-    updateNav();
-    navigate("/");
-    toast.success("Logout successful!!");
+    Swal.fire({
+      title: "Are you sure you want to logout?",
+      showDenyButton: true,
+      confirmButtonText: "Yes",
+      denyButtonText: "No",
+      customClass: {
+        actions: "neumorphism-plain",
+        cancelButton: "neumorphism-plain",
+        confirmButton: "neumorphism-plain",
+        denyButton: "neumorphism-plain",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteToken();
+        token = null;
+        updateNav();
+        navigate("/");
+        toast.success("Logout successful!!");
+      } else if (result.isDenied) {
+        toast.info("Logout Cancelled!!");
+      }
+    });
   };
 
   return (
@@ -79,7 +98,11 @@ const NavBar = ({ drizzle, drizzleState }) => {
         <Link
           to={e.link}
           key={e.text}
-          className="py-3 px-5 mx-5 neumorphism-plain"
+          className={`py-3 px-5 mx-5 ${
+            e.link === location.pathname
+              ? "neumorphism-pressed"
+              : "neumorphism-plain"
+          } hover:underline`}
         >
           {e.text}
         </Link>
@@ -89,7 +112,11 @@ const NavBar = ({ drizzle, drizzleState }) => {
         <div className="flex flex-row items-center justify-center justify-self-end">
           <Link
             to={"/" + type + "/profile"}
-            className="py-3 px-5 flex flex-row neumorphism-plain"
+            className={`py-3 px-5 mx-5 ${
+              "/" + type + "/profile" === location.pathname
+                ? "neumorphism-pressed"
+                : "neumorphism-plain"
+            } hover:underline flex flex-row`}
           >
             <User />
             {res.profile.name}

@@ -20,7 +20,9 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
     const id = toast.loading("Logging in!!");
     e.preventDefault();
     const { Account } = drizzle.contracts;
-    let hash = await Account.methods.institData().call();
+    let hash = await Account.methods
+      .institData(drizzleState.accounts[0])
+      .call();
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/login",
       {

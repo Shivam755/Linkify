@@ -91,9 +91,9 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
         console.log(hash);
         try {
           const { Account } = drizzle.contracts;
-          let temp = Account.methods["createInstituteAccount"].cacheSend(hash, {
-            from: drizzleState.accounts[0],
-          });
+          let temp = Account.methods
+            .createInstituteAccount(drizzleState.accounts[0], hash)
+            .send();
           setStackId(temp);
           updateToast(id, result.data.message, "success");
           navigate("/Institute/login");

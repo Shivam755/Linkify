@@ -21,7 +21,7 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
 
     const { Account } = drizzle.contracts;
     console.log(drizzleState.accounts[0]);
-    let hash = await Account.methods.indivData().call();
+    let hash = await Account.methods.indivData(drizzleState.accounts[0]).call();
     console.log(hash);
     try {
       let result = await Axios.post(

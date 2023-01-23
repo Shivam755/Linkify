@@ -28,7 +28,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
       console.log(drizzle.contracts.Account.methods);
       const Account = drizzle.contracts.Account;
       // console.log(Account);
-      hash = await Account.methods.indivData().call();
+      hash = await Account.methods.indivData(drizzleState.accounts[0]).call();
       console.log(hash);
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/profile",
@@ -89,9 +89,9 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
       try {
         console.log(drizzle);
         const { Account } = drizzle.contracts;
-        let temp = Account.methods["updateIndivData"].cacheSend(hash, {
-          from: drizzleState.accounts[0],
-        });
+        let temp = Account.methods
+          .updateIndivData(drizzleState.accounts[0], hash)
+          .send();
         console.log(temp);
         setStackId(temp);
 
