@@ -5,16 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { updateToast } from "../../utilities/toastify";
 import { qualifications } from "../../utilities/defaultValues";
 import Loading from "../../components/loading";
-import { tokenKey } from "../../utilities/tokenSlice";
+import { getToken } from "../../utilities/tokenSlice";
 
 const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [name, setName] = useState("");
   const [qualification, setQualification] = useState("");
-  const [stackId, setStackId] = useState();
   const navigate = useNavigate();
   let hash;
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
+  let token = getToken();
   // update states
   const updateQualification = (e) => {
     setQualification(e.target.value);
@@ -37,7 +36,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
           type: "Individual",
         },
         {
-          authorization: token,
+          headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => console.log(err));
       setRes(result.data.profile);
@@ -79,6 +78,9 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
         // designation: designation,
         password: res.password,
         documentList: res.documentList,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
     console.log(result);
@@ -93,7 +95,6 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
           .updateIndivData(drizzleState.accounts[0], hash)
           .send();
         console.log(temp);
-        setStackId(temp);
 
         // await checkStatus();
         // alert("User created Successfully!!");

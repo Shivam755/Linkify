@@ -3,15 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { updateToast } from "../utilities/toastify";
 import Axios from "axios";
+import { getToken } from "../utilities/tokenSlice";
 
 const ChangePassword = ({ drizzle, drizzleState }) => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [stackId, setStackId] = useState();
   const navigate = useNavigate();
   let { type } = useParams();
-
+  const token = getToken();
   //Methods for updating state
   const updateOldPassword = (e) => {
     setOldPassword(e.target.value);
@@ -44,6 +44,9 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
         old: oldPassword,
         new: newPassword,
         confirm: confirmPassword,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
     if (result.data.status === "Success") {
@@ -60,7 +63,6 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
             .updateInstitData(drizzleState.accounts[0], hash)
             .send();
         }
-        setStackId(temp);
         updateToast(id, "Password Changed Successfully!", "success");
         navigate("/" + type + "/profile/");
       } catch (err) {

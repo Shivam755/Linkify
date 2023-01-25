@@ -9,7 +9,7 @@ import {
   institLogin,
   initValue,
 } from "../utilities/navSlice";
-import { tokenKey, deleteToken } from "../utilities/tokenSlice";
+import { getToken, deleteToken } from "../utilities/tokenSlice";
 import { LogOut, User } from "react-feather";
 
 let updateNav;
@@ -22,8 +22,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
   const [type, setType] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
-
+  let token = getToken();
   updateNav = (updateType = null) => {
     setType(updateType);
     if (updateType === "Individual") {
@@ -54,16 +53,14 @@ const NavBar = ({ drizzle, drizzleState }) => {
         hash: hash.slice(2),
         type: type,
       },
-      {
-        authorization: token,
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     ).catch((err) => console.log(err));
     setRes(result.data);
   };
-
-  if (token !== null && res === null && type !== null) {
+  console.log(token, links);
+  if (token && res === null && type !== null) {
     fetchdata(type);
-  } else if (token === null && links === null) {
+  } else if (!token && links === null) {
     updateNav();
   }
 

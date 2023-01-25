@@ -12,6 +12,7 @@ const Individual = [
 const Institute = [
   { text: "Dashboard", link: "/dashboard/Institute" },
   { text: "Find Individuals", link: "/Institute/searchIndividuals" },
+  { text: "View Members", link: "/Institute/viewMembers" },
 ];
 
 const institLogin = () => {

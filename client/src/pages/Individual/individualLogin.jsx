@@ -36,9 +36,9 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
       if (result.data.status === "Success") {
         updateToast(id, "Login successful!!", "success");
         console.log(result.data.auth);
-        updateNav("Individual");
         setToken(result.data.auth);
         navigate("/dashboard/Individual");
+        updateNav("Individual");
       } else {
         // alert("Login failed!!");
         updateToast(id, result.data.msg, "error");

@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { isAddress } from "ethereum-address";
 import { toast } from "react-toastify";
 import { updateToast } from "./../utilities/toastify";
+import { getToken } from "../utilities/tokenSlice";
 
 const SendRequest = ({ drizzle, drizzleState }) => {
   const location = useLocation();
@@ -11,6 +12,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
   const [senderName, setSenderName] = useState();
   const [msg, setMsg] = useState("");
   const [role, setRole] = useState("");
+  const token = getToken();
 
   useEffect(() => {
     const fetchName = async () => {
@@ -29,6 +31,9 @@ const SendRequest = ({ drizzle, drizzleState }) => {
         {
           hash: hash.slice(2),
           type: type === "Recruiting" ? "Institute" : "Individual",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => {
         console.log(err);
@@ -55,6 +60,10 @@ const SendRequest = ({ drizzle, drizzleState }) => {
   const sendRequest = async (e) => {
     const id = toast.loading("Creating account!!");
     e.preventDefault();
+    console.log(senderId);
+    console.log(receiverId);
+    console.log(msg);
+    console.log(role);
     if (
       !(
         senderId.trim.length &&
@@ -81,6 +90,9 @@ const SendRequest = ({ drizzle, drizzleState }) => {
           msg,
           role,
           type,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       if (result.data.status === "Success") {
@@ -153,7 +165,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
             <textarea
               cols={40}
               resize={false}
-              className="m-1 neumorphism-pressed px-6 py-4"
+              className="m-1 neumorphism-pressed px-6 py-4 hide-scroll"
               type="text"
               value={msg}
               placeholder="A small text to describe yourself and why you want this role"

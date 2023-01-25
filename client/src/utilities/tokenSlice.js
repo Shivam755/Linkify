@@ -1,31 +1,32 @@
-const tokenKey = "tokenSlice";
+import { AES, enc } from "crypto-js";
 
-const setToken = (token) => {
-  sessionStorage.setItem(tokenKey, JSON.stringify(token));
+let setToken = (token) => {
+  console.log(`Token in set: ${token}`);
+  const ciphertext = AES.encrypt(
+    token,
+    process.env.REACT_APP_SECRET_KEY
+  ).toString();
+  console.log(`Cipher in set: ${ciphertext}`);
+  sessionStorage.setItem("access_token", ciphertext);
 };
-const deleteToken = () => {
-  sessionStorage.removeItem(tokenKey);
+
+let getToken = () => {
+  const ciphertext = sessionStorage.getItem("access_token");
+  console.log(`Cipher in get: ${ciphertext}`);
+  if (ciphertext) {
+    const bytes = AES.decrypt(
+      ciphertext.toString(),
+      process.env.REACT_APP_SECRET_KEY
+    );
+    const token = bytes.toString(enc.Utf8);
+    console.log(`token in get ${token}`);
+    return token;
+  }
+  return null;
 };
 
-export { tokenKey, setToken, deleteToken };
+let deleteToken = () => {
+  sessionStorage.removeItem("access_token");
+};
 
-// import { createSlice } from "@reduxjs/toolkit";
-
-// const tokenSlice = createSlice({
-//   name: "token",
-//   initialState: {
-//     value: null,
-//   },
-//   reducers: {
-//     setToken: (state, action) => {
-//       state.value = action.payload;
-//     },
-//     deleteToken: (state) => {
-//       state.value = null;
-//     },
-//   },
-// });
-
-// export const { setToken, deleteToken } = tokenSlice.actions;
-
-// export default tokenSlice.reducer;
+export { getToken, setToken, deleteToken };

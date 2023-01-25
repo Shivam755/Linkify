@@ -6,17 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { updateToast } from "../../utilities/toastify";
 import Loading from "../../components/loading";
 import { InstituteTypes } from "../../utilities/defaultValues";
-import { tokenKey } from "../../utilities/tokenSlice";
+import { getToken } from "../../utilities/tokenSlice";
 
 const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [name, setName] = useState("");
   const [institType, setInstitType] = useState("");
   const [ceoId, setCeoId] = useState("");
-  const [stackId, setStackId] = useState();
   const navigate = useNavigate();
   let hash;
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
+  let token = getToken();
 
   const updateName = (e) => {
     setName(e.target.value);
@@ -43,7 +42,7 @@ const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
           type: "Institute",
         },
         {
-          authorization: token,
+          headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => console.log(err));
       console.log(result.data.profile);
@@ -81,6 +80,9 @@ const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
         password: res.password,
         roles: res.roles,
         location: res.location,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
     console.log(result);
@@ -95,7 +97,6 @@ const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
           .updateInstitData(drizzleState.accounts[0], hash)
           .send();
         console.log(temp);
-        setStackId(temp);
 
         // await checkStatus();
         // alert("User created Successfully!!");

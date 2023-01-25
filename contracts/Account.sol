@@ -14,7 +14,7 @@ contract Account {
     event IndividualDeleted(address id);
     event InstituteDeleted(address id);
     event passwordChanged(address id);
-    event roleAdded(address id, string role);
+    event roleAdded(address id, string[] role);
     // mapping(address => bytes32) private _individualAccounts;
     account[] private _individual;
     // mapping(address => bytes32) private _instituteAccounts;
@@ -140,7 +140,7 @@ contract Account {
     function addRole(
         address id,
         bytes32 hash,
-        string memory role
+        string[] memory role
     ) public {
         updateInstitData(id, hash);
         emit roleAdded(id, role);

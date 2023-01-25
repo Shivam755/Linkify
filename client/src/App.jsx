@@ -28,7 +28,9 @@ import InstituteUpdateProfile from "./pages/Institute/instituteUpdateProfile";
 import SearchIndividuals from "./pages/Institute/searchIndividuals";
 import InstituteViewInfo from "./pages/Institute/instituteViewInfo";
 import IndividualViewInfo from "./pages/Individual/individualViewInfo";
+import ViewMembers from "./pages/Institute/ViewMembers";
 import SendRequest from "./pages/sendRequest";
+import AddRole from "./pages/Institute/addRole";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -213,6 +215,21 @@ function App() {
                     path="/Institute/viewIndividualInfo/:id"
                     element={
                       <IndividualViewInfo
+                        drizzle={drizzle}
+                        drizzleState={drizzleState}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Institute/manageRoles"
+                    element={
+                      <AddRole drizzle={drizzle} drizzleState={drizzleState} />
+                    }
+                  />
+                  <Route
+                    path="/Institute/viewMembers"
+                    element={
+                      <ViewMembers
                         drizzle={drizzle}
                         drizzleState={drizzleState}
                       />

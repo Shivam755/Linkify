@@ -16,7 +16,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   // const [differenPassword, setDifferentPassword] = useState(false);
   const [dob, setDOB] = useState();
-  const [stackId, setStackId] = useState();
 
   // update states
   const updateQualification = (e) => {
@@ -73,7 +72,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
         let temp = Account.methods
           .createIndividualAccount(drizzleState.accounts[0], hash)
           .send();
-        setStackId(temp);
 
         // await checkStatus();
         // alert("User created Successfully!!");
@@ -87,34 +85,6 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
     } else {
       updateToast(id, result.data.status, "info");
     }
-  };
-
-  const checkStatus = async () => {
-    return new Promise((resolve) => {
-      let done = false;
-      while (!done) {
-        let status = getTxStatus();
-        if (status !== null) {
-          done = true;
-          console.log(status);
-        }
-        setTimeout(() => {}, 1000);
-      }
-    });
-  };
-
-  const getTxStatus = () => {
-    // get the transaction states from the drizzle state
-    const { transactions, transactionStack } = drizzleState;
-
-    // get the transaction hash using our saved `stackId`
-    const txHash = transactionStack[stackId];
-
-    // if transaction hash does not exist, don't display anything
-    if (!txHash) return null;
-
-    // otherwise, return the transaction status
-    return transactions[txHash] && transactions[txHash].status;
   };
 
   return (

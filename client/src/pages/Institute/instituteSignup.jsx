@@ -13,12 +13,9 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
   const [name, setName] = useState("");
   const [ceoId, setCeoId] = useState("");
   const [type, setType] = useState("");
-  // const [roles, setRoles] = useState("");
   const [foundationDate, setFoundationDate] = useState();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  // const [differenPassword, setDifferentPassword] = useState(false);
-  const [stackId, setStackId] = useState();
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
       positionOptions: {
@@ -94,7 +91,6 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
           let temp = Account.methods
             .createInstituteAccount(drizzleState.accounts[0], hash)
             .send();
-          setStackId(temp);
           updateToast(id, result.data.message, "success");
           navigate("/Institute/login");
           // alert(result.data.message);
@@ -111,20 +107,6 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
         "error"
       );
     }
-  };
-
-  const getTxStatus = () => {
-    // get the transaction states from the drizzle state
-    const { transactions, transactionStack } = drizzleState;
-
-    // get the transaction hash using our saved `stackId`
-    const txHash = transactionStack[stackId];
-
-    // if transaction hash does not exist, don't display anything
-    if (!txHash) return null;
-
-    // otherwise, return the transaction status
-    return transactions[txHash] && transactions[txHash].status;
   };
 
   return !isGeolocationAvailable ? (

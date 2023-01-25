@@ -3,7 +3,7 @@ import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
-import { tokenKey } from "../../utilities/tokenSlice";
+import { getToken } from "../../utilities/tokenSlice";
 import Title from "../../components/title";
 
 const InstituteViewInfo = ({ drizzle, drizzleState }) => {
@@ -11,7 +11,7 @@ const InstituteViewInfo = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [state, setState] = useState({});
 
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
+  let token = getToken();
   useEffect(() => {
     const fetchdata = async () => {
       const toastId = toast.loading("Fetching data");
@@ -22,7 +22,7 @@ const InstituteViewInfo = ({ drizzle, drizzleState }) => {
           type: "Institute",
         },
         {
-          authorization: token,
+          headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => {
         console.log(err);

@@ -3,7 +3,7 @@ import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
-import { tokenKey } from "../../utilities/tokenSlice";
+import { getToken } from "../../utilities/tokenSlice";
 import Title from "../../components/title";
 
 const IndividualViewInfo = ({ drizzle, drizzleState }) => {
@@ -11,7 +11,7 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const [state, setState] = useState({});
 
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
+  let token = getToken();
   useEffect(() => {
     const fetchdata = async () => {
       const toastId = toast.loading("Fetching data");
@@ -25,6 +25,9 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
           process.env.REACT_APP_SERVER_HOST + "/api/getRoles",
           {
             hash: hash.slice(2),
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
       } catch (error) {
@@ -42,7 +45,7 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
           type: "Individual",
         },
         {
-          authorization: token,
+          headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => {
         console.log(err);

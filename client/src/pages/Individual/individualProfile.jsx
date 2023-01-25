@@ -6,33 +6,42 @@ import { toast } from "react-toastify";
 import { IndivProfileOptions } from "../../utilities/defaultValues";
 import { updateToast } from "../../utilities/toastify";
 import { updateNav } from "../../components/navbar";
-import { tokenKey, deleteToken } from "../../utilities/tokenSlice";
+import { getToken, deleteToken } from "../../utilities/tokenSlice";
 
 const IndividualProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const navigate = useNavigate();
   // let { id } = useParams();
-  let token = JSON.parse(sessionStorage.getItem(tokenKey));
+  let token = getToken();
   useEffect(() => {
     const fetchdata = async () => {
-      const { Account } = drizzle.contracts;
-      console.log(Account);
-      let hash = await Account.methods
-        .indivData(drizzleState.accounts[0])
-        .call();
-      console.log(hash);
-      let result = await Axios.post(
-        process.env.REACT_APP_SERVER_HOST + "/api/profile",
-        {
-          hash: hash.slice(2),
-          type: "Individual",
-        },
-        {
-          authorization: token,
+      let toastId = toast.loading("Fetching data");
+      try {
+        const { Account } = drizzle.contracts;
+        console.log(Account);
+        let hash = await Account.methods
+          .indivData(drizzleState.accounts[0])
+          .call();
+        console.log(hash);
+        let result = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/api/profile",
+          {
+            hash: hash.slice(2),
+            type: "Individual",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ).catch((err) => console.log(err));
+        if (!result.data.profile) {
+          return updateToast(toastId, "Data fetch failed", "error");
         }
-      ).catch((err) => console.log(err));
-      setRes(result.data.profile);
-      console.log(result);
+        setRes(result.data.profile);
+        console.log(result);
+        return updateToast(toastId, "Data fetch successful!", "success");
+      } catch (error) {
+        return updateToast(toastId, error, "error");
+      }
     };
     fetchdata();
   }, []);
@@ -41,7 +50,9 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
     const id = toast.loading("Deleting profile!");
     const { Account } = drizzle.contracts;
     console.log(Account.methods.deleteIndivData());
-    let result = await Account.methods.deleteIndivData().send();
+    let result = await Account.methods
+      .deleteIndivData(drizzleState.accounts[0])
+      .send();
     console.log(result);
     if (result) {
       updateToast(id, "Account deleted Successfully!", "success");

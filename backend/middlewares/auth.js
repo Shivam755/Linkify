@@ -15,10 +15,8 @@ const passport = require("passport");
 // console.log(process.env.JWT_SECRET);
 let opts = {
   secretOrKey: process.env.JWT_SECRET,
-  jwtFromRequest: ExtractJwt.fromHeader("authorization"),
-  jsonWebTokenOptions: {
-    maxAge: "2d",
-  },
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  ignoreExpiration: false,
 };
 
 passport.use(

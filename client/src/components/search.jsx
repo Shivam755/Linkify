@@ -2,11 +2,14 @@ import Axios from "axios";
 import React, { useState } from "react";
 import { Search } from "react-feather";
 import SearchCard from "./searchCard";
+import { getToken } from "./../utilities/tokenSlice";
 
 const SearchComp = ({ title, type }) => {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState([]);
   const [msg, setMsg] = useState(null);
+
+  const token = getToken();
 
   const updateQuery = (e) => {
     setQuery(e.target.value);
@@ -21,6 +24,9 @@ const SearchComp = ({ title, type }) => {
       {
         query: query,
         type: type,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
     console.log(temp.data);
