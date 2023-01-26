@@ -43,6 +43,14 @@ app.post("/verifySignature", (req, res) => {
   });
 });
 
+app.post(
+  "/api/auth",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    return res.send({ status: SUCCESS, msg: "Authentication is working" });
+  }
+);
+
 app.post("/api/createUser", async (req, res) => {
   let type = req.body.type;
   //verifying if type of user is valid
@@ -207,15 +215,6 @@ app.post(
         msg: err,
       });
     }
-  }
-);
-
-app.post(
-  "/api/auth",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    console.log(req);
-    return res.send({ msg: "Authentication is working" });
   }
 );
 

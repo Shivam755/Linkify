@@ -8,10 +8,12 @@ import NavBar from "./components/navbar";
 import "./App.css";
 import Loading from "./components/loading";
 import Account from "./contracts/Account.json";
+import ProtectedRoute from "./components/protectedRoute";
 //Common pages
 import Home from "./pages/home";
 import ChangePassword from "./pages/changePassword";
 import Dashboard from "./pages/dashboard";
+import Forbidden from "./pages/Forbidden";
 //Individual pages
 import Individual from "./pages/Individual/individual";
 import IndividualSignUp from "./pages/Individual/individualSignup";
@@ -239,9 +241,13 @@ function App() {
                   <Route
                     path="/dashboard/:type"
                     element={
-                      <Dashboard
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <Dashboard
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
@@ -263,6 +269,7 @@ function App() {
                       />
                     }
                   />
+                  <Route path="/403/Forbidden" element={<Forbidden />} />
                 </Routes>
                 <ToastContainer
                   draggable={true}
