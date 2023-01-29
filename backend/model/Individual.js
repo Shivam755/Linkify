@@ -12,9 +12,15 @@ const Individual = new mongoose.Schema({
   password: { type: String, required: true },
   documentList: [String],
   prevId: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
-Individual.index({ name: "text", metamskId: "text", birthDate: "text" });
+Individual.index({
+  name: "text",
+  metamskId: "text",
+  birthDate: "text",
+  createdAt: -1,
+});
 
 Individual.pre("save", function (next) {
   var user = this;

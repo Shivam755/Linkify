@@ -29,7 +29,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
       let result = await Axios.post(
         process.env.REACT_APP_SERVER_HOST + "/api/getName",
         {
-          hash: hash.slice(2),
+          hash: [hash.slice(2)],
           type: type === "Recruiting" ? "Institute" : "Individual",
         },
         {
@@ -66,10 +66,10 @@ const SendRequest = ({ drizzle, drizzleState }) => {
     console.log(role);
     if (
       !(
-        senderId.trim.length &&
-        receiverId.trim.length &&
-        msg.trim.length &&
-        role.trim.length
+        senderId.trim().length &&
+        receiverId.trim().length &&
+        msg.trim().length &&
+        role.trim().length
       )
     ) {
       return updateToast(
@@ -110,8 +110,8 @@ const SendRequest = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           {/* Sender Name */}
           <div className="m-1 flex items-center justify-between">

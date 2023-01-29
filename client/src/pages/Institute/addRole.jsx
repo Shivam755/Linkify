@@ -10,7 +10,6 @@ import { getToken } from "../../utilities/tokenSlice";
 const AddRole = ({ drizzle, drizzleState }) => {
   const [role, setRole] = useState("");
   const [roleList, setRoleList] = useState([]);
-  const [newRoleList, setNewRoleList] = useRef([]);
   const token = getToken();
 
   useEffect(() => {
@@ -107,7 +106,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
           console.log(drizzle);
           const { Account } = drizzle.contracts;
           let temp = Account.methods
-            .addRole(drizzleState.accounts[0], hash, newRoleList)
+            .addRole(drizzleState.accounts[0], hash, roleList)
             .send();
           console.log(temp);
 
@@ -153,7 +152,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
   };
   console.log(`root Level: ${roleList}`);
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex flex-col h-screen justify-center items-center">
         <div className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <Title title="Manage Roles" />

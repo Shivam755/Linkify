@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 // import { useParams } from "react-router-dom";
-import { client } from "../utilities/ipfs";
+import { client } from "../../utilities/ipfs";
 import Dropzone from "react-dropzone";
 
 const UploadFile = () => {

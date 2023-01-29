@@ -91,8 +91,8 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
           {res !== null &&
@@ -113,18 +113,32 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
                 </div>
               );
             })}
-          <Link
-            className="neumorphism-plain px-5 py-3 m-2"
-            to={"/Individual/updateProfile"}
-          >
-            Edit Profile
-          </Link>
-          <Link
-            to="/changePassword/Individual/"
-            className="neumorphism-plain px-5 py-3 m-2"
-          >
-            Change Password
-          </Link>
+          <div className="flex flex-wrap">
+            <Link
+              className="neumorphism-plain px-5 py-3 m-2"
+              to={"/Individual/updateProfile"}
+            >
+              Edit Profile
+            </Link>
+            <Link
+              to="/changePassword/Individual/"
+              className="neumorphism-plain px-5 py-3 m-2"
+            >
+              Change Password
+            </Link>
+            <Link
+              to="/Individual/addEducation"
+              className="neumorphism-plain px-5 py-3 m-2"
+            >
+              Add Education
+            </Link>
+            <Link
+              to="/Individual/addWorkExperience"
+              className="neumorphism-plain px-5 py-3 m-2"
+            >
+              Add Work Experience
+            </Link>
+          </div>
           <button
             className="neumorphism-plain px-5 py-3 m-2"
             onClick={handleDelete}

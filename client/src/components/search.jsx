@@ -44,8 +44,8 @@ const SearchComp = ({ title, type }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-4/5 flex-col justify-start items-center">
+    <div className="flex flex-col h-screen max-h-screen">
+      <div className="flex h-5/6 flex-col justify-start items-center">
         <form className="p-4 m-2 w-11/12 flex justify-between  neumorphism-pressed">
           <input
             className="w-11/12 m-2 bg-transparent text-xl outline-0"

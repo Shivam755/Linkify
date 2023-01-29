@@ -26,6 +26,13 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
   //Method for saving the password
   const changePassword = async (e) => {
     e.preventDefault();
+    if (
+      oldPassword.trim().length <= 0 ||
+      newPassword.trim().length <= 0 ||
+      confirmPassword.trim().length <= 0
+    ) {
+      return toast.warning("None of the fields can be empty");
+    }
     const id = toast.loading("changing password!");
     const { Account } = drizzle.contracts;
     let hash;
@@ -63,8 +70,11 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
             .updateInstitData(drizzleState.accounts[0], hash)
             .send();
         }
-        updateToast(id, "Password Changed Successfully!", "success");
-        navigate("/" + type + "/profile/");
+        if (temp) {
+          updateToast(id, "Password Changed Successfully!", "success");
+          navigate("/" + type + "/profile/");
+        }
+        updateToast(id, "Password Changing Failed!!", "error");
       } catch (err) {
         console.log(err);
         updateToast(id, err, "error");
@@ -75,8 +85,8 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="text-5xl p-2 m-2 bold">Change Password</h1>
           {/* Old Password */}

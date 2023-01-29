@@ -4,8 +4,10 @@ import { toast } from "react-toastify";
 import Title from "../components/title";
 import { updateToast } from "./../utilities/toastify";
 import { getToken } from "../utilities/tokenSlice";
+import { useParams } from "react-router-dom";
 
 const Dashboard = ({ drizzle, drizzleState }) => {
+  const { type } = useParams();
   const [res, setRes] = useState(null);
   const token = getToken();
   useEffect(() => {
@@ -46,12 +48,13 @@ const Dashboard = ({ drizzle, drizzleState }) => {
     };
     fetchData();
   }, []);
-  const fetchName = async (address, type) => {
+
+  const fetchName = async (address) => {
     const id = toast.loading("Fetching data");
     const { Account } = drizzle.contracts;
     let hash;
     console.log(type);
-    if (type === "Recruiting") {
+    if (type === "Individual") {
       hash = await Account.methods.institData(address).call();
     } else {
       hash = await Account.methods.indivData(address).call();
@@ -60,7 +63,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
     let result = await Axios.post(
       process.env.REACT_APP_SERVER_HOST + "/api/getName",
       {
-        hash: hash.slice(2),
+        hash: [hash.slice(2)],
         type: type === "Recruiting" ? "Institute" : "Individual",
       },
       {
@@ -72,10 +75,10 @@ const Dashboard = ({ drizzle, drizzleState }) => {
       return null;
     });
     console.log(result);
-    if (result) {
+    if (!result) {
       // setSenderName(result.data.name);
-      updateToast(id, "Data fetch complete", "success", false, 500);
     }
+    updateToast(id, "Data fetch complete", "success", false, 500);
   };
 
   const show = (id, parentId) => {
@@ -104,12 +107,13 @@ const Dashboard = ({ drizzle, drizzleState }) => {
       </div>
     );
   }
-  // if (res.sent.length > 0) {
-  //   hide("sentList", "sent");
-  // }
-  // if (res.received.length > 0) {
-  //   hide("recList", "received");
-  // }
+  for (let i in res.sent) {
+    res.sent[i].receiverName = fetchName(res.sent[i].receiverId);
+  }
+  for (let i in res.received) {
+    res.received[i].senderName = fetchName(res.received[i].senderId);
+  }
+
   document.onload = (e) => {
     hide("recList", "received");
     hide("sentList", "sent");
@@ -123,7 +127,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
           <div
             id="received"
             // onClick={() => show("recList", "received")}
-            className="flex flex-col w-1/2 min-h-1/6 max-h-1/2  m-1 p-4  justify-center items-center neumorphism-plain hide-scroll"
+            className="flex flex-col w-9/12 min-h-1/6 max-h-1/2  m-1 p-4  justify-center items-center neumorphism-plain hide-scroll"
           >
             <div className="text-3xl h-1/6">
               Received {res.received.length > 0 && res.received.length}
@@ -132,12 +136,13 @@ const Dashboard = ({ drizzle, drizzleState }) => {
               id="recList "
               className="flex flex-col m-2 p-2 justify-center items-center w-full text-lg h-5/6 hide-scroll"
             >
-              <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-              <h1>received List</h1>
+              <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
               {res.received.map((element) => {
                 return (
                   <div>
-                    <div>Request Made by: {element.senderId}</div>
+                    <div>
+                      Request Made by: {element.senderName}({element.senderId})
+                    </div>
                     <div>For Role: {element.role}</div>
                     <div>Message: {element.msg}</div>
                     <div>
@@ -146,28 +151,36 @@ const Dashboard = ({ drizzle, drizzleState }) => {
                   </div>
                 );
               })}
+              {res.received.length <= 0 && <div>No Requests received!</div>}
             </div>
           </div>
           <div
             id="sent"
             // onClick={() => show("sentList", "Sent")}
-            className="flex flex-col w-1/2 min-h-fit  m-1 p-4 justify-center items-center neumorphism-plain overflow-y-scroll hide-scroll"
+            className="flex flex-col w-9/12 min-h-1/6 max-h-1/2  m-1 p-4  justify-center items-center neumorphism-plain hide-scroll"
           >
-            <div className="text-3xl h-full">
+            <div className="text-3xl h-1/6">
               Sent {res.sent.length > 0 && res.sent.length}
             </div>
-            <div id="sentList " className="text-lg h-5/6">
-              <h1>sent List</h1>
+            <div
+              id="sentList "
+              className="flex flex-col m-2 p-2 justify-center items-center w-full text-lg h-5/6 hide-scroll"
+            >
+              <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
               {res.sent.map((element) => {
                 return (
                   <div>
-                    <div>Request Made by: {element.senderId}</div>
+                    <div>
+                      Request Made to: {element.receiverName}(
+                      {element.receiverId})
+                    </div>
                     <div>For Role: {element.role}</div>
                     <div>Message: {element.msg}</div>
                     <div>Status: {element.status}</div>
                   </div>
                 );
               })}
+              {res.sent.length <= 0 && <div>No Requests sent!</div>}
             </div>
           </div>
         </div>

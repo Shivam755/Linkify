@@ -79,8 +79,8 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
     );
   }
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <div className="p-2 w-3/5 flex items-center justify-between">
             <Title title={res.name} />

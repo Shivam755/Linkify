@@ -67,8 +67,8 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
     );
   }
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex w-screen h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex w-screen h-5/6 justify-center items-center">
         <form className="w-1/2 flex flex-col justify-center items-center py-20 neumorphism-plain">
           <h1 className="text-5xl p-2 m-2 bold">Individual Login</h1>
           <div>

@@ -12,14 +12,10 @@ const client = mongoose.connect(
   },
   (error) => {
     if (error) {
-      console.log("Error!" + error);
+      console.log("Error in MongoDb Connection:");
+      console.log(error);
     }
   }
 );
-// const client = new mongodb.MongoClient(DBUri, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   serverApi: mongodb.ServerApiVersion.v1,
-// });
 
 module.exports = client;

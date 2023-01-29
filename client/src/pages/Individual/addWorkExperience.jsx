@@ -8,7 +8,7 @@ import { getToken } from "../../utilities/tokenSlice";
 import { client } from "../../utilities/ipfs";
 import { gradeUnits } from "../../utilities/defaultValues";
 
-const AddEducation = ({ drizzle, drizzleState }) => {
+const AddWorkExperience = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
   const [instits, setInstits] = useState([]);
   const [course, setCourse] = useState("");
@@ -17,16 +17,19 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const [startDate, setStartDate] = useState("");
   const [compDate, setCompDate] = useState("");
   const [completed, setCompleted] = useState(false);
-  const [credits, setCredits] = useState(0);
-  const [finalGrade, setFinalGrade] = useState(0);
-  const [finalGradeUnit, setFinalGradeUnit] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState("");
-  const docUrl = useRef("");
-  const docId = useRef("");
-  const [file, setFile] = useState("");
+  const [role, setRole] = useState([]);
+
+  const [selectedOffer, setSelectedOffer] = useState("");
+  const offerDocUrl = useRef("");
+  const offerDocId = useRef("");
+  const [offerLetter, setOfferLetter] = useState("");
+
+  const [selectedRelief, setSelectedRelief] = useState("");
+  const reliefDocUrl = useRef("");
+  const reliefDocId = useRef("");
+  const [reliefLetter, setReliefLetter] = useState("");
   const [progress, setProgress] = useState(null);
   let token = getToken();
-
   const show = (id) => {
     let element = document.getElementById(id);
     if (element) element.style.display = "flex";
@@ -51,6 +54,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   };
 
   const updateInstituteName = (e) => {
+    console.log(e);
     setInstituteName(e.target.value);
   };
 
@@ -66,23 +70,15 @@ const AddEducation = ({ drizzle, drizzleState }) => {
     setCompDate(e.target.value);
   };
 
-  const updateCredits = (e) => {
-    setCredits(e.target.value);
-  };
-
-  const updateFinalGrade = (e) => {
-    console.log(e.target.value);
-    setFinalGrade(e.target.value);
-  };
-
-  const updateFinalGradeUnit = (e) => {
-    console.log(e.target.value);
-    setFinalGradeUnit(e.target.value);
-  };
-
-  const onDrop = (files) => {
+  const onOfferDrop = (files) => {
     if (files.length > 0) {
-      setSelectedFiles(files);
+      setSelectedOffer(files);
+      console.log(files);
+    }
+  };
+  const onReliefDrop = (files) => {
+    if (files.length > 0) {
+      setSelectedOffer(files);
       console.log(files);
     }
   };
@@ -90,11 +86,11 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const upload = async () => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
-      let currentFile = selectedFiles[0];
+      let currentFile = selectedOffer[0];
 
       setProgress(0);
-      setFile(currentFile);
-      console.log(selectedFiles);
+      setOfferLetter(currentFile);
+      console.log(selectedOffer);
       let res = await handleSubmit();
       if (res) {
         updateToast(toastId, "Document saved successfully!!", "success");
@@ -112,12 +108,11 @@ const AddEducation = ({ drizzle, drizzleState }) => {
     try {
       console.log("handle submit started");
       console.log(client);
-      const created = await client.add(file);
+      const created = await client.add(offerLetter);
       console.log(created);
       const url = `https://ipfs.infura.io/ipfs/${created.path}`;
       console.log(url);
-      docId.current = created.path;
-      docUrl.current = url;
+      offerDocUrl.current = url;
       return true;
     } catch (error) {
       console.log(error.message);
@@ -130,7 +125,8 @@ const AddEducation = ({ drizzle, drizzleState }) => {
       course.trim().length <= 0 ||
       instituteName.trim().length <= 0 ||
       startDate.trim().length <= 0 ||
-      finalGradeUnit.trim().length <= 0
+      offerDocId.trim().length <= 0 ||
+      offerDocUrl.trim().length <= 0
     ) {
       return toast.warning("Please fill all the required fields!");
     }
@@ -150,13 +146,6 @@ const AddEducation = ({ drizzle, drizzleState }) => {
       startDate,
       completed,
       endDate: compDate,
-      CreditsGained: credits,
-      finalGrade,
-      finalGradeUnit,
-      finalMarksheet: {
-        id: docId.current,
-        url: docUrl.current,
-      },
     };
 
     try {
@@ -167,15 +156,9 @@ const AddEducation = ({ drizzle, drizzleState }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => console.log(err));
-      if (result.data.status !== "Success") {
-        return updateToast(
-          toastId,
-          "There was some problem in the backend. Please try again!",
-          "error"
-        );
-      }
+
       updateToast(toastId, "Data saved Successfully!!", "success");
-      navigate("/Individual/profile");
+      // navigate("/Individual/profile");
     } catch (error) {
       updateToast(toastId, error, "error");
     }
@@ -187,7 +170,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
         process.env.REACT_APP_SERVER_HOST + "/api/fetchAll",
         {
           type: "Institute",
-          subType: "Educational",
+          // subType: "Educational",
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -285,49 +268,11 @@ const AddEducation = ({ drizzle, drizzleState }) => {
               onChange={updateCompDate}
             />
           </div>
-          {/* Credits */}
-          <div className="m-1 flex items-center justify-between">
-            Credits gained:
-            <input
-              type="number"
-              className="m-1 neumorphism-pressed px-4 py-2"
-              value={credits}
-              placeholder="credits"
-              onChange={updateCredits}
-              required
-            />
-          </div>
-          {/* Final Grade */}
-          <div className="m-1 flex items-center justify-between">
-            Final Grade:
-            <input
-              type="number"
-              className="m-1 neumorphism-pressed px-4 py-2"
-              value={finalGrade}
-              placeholder="Grade"
-              onChange={updateFinalGrade}
-              required
-            />
-            <select
-              className="m-1 neumorphism-pressed px-4 py-2"
-              name="gradeUnit"
-              onChange={updateFinalGradeUnit}
-              required
-            >
-              {gradeUnits.map((e) => {
-                return (
-                  <option key={e} value={e}>
-                    {e}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
 
-          {/* Final Marksheet */}
+          {/* Offer Letter */}
           <div className="m-1 flex items-center justify-between">
-            Marksheet file:
-            <Dropzone onDrop={onDrop} multiple={false}>
+            Offer Letter file:
+            <Dropzone onDrop={onOfferDrop} multiple={false}>
               {({ getRootProps, getInputProps }) => (
                 <section>
                   <div
@@ -342,10 +287,41 @@ const AddEducation = ({ drizzle, drizzleState }) => {
                           "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
                       })}
                     />
-                    {selectedFiles && selectedFiles[0].name ? (
+                    {selectedOffer && selectedOffer[0].name ? (
                       <div>
                         <b>Selected File: </b>
-                        {selectedFiles && selectedFiles[0].name}
+                        {selectedOffer && selectedOffer[0].name}
+                      </div>
+                    ) : (
+                      "Drag and drop file here, or click to select file"
+                    )}
+                  </div>
+                </section>
+              )}
+            </Dropzone>
+          </div>
+          {/* Relief Letter */}
+          <div className="m-1 flex items-center justify-between">
+            Offer Letter file:
+            <Dropzone onDrop={onReliefDrop} multiple={false}>
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div
+                    {...getRootProps({
+                      className:
+                        "neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3 ",
+                    })}
+                  >
+                    <input
+                      {...getInputProps({
+                        className:
+                          "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
+                      })}
+                    />
+                    {selectedRelief && selectedRelief[0].name ? (
+                      <div>
+                        <b>Selected File: </b>
+                        {selectedRelief && selectedRelief[0].name}
                       </div>
                     ) : (
                       "Drag and drop file here, or click to select file"
@@ -368,4 +344,4 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   );
 };
 
-export default AddEducation;
+export default AddWorkExperience;

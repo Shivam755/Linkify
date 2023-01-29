@@ -119,6 +119,7 @@ const RequestStatus = {
 };
 const SUCCESS = "Success";
 const FAILED = "Failed";
+const validGradingUnits = ["Percentage", "GPA"];
 
 module.exports = {
   toHex,
@@ -126,6 +127,7 @@ module.exports = {
   validateInstituteJson,
   validInstitTypes,
   validRequestTypes,
+  validGradingUnits,
   RequestStatus,
   SUCCESS,
   FAILED,

@@ -111,8 +111,8 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="text-5xl p-2 m-2 bold">Update Profile</h1>
           {/* name */}

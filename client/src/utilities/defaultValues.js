@@ -28,9 +28,12 @@ let InstitProfileOptions = [
   "instituteType",
 ];
 
+let gradeUnits = ["Select a value", "Percentage", "GPA"];
+
 export {
   qualifications,
   InstituteTypes,
   IndivProfileOptions,
   InstitProfileOptions,
+  gradeUnits,
 };

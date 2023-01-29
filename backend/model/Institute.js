@@ -18,6 +18,7 @@ const Institute = new mongoose.Schema({
   password: { type: String, required: true },
   location: { type: mongoose.Schema.Types.Map, required: true },
   prevId: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 Institute.index({
@@ -25,6 +26,7 @@ Institute.index({
   metamaskId: "text",
   instituteType: "text",
   foundationDate: "text",
+  createdAt: -1,
 });
 
 Institute.pre("save", function (next) {

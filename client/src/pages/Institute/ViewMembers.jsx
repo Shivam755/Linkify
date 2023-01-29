@@ -33,8 +33,8 @@ const ViewMembers = ({ drizzle, drizzleState }) => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-col h-4/5 justify-center items-center">
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex flex-col h-5/6 justify-center items-center">
         <h1 className="text-5xl p-2 m-2 bold">Members List</h1>
         {!res && (
           <>
@@ -43,14 +43,17 @@ const ViewMembers = ({ drizzle, drizzleState }) => {
         )}
         {res &&
           res.map((e) => {
-            <form
-              key={e.id}
+            <div
+              key={e._id}
               className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain"
             >
               <p>e.name</p>
               <p>e.metamaskId</p>
               <p>e.role</p>
-            </form>;
+              <Link to={"/Institute/assignDoc/" + e._id}>
+                Assign a document
+              </Link>
+            </div>;
           })}
       </div>
     </div>

@@ -119,7 +119,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
       We need geolocation for security reasons. Please enable geolocation!
     </div>
   ) : (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex flex-col h-screen justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="p-3 m-4 font-bold text-6xl">Institute Sign Up</h1>

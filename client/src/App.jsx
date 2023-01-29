@@ -33,6 +33,9 @@ import IndividualViewInfo from "./pages/Individual/individualViewInfo";
 import ViewMembers from "./pages/Institute/ViewMembers";
 import SendRequest from "./pages/sendRequest";
 import AddRole from "./pages/Institute/addRole";
+import UploadFile from "./pages/Institute/addFile";
+import AddEducation from "./pages/Individual/addEducation";
+import AddWorkExperience from "./pages/Individual/addWorkExperience";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -134,31 +137,69 @@ function App() {
                   <Route
                     path="/Individual/profile"
                     element={
-                      <IndividualProfile
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <IndividualProfile
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
                   <Route
                     path="/Individual/updateProfile"
                     element={
-                      <IndividualUpdateProfile
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <IndividualUpdateProfile
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Individual/addEducation"
+                    element={
+                      <ProtectedRoute
+                        element={
+                          <AddEducation
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Individual/addWorkExperience"
+                    element={
+                      <ProtectedRoute
+                        element={
+                          <AddWorkExperience
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
                   <Route
                     path="/Individual/searchInstitutes"
-                    element={<SearchInstitutes />}
+                    element={<ProtectedRoute element={<SearchInstitutes />} />}
                   />
                   <Route
                     path="/Individual/viewInstituteInfo/:id"
                     element={
-                      <InstituteViewInfo
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <InstituteViewInfo
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
@@ -194,46 +235,82 @@ function App() {
                   <Route
                     path="/Institute/profile"
                     element={
-                      <InstituteProfile
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <InstituteProfile
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
                   <Route
                     path="/Institute/updateProfile"
                     element={
-                      <InstituteUpdateProfile
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <InstituteUpdateProfile
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
                   <Route
                     path="/Institute/searchIndividuals"
-                    element={<SearchIndividuals />}
+                    element={<ProtectedRoute element={<SearchIndividuals />} />}
                   />
                   <Route
                     path="/Institute/viewIndividualInfo/:id"
                     element={
-                      <IndividualViewInfo
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <IndividualViewInfo
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
                   <Route
                     path="/Institute/manageRoles"
                     element={
-                      <AddRole drizzle={drizzle} drizzleState={drizzleState} />
+                      <ProtectedRoute
+                        element={
+                          <AddRole
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
+                      />
                     }
                   />
                   <Route
                     path="/Institute/viewMembers"
                     element={
-                      <ViewMembers
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <ViewMembers
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
+                      />
+                    }
+                  />
+                  <Route
+                    path="/Institute/assignDoc/:id"
+                    element={
+                      <ProtectedRoute
+                        element={
+                          <UploadFile
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
@@ -254,18 +331,26 @@ function App() {
                   <Route
                     path="/changePassword/:type"
                     element={
-                      <ChangePassword
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <ChangePassword
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />
                   <Route
                     path="/makeRequest"
                     element={
-                      <SendRequest
-                        drizzle={drizzle}
-                        drizzleState={drizzleState}
+                      <ProtectedRoute
+                        element={
+                          <SendRequest
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
                       />
                     }
                   />

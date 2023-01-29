@@ -18,6 +18,9 @@ const passport = require("./middlewares/auth");
 const Individual = require("./model/Individual");
 const Institute = require("./model/Institute");
 const Request = require("./model/Request");
+const Education = require("./model/Education");
+const WorkExperience = require("./model/WorkExperience");
+const Documents = require("./model/Documents");
 const port = 3002;
 
 //methods for digital signature
@@ -48,6 +51,47 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     return res.send({ status: SUCCESS, msg: "Authentication is working" });
+  }
+);
+
+app.post(
+  "/api/fetchAll",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let type = req.body.type;
+    //verifying if type of user is valid
+    if (!validInstitTypes.includes(type)) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+      });
+    }
+
+    try {
+      let result;
+      if (type === validInstitTypes[0]) {
+        result = await Individual.find();
+      } else {
+        let subType = req.body.subType;
+        if (!subType || subType.trim().length <= 0) {
+          result = await Institute.find();
+        } else {
+          result = await Institute.find({ instituteType: subType });
+        }
+      }
+
+      return res.send({
+        status: SUCCESS,
+        result,
+      });
+    } catch (error) {
+      console.log("Error in Fetch all: ");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        message: error,
+      });
+    }
   }
 );
 
@@ -118,6 +162,7 @@ app.post("/api/createUser", async (req, res) => {
       hash: digest,
     });
   } catch (err) {
+    console.log("Error in Create User");
     console.log(err);
     return res.send({
       status: FAILED,
@@ -172,6 +217,7 @@ app.post("/api/login", async (req, res) => {
       });
     }
   } catch (err) {
+    console.log("Error in Login: ");
     console.log(err);
     return res.send({
       status: FAILED,
@@ -187,22 +233,40 @@ app.post(
     let hash = req.body.hash;
     let type = req.body.type;
     if (!validInstitTypes.includes(type)) {
-      res.send({
+      return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
       });
     }
+
     try {
-      let result;
-      if (type === validInstitTypes[0]) {
-        result = await Individual.findOne({ _id: hash });
-      } else {
-        result = await Institute.findOne({ _id: hash });
+      if (hash.length < 0) {
+        return res.send({
+          status: FAILED,
+          msg: "Provide atleast one id to find it's name",
+        });
       }
-      if (result) {
+    } catch (error) {
+      return res.send({
+        status: FAILED,
+        msg: "hash must be an array of hashes, containing atleast one hash",
+      });
+    }
+    try {
+      let results;
+      if (type === validInstitTypes[0]) {
+        results = await Individual.find({ _id: { $in: hash } });
+      } else {
+        results = await Institute.find({ _id: { $in: hash } });
+      }
+      if (results) {
+        let names = [];
+        for (let result in results) {
+          names.push(results[result].name);
+        }
         return res.send({
           status: SUCCESS,
-          name: result.name,
+          names: names,
         });
       }
       return res.send({
@@ -210,6 +274,81 @@ app.post(
         msg: "No Account exists with the given wallet ID",
       });
     } catch (err) {
+      console.log("Error in get Name: ");
+      console.log(err);
+      res.send({
+        status: FAILED,
+        msg: err,
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/getLatestHashes",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let Id = req.body.Id;
+    let type = req.body.type;
+    if (!validInstitTypes.includes(type)) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+      });
+    }
+
+    try {
+      if (Id.length < 0) {
+        return res.send({
+          status: FAILED,
+          msg: "Provide atleast one id to find it's hash",
+        });
+      }
+    } catch (error) {
+      return res.send({
+        status: FAILED,
+        msg: "Id must be an array of metamsk Ids, containing atleast one Id",
+      });
+    }
+    try {
+      let results = [];
+      for (let id in Id) {
+        if (type === validInstitTypes[0]) {
+          results.push(
+            await Individual.find({ metamaskId: Id[id] })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1)
+          );
+        } else {
+          results.push(
+            await Institute.find({ metamaskId: Id[id] })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1)
+          );
+        }
+      }
+      if (results) {
+        let hashes = [];
+        console.log("List of hashes: " + results);
+        for (let result in results) {
+          hashes.push(results[result][0]._id);
+        }
+        return res.send({
+          status: SUCCESS,
+          hashes: hashes,
+        });
+      }
+      return res.send({
+        status: FAILED,
+        msg: "No Account exists with the given wallet ID",
+      });
+    } catch (err) {
+      console.log("Error in Get latest Hashes: ");
+      console.log(err);
       res.send({
         status: FAILED,
         msg: err,
@@ -222,7 +361,6 @@ app.post(
   "/api/profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    console.log(req);
     let type = req.body.type;
     let hash = req.body.hash;
     if (!validInstitTypes.includes(type)) {
@@ -239,7 +377,6 @@ app.post(
       } else {
         result = await Institute.findOne({ _id: hash });
       }
-      console.log("Result: " + result);
 
       if (result) {
         return res.send({
@@ -253,6 +390,8 @@ app.post(
         msg: "No Account exists with the given wallet ID",
       });
     } catch (err) {
+      console.log("Error in Profile: ");
+
       console.log(err);
       return res.send({
         status: FAILED,
@@ -340,6 +479,7 @@ app.post(
         hash: digest,
       });
     } catch (err) {
+      console.log("Error in UpdateUser: ");
       console.log(err);
       return response.send({
         status: FAILED,
@@ -353,13 +493,29 @@ app.post(
   "/api/changePassword",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    let type = req.body.type;
-    let id = req.body.id;
+    let { type, id, old, confirm } = req.body;
+    const newPass = req.body.new;
     //verifying if type of user is valid
     if (!validInstitTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+      });
+    }
+    //Performing validations on received password
+    if (!(old && confirm && newPass)) {
+      return res.send({
+        status: FAILED,
+        msg: "All fields are required",
+      });
+    } else if (
+      old.trim().length <= 0 ||
+      newPass.trim().length <= 0 ||
+      confirm.trim().length <= 0
+    ) {
+      return res.send({
+        status: FAILED,
+        msg: "None of the fields can be empty",
       });
     }
     try {
@@ -378,7 +534,7 @@ app.post(
       }
 
       //verifying old password
-      let answer = result.comparePassword(
+      let answer = await result.comparePassword(
         req.body.old,
         async (err, isMatch = false) => {
           if (err) {
@@ -395,7 +551,6 @@ app.post(
           }
         }
       );
-      console.log(answer);
       //verify new and confirm password
       if (req.body.new !== req.body.confirm) {
         return res.send({
@@ -439,7 +594,6 @@ app.post(
         result = await Institute.create({ _id: digest, ...body });
       }
       result = await result.save();
-      console.log(result);
 
       return res.send({
         status: SUCCESS,
@@ -447,76 +601,11 @@ app.post(
         hash: digest,
       });
     } catch (err) {
+      console.log("Error in Change Password: ");
       console.log(err);
       return res.send({
         status: FAILED,
         msg: "some error occured!!",
-      });
-    }
-  }
-);
-
-app.post(
-  "/api/getMembers",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      let result = await Institute.findOne({ _id: req.hash });
-      if (!result) {
-        return res.send({
-          status: FAILED,
-          msg: "No Account exists with the given wallet ID",
-        });
-      }
-      let memberIds = [result.members.map((e) => e.id)];
-      console.log(memberIds);
-      let members = await Individual.find({ _id: { $in: memberIds } });
-      let memberList = [];
-      for (let i in memberIds) {
-        console.log(i);
-        memberList.push({
-          id: result.members[i].id,
-          name: members[i].name,
-          role: result.members[i].role,
-          metamaskId: members[i].metamaskId,
-        });
-      }
-      return res.send({
-        status: SUCCESS,
-        members: memberList,
-      });
-    } catch (err) {
-      console.log(err);
-      return res.send({
-        status: FAILED,
-        msg: "Some error occured!!",
-      });
-    }
-  }
-);
-
-app.post(
-  "/api/getRoles",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let { hash } = req.body;
-    try {
-      let result = await Institute.findOne({ _id: hash });
-      if (!result) {
-        return res.send({
-          status: FAILED,
-          msg: "No Account exists with the given wallet ID",
-        });
-      }
-      return res.send({
-        status: SUCCESS,
-        roles: result.roles,
-      });
-    } catch (err) {
-      console.log(err);
-      return res.send({
-        status: FAILED,
-        msg: "Some error occured!!",
       });
     }
   }
@@ -542,20 +631,14 @@ app.post(
         result = await Individual.find({ $text: { $search: query } });
       } else {
         result = await Institute.find({ $text: { $search: query } });
-        // .exec(
-        //   (err, docs) => {
-        //     console.log("error:" + err);
-        //     console.log(`docs: ${docs}`);
-        //   }
-        // );
       }
-      console.log("result: " + result);
       return res.send({
         status: SUCCESS,
         results: result,
       });
     } catch (error) {
-      console.log("overall error: " + error);
+      console.log("Error in Fetch result: ");
+      console.log(error);
       return res.send({
         status: FAILED,
         msg: "Some error occured. Please contact backend",
@@ -579,10 +662,10 @@ app.post(
 
     if (
       !(
-        senderId.trim.length &&
-        receiverId.trim.length &&
-        msg.trim.length &&
-        role.trim.length
+        senderId.trim().length &&
+        receiverId.trim().length &&
+        msg.trim().length &&
+        role.trim().length
       )
     ) {
       return res.send({
@@ -609,6 +692,7 @@ app.post(
         message: "Request added!",
       });
     } catch (error) {
+      console.log("Error in Add Request: ");
       console.log(error);
       return res.send({
         status: FAILED,
@@ -649,7 +733,6 @@ app.post(
       }
 
       //updating document
-      console.log(result);
       result.updateOne({ status });
 
       return res.send({
@@ -657,6 +740,7 @@ app.post(
         message: "Request updated!",
       });
     } catch (error) {
+      console.log("Error in Update Request status: ");
       console.log(err);
       return res.send({
         status: FAILED,
@@ -689,17 +773,214 @@ app.post(
         status: RequestStatus.Pending,
       });
 
-      console.log(`Sent: ${sent}\nReceived: ${received}`);
       return res.send({
         status: SUCCESS,
         received,
         sent,
       });
     } catch (error) {
+      console.log("Error in Get Dashboard Info: ");
       console.log(error);
       return res.send({
         status: FAILED,
         msg: "Some error occured on backend.",
+      });
+    }
+  }
+);
+
+// methods specific to institutes only
+app.post(
+  "/api/getMembers",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      let result = await Institute.findOne({ _id: req.hash });
+      if (!result) {
+        return res.send({
+          status: FAILED,
+          msg: "No Account exists with the given wallet ID",
+        });
+      }
+      let memberIds = [result.members.map((e) => e.id)];
+      let members = await Individual.find({ _id: { $in: memberIds } });
+      let memberList = [];
+      for (let i in memberIds) {
+        memberList.push({
+          id: result.members[i].id,
+          name: members[i].name,
+          role: result.members[i].role,
+          metamaskId: members[i].metamaskId,
+        });
+      }
+      return res.send({
+        status: SUCCESS,
+        members: memberList,
+      });
+    } catch (err) {
+      console.log("Error in Get Members: ");
+      console.log(err);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured!!",
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/getRoles",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let { hash } = req.body;
+    try {
+      let result = await Institute.findOne({ _id: hash });
+      if (!result) {
+        return res.send({
+          status: FAILED,
+          msg: "No Account exists with the given wallet ID",
+        });
+      }
+      return res.send({
+        status: SUCCESS,
+        roles: result.roles,
+      });
+    } catch (err) {
+      console.log("Error in Get Roles: ");
+      console.log(err);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured!!",
+      });
+    }
+  }
+);
+
+// methods specific to individuals
+app.post(
+  "/api/AddEducation",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let {
+      id,
+      course,
+      instituteId,
+      instituteName,
+      isVerified,
+      startDate,
+      completed,
+      endDate,
+      CreditsGained,
+      finalGrade,
+      finalGradeUnit,
+      finalMarksheet,
+    } = req.body;
+
+    try {
+      let body = {
+        docId: finalMarksheet.id,
+        owner: id,
+        docName: course + "_Final_Marksheet",
+        docUrl: finalMarksheet.url,
+        assignedById: id,
+      };
+      let docResult = await Documents.create(body);
+      docResult = await docResult.save();
+      console.log(docResult);
+      body = {
+        DoneBy: id,
+        course,
+        InstituteId: instituteId,
+        InstituteName: instituteName,
+        isVerified,
+        completed,
+        startDate,
+        endDate,
+        CreditsGained,
+        finalGrade,
+        finalGradeUnit,
+        finalMarksheet: finalMarksheet.id,
+      };
+      let edResult = await Education.create(body);
+      await edResult.save();
+
+      //Adding the document
+      let indivResult = await Individual.find({ metamaskId: id })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+      console.log(indivResult);
+      let temp = indivResult[0].documentList.push(finalMarksheet.id);
+      console.log(indivResult[0].documentList);
+      // indivResult[0].update({documentList:});
+      indivResult.save();
+
+      if (instituteId.trim() !== "") {
+        // TODO add a new verification type request
+      }
+      return res.send({
+        status: SUCCESS,
+        message: "Education record added successfully!!",
+        hash: digest,
+      });
+    } catch (error) {
+      console.log("Error in AddEducation:");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        msg: error,
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/AddWorkExperience",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let {
+      id,
+      instituteId,
+      instituteName,
+      isVerified,
+      completed,
+      role,
+      startDate,
+      endDate,
+      offerLetter,
+      reliefLetter,
+    } = req.body;
+
+    try {
+      let body = {
+        DoneBy: id,
+        InstituteId: instituteId,
+        InstituteName: instituteName,
+        completed,
+        isVerified,
+        startDate,
+        endDate,
+        role,
+        OfferLetter: offerLetter,
+        ReliefLetter: reliefLetter,
+      };
+      let result = await WorkExperience.create(body);
+      result.save();
+      if (instituteId.trim() !== "") {
+        // TODO add a new verification type request
+      }
+      return res.send({
+        status: SUCCESS,
+        message: "Work Experience record added successfully!!",
+        hash: digest,
+      });
+    } catch (error) {
+      console.log("Error in add Work Experience:");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        msg: err,
       });
     }
   }
