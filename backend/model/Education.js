@@ -8,7 +8,7 @@ const Education = new mongoose.Schema({
   isVerified: { type: Boolean, required: true },
   completed: { type: Boolean, required: true },
   startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  endDate: { type: Date },
   CreditsGained: { type: Number, required: true },
   finalGrade: { type: Number, required: true },
   finalGradeUnit: { type: String, required: true },

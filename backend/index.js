@@ -196,9 +196,13 @@ app.post("/api/login", async (req, res) => {
           });
         }
         if (isMatch) {
-          let authToken = jwt.sign({ _id: hash }, process.env.JWT_SECRET, {
-            expiresIn: "2h",
-          });
+          let authToken = jwt.sign(
+            { _id: hash, type: type },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "2h",
+            }
+          );
           return res.send({
             status: SUCCESS,
             msg: "Login successful!!",
@@ -651,7 +655,8 @@ app.post(
   "/api/AddRequest",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    let { senderId, receiverId, msg, role, type } = req.body;
+    let { senderId, senderName, receiverId, receiverName, msg, role, type } =
+      req.body;
 
     if (!validRequestTypes.includes(type)) {
       return res.send({
@@ -676,7 +681,9 @@ app.post(
 
     let body = {
       senderId,
+      senderName,
       receiverId,
+      receiverName,
       message: msg,
       role,
       type: type,
@@ -732,8 +739,20 @@ app.post(
         });
       }
 
-      //updating document
-      result.updateOne({ status });
+      if (status === RequestStatus.Rejected) {
+        //updating document
+        result.status = status;
+        await result.save();
+      } else {
+        // updating individual
+        // updating institute
+        // updating request
+        // adding work experience
+        if (result.type === validRequestTypes[0]) {
+        } else {
+          //
+        }
+      }
 
       return res.send({
         status: SUCCESS,
@@ -919,17 +938,20 @@ app.post(
         birthDate: indivResult[0].birthDate,
         qualification: indivResult[0].qualification,
         designation: indivResult[0].designation,
-        password: req.body.new,
+        password: indivResult[0].password,
         documentList: indivResult[0].documentList,
         prevId: indivResult[0]._id,
       };
       let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
 
       // indivResult[0].update({documentList:});
-      indivResult.save();
+      // indivResult.save();
       let result = await Individual.create({ _id: digest, ...body });
       result.save();
-
+      await Individual.updateOne(
+        { _id: digest },
+        { password: indivResult[0].password }
+      );
       if (instituteId.trim() !== "") {
         // TODO add a new verification type request
       }

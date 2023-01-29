@@ -89,21 +89,12 @@ const AddEducation = ({ drizzle, drizzleState }) => {
 
   const onDrop = (files) => {
     if (files.length > 0) {
-      setSelectedFiles(files);
-      console.log(typeof files);
+      setSelectedFiles(files[0]);
+      console.log(files[0].path);
+      console.log(files[0].size);
     }
   };
-  const retrieveFile = (file) => {
-    // const data = e.target.files[0];
-    const reader = new window.FileReader();
-    // reader.rea;
-    reader.readAsArrayBuffer(file);
-    reader.onloadend = () => {
-      console.log(reader.result);
-      console.log("Buffer data: ", Buffer(reader.result));
-      setFile(Buffer(reader.result));
-    };
-  };
+
   const upload = async () => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
@@ -129,14 +120,17 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const handleSubmit = async () => {
     try {
       console.log("handle submit started");
-      let blobFile = new Blob(file);
+      let blobFile = new Blob([file]);
+      console.log(`Blob: `);
+      console.log(blobFile);
       const created = await client.storeBlob(blobFile);
-      const url = `https://ipfs.infura.io/ipfs/${created.path}`;
-      docId.current = created.path;
+      console.log(created);
+      const url = `ipfs/${created}`;
+      docId.current = created;
       docUrl.current = url;
       return true;
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
       return false;
     }
   };
@@ -190,8 +184,23 @@ const AddEducation = ({ drizzle, drizzleState }) => {
           "error"
         );
       }
-      updateToast(toastId, "Data saved Successfully!!", "success");
-      navigate("/Individual/profile");
+      let hash = result.data.hash;
+      hash = "0x" + hash;
+      console.log(hash);
+      try {
+        console.log(drizzle);
+        const { Account } = drizzle.contracts;
+        let temp = Account.methods
+          .updateIndivData(drizzleState.accounts[0], hash)
+          .send();
+        console.log(temp);
+
+        updateToast(toastId, "Data saved Successfully!!", "success");
+        navigate("/Individual/profile");
+      } catch (err) {
+        console.log(err);
+        updateToast(toastId, err, "error");
+      }
     } catch (error) {
       updateToast(toastId, error, "error");
     }
