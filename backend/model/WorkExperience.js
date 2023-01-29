@@ -7,9 +7,9 @@ const WorkExperience = new mongoose.Schema({
   isVerified: { type: Boolean, required: true },
   role: { type: String, required: true },
   startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  endDate: { type: Date },
   OfferLetter: { type: String, required: true },
-  ReliefLetter: { type: String, required: true },
+  ReliefLetter: { type: String },
 });
 module.exports = mongoose.model(
   "WorkExperience",

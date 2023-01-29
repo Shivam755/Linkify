@@ -896,6 +896,7 @@ app.post(
     } = req.body;
 
     try {
+      // Saving Document
       let body = {
         docId: finalMarksheet.id,
         owner: id,
@@ -906,6 +907,8 @@ app.post(
       let docResult = await Documents.create(body);
       docResult = await docResult.save();
       console.log(docResult._id);
+
+      //Saving education
       body = {
         DoneBy: id,
         course,
@@ -923,7 +926,7 @@ app.post(
       let edResult = await Education.create(body);
       await edResult.save();
 
-      //Adding the document
+      //Updating individual
       let indivResult = await Individual.find({ metamaskId: id })
         .sort({
           createdAt: -1,
@@ -943,9 +946,6 @@ app.post(
         prevId: indivResult[0]._id,
       };
       let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-
-      // indivResult[0].update({documentList:});
-      // indivResult.save();
       let result = await Individual.create({ _id: digest, ...body });
       result.save();
       await Individual.updateOne(
@@ -989,7 +989,31 @@ app.post(
     } = req.body;
 
     try {
+      //saving documents
       let body = {
+        docId: offerLetter.id,
+        owner: id,
+        docName: instituteName + "_" + role + "_offer_Letter",
+        docUrl: offerLetter.url,
+        assignedById: id,
+      };
+      let offerResult = await Documents.create(body);
+      offerResult = await offerResult.save();
+      let reliefResult = "";
+      if (completed) {
+        let body = {
+          docId: offerLetter.id,
+          owner: id,
+          docName: instituteName + "_" + role + "_relief_Letter",
+          docUrl: offerLetter.url,
+          assignedById: id,
+        };
+        reliefResult = await Documents.create(body);
+        reliefResult = await reliefResult.save();
+      }
+
+      //SAving work experience
+      body = {
         DoneBy: id,
         InstituteId: instituteId,
         InstituteName: instituteName,
@@ -998,11 +1022,45 @@ app.post(
         startDate,
         endDate,
         role,
-        OfferLetter: offerLetter,
-        ReliefLetter: reliefLetter,
+        OfferLetter: offerResult._id,
+        ReliefLetter: completed ? reliefResult._id : null,
       };
       let result = await WorkExperience.create(body);
       result.save();
+
+      //updating individual
+      let indivResult = await Individual.find({ metamaskId: id })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+      console.log(indivResult);
+      indivResult[0].documentList.push(offerResult._id);
+      if (reliefLetter.id.trim().length >= 0) {
+        indivResult[0].documentList.push(reliefResult._id);
+      }
+      console.log(indivResult[0].documentList);
+      body = {
+        metamaskId: indivResult[0].metamaskId,
+        name: indivResult[0].name,
+        birthDate: indivResult[0].birthDate,
+        qualification: indivResult[0].qualification,
+        designation: completed ? indivResult[0].designation : role,
+        password: indivResult[0].password,
+        documentList: indivResult[0].documentList,
+        prevId: indivResult[0]._id,
+      };
+      let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
+
+      // indivResult[0].update({documentList:});
+      // indivResult.save();
+      result = await Individual.create({ _id: digest, ...body });
+      result.save();
+      await Individual.updateOne(
+        { _id: digest },
+        { password: indivResult[0].password }
+      );
+
       if (instituteId.trim() !== "") {
         // TODO add a new verification type request
       }
@@ -1016,7 +1074,7 @@ app.post(
       console.log(error);
       return res.send({
         status: FAILED,
-        msg: err,
+        msg: error,
       });
     }
   }

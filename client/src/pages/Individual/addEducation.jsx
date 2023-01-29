@@ -30,7 +30,6 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const docUrl = useRef("");
   const docId = useRef("");
   const [file, setFile] = useState("");
-  const [progress, setProgress] = useState(null);
   let token = getToken();
 
   const show = (id) => {
@@ -78,32 +77,25 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   };
 
   const updateFinalGrade = (e) => {
-    console.log(e.target.value);
     setFinalGrade(e.target.value);
   };
 
   const updateFinalGradeUnit = (e) => {
-    console.log(e.target.value);
     setFinalGradeUnit(e.target.value);
   };
 
   const onDrop = (files) => {
     if (files.length > 0) {
-      setSelectedFiles(files[0]);
-      console.log(files[0].path);
-      console.log(files[0].size);
+      setSelectedFiles(files);
     }
   };
 
   const upload = async () => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
-      let currentFile = selectedFiles[0];
+      let currentFile = selectedFiles[0][0];
 
-      setProgress(0);
       setFile(currentFile);
-      // retrieveFile(currentFile);
-      console.log(currentFile);
       let res = await handleSubmit();
       if (res) {
         updateToast(toastId, "Document saved successfully!!", "success");
@@ -119,12 +111,8 @@ const AddEducation = ({ drizzle, drizzleState }) => {
 
   const handleSubmit = async () => {
     try {
-      console.log("handle submit started");
       let blobFile = new Blob([file]);
-      console.log(`Blob: `);
-      console.log(blobFile);
       const created = await client.storeBlob(blobFile);
-      console.log(created);
       const url = `ipfs/${created}`;
       docId.current = created;
       docUrl.current = url;
@@ -140,7 +128,8 @@ const AddEducation = ({ drizzle, drizzleState }) => {
       course.trim().length <= 0 ||
       instituteName.trim().length <= 0 ||
       startDate.trim().length <= 0 ||
-      finalGradeUnit.trim().length <= 0
+      finalGradeUnit.trim().length <= 0 ||
+      selectedFiles.length <= 0
     ) {
       return toast.warning("Please fill all the required fields!");
     }
@@ -186,14 +175,11 @@ const AddEducation = ({ drizzle, drizzleState }) => {
       }
       let hash = result.data.hash;
       hash = "0x" + hash;
-      console.log(hash);
       try {
-        console.log(drizzle);
         const { Account } = drizzle.contracts;
         let temp = Account.methods
           .updateIndivData(drizzleState.accounts[0], hash)
           .send();
-        console.log(temp);
 
         updateToast(toastId, "Data saved Successfully!!", "success");
         navigate("/Individual/profile");
@@ -219,7 +205,6 @@ const AddEducation = ({ drizzle, drizzleState }) => {
         }
       ).catch((err) => console.log(err));
 
-      console.log(result.data);
       if (result.data.status !== "Success") {
         toast.error("Error fetching current educational Institutes");
       }
