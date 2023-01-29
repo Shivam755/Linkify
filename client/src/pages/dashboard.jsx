@@ -4,10 +4,11 @@ import { toast } from "react-toastify";
 import Title from "../components/title";
 import { updateToast } from "./../utilities/toastify";
 import { getToken } from "../utilities/tokenSlice";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const Dashboard = ({ drizzle, drizzleState }) => {
   const { type } = useParams();
+  const navigate = useNavigate();
   const [res, setRes] = useState(null);
   const token = getToken();
   useEffect(() => {
@@ -49,40 +50,6 @@ const Dashboard = ({ drizzle, drizzleState }) => {
     fetchData();
   }, []);
 
-  const fetchName = async (address) => {
-    const id = toast.loading("Fetching data");
-    const { Account } = drizzle.contracts;
-    let hash;
-    console.log(type);
-    if (type === "Individual") {
-      hash = await Account.methods.institData(address).call();
-    } else {
-      hash = await Account.methods.indivData(address).call();
-    }
-    console.log(hash);
-    let result = await Axios.post(
-      process.env.REACT_APP_SERVER_HOST + "/api/getName",
-      {
-        hash: [hash.slice(2)],
-        type: type === "Recruiting" ? "Institute" : "Individual",
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    ).catch((err) => {
-      console.log(err);
-      updateToast(id, "Some error in data fetch", "error", false, 1000);
-      return null;
-    });
-    console.log(result);
-    if (!result) {
-      return null;
-      // setSenderName(result.data.name);
-    }
-    return result.data.names[0];
-    updateToast(id, "Data fetch complete", "success", false, 500);
-  };
-
   const show = (id, parentId) => {
     console.log(id, parentId);
 
@@ -102,20 +69,37 @@ const Dashboard = ({ drizzle, drizzleState }) => {
     parent.onclick = () => [show(id, parentId)];
   };
 
+  const UpdateRequest = async (id, status) => {
+    const toastId = toast.loading("Updating status");
+    try {
+      let result = await Axios.post(
+        process.env.REACT_APP_SERVER_HOST + "/api/updateRequestStatus",
+        {
+          id,
+          status,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (result.data.status === "Failed") {
+        return updateToast(toastId, result.data.message, "error");
+      }
+      navigate(`/${type}/profile`);
+      return updateToast(toastId, "Request Updated", "success");
+    } catch (error) {
+      updateToast(toastId, "Some error occured. Please try again", "error");
+      console.log(error);
+    }
+  };
+
   if (res === null) {
     return (
       <div className="flex flex-col h-screen justify-center items-center p-3 m-4 font-bold text-6xl">
         We're loading data. Please wait...
       </div>
     );
-  }
-  for (let i in res.sent) {
-    res.sent[i].receiverName = fetchName(res.sent[i].receiverId).then(
-      (data) => data
-    );
-  }
-  for (let i in res.received) {
-    res.received[i].senderName = fetchName(res.received[i].senderId);
   }
 
   document.onload = (e) => {
@@ -145,12 +129,27 @@ const Dashboard = ({ drizzle, drizzleState }) => {
                 return (
                   <div>
                     <div>
-                      Request Made by: {element.senderName}({element.senderId})
+                      Request Made by: {element.senderName} ({element.senderId})
                     </div>
                     <div>For Role: {element.role}</div>
                     <div>Message: {element.msg}</div>
                     <div>
-                      <button>Accept</button> <button>Reject</button>
+                      <button
+                        onClick={() => {
+                          UpdateRequest(element._id, "Accepted");
+                        }}
+                        className="m-2 neumorphism-plain px-4 py-2"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => {
+                          UpdateRequest(element._id, "Rejected");
+                        }}
+                        className="m-2 neumorphism-plain px-4 py-2"
+                      >
+                        Reject
+                      </button>
                     </div>
                   </div>
                 );
@@ -160,7 +159,6 @@ const Dashboard = ({ drizzle, drizzleState }) => {
           </div>
           <div
             id="sent"
-            // onClick={() => show("sentList", "Sent")}
             className="flex flex-col w-9/12 min-h-1/6 max-h-1/2  m-1 p-4  justify-center items-center neumorphism-plain hide-scroll"
           >
             <div className="text-3xl h-1/6">
@@ -176,7 +174,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
                 return (
                   <div>
                     <div>
-                      Request Made to: {element.receiverName.name}(
+                      Request Made to: {element.receiverName}(
                       {element.receiverId})
                     </div>
                     <div>For Role: {element.role}</div>
