@@ -86,7 +86,9 @@ const SendRequest = ({ drizzle, drizzleState }) => {
         process.env.REACT_APP_SERVER_HOST + "/api/AddRequest",
         {
           senderId,
+          senderName,
           receiverId,
+          receiverName,
           msg,
           role,
           type,
