@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import { getToken } from "../../utilities/tokenSlice";
-import { client } from "../../utilities/ipfs";
+import client from "../../utilities/ipfs";
 import { gradeUnits } from "../../utilities/defaultValues";
 
 const AddWorkExperience = ({ drizzle, drizzleState }) => {
@@ -14,6 +14,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
   const [course, setCourse] = useState("");
   const [instituteId, setInstituteId] = useState("");
   const [instituteName, setInstituteName] = useState("");
+  const [roleList, setRoleList] = useState("");
   const [startDate, setStartDate] = useState("");
   const [compDate, setCompDate] = useState("");
   const [completed, setCompleted] = useState(false);
@@ -47,9 +48,11 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
     setInstituteId(e.target.value);
     if (e.target.value.trim().length > 0) {
       hide("institName");
+      setInstituteName(e.target.selectedOptions[0].text);
     } else {
       show("institName");
       setInstituteName("");
+      setRoleList([]);
     }
   };
 
@@ -170,7 +173,6 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
         process.env.REACT_APP_SERVER_HOST + "/api/fetchAll",
         {
           type: "Institute",
-          // subType: "Educational",
         },
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -52,6 +52,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
     console.log(`Addrole: ${roleList.concat([role])}`);
     let temp = roleList.concat([role]);
     setRoleList(temp);
+    // setRole("");
   };
 
   const removeRole = (roleName) => {
@@ -185,10 +186,12 @@ const AddRole = ({ drizzle, drizzleState }) => {
             {roleList.map((element) => {
               return (
                 <div>
-                  {element}{" "}
+                  {element}
                   <button
                     className="neumorphism-plain px-5 py-3 m-2"
-                    onClick={removeRole(element)}
+                    onClick={() => {
+                      removeRole(element);
+                    }}
                   >
                     <X />
                   </button>

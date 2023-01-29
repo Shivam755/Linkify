@@ -1,6 +1,7 @@
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const Individual = require("../model/Individual");
+const Institute = require("../model/Institute");
 const passport = require("passport");
 
 let opts = {
@@ -11,14 +12,14 @@ let opts = {
 
 passport.use(
   new JwtStrategy(opts, (payload, done) => {
-    Individual.findOne({ _id: payload._id }, function (err, user) {
+    Institute.findOne({ _id: payload._id }, function (err, user) {
       if (err) {
         return done(err, false);
       }
       if (user) {
         return done(null, user);
       } else {
-        return done(null, false);
+        // return done(null, false);
         // or you could create a new account
       }
     });

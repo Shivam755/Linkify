@@ -5,6 +5,7 @@ import { isAddress } from "ethereum-address";
 import { toast } from "react-toastify";
 import { updateToast } from "./../utilities/toastify";
 import { getToken } from "../utilities/tokenSlice";
+import { useNavigate } from "react-router-dom";
 
 const SendRequest = ({ drizzle, drizzleState }) => {
   const location = useLocation();
@@ -13,6 +14,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
   const [msg, setMsg] = useState("");
   const [role, setRole] = useState("");
   const token = getToken();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchName = async () => {
@@ -42,7 +44,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
       });
       console.log(result);
       if (result) {
-        setSenderName(result.data.name);
+        setSenderName(result.data.names[0]);
         updateToast(id, "Data fetch complete", "success", false, 500);
       }
     };
@@ -58,19 +60,17 @@ const SendRequest = ({ drizzle, drizzleState }) => {
   };
 
   const sendRequest = async (e) => {
-    const id = toast.loading("Creating account!!");
+    const id = toast.loading("Sending Request!!");
     e.preventDefault();
     console.log(senderId);
     console.log(receiverId);
     console.log(msg);
     console.log(role);
     if (
-      !(
-        senderId.trim().length &&
-        receiverId.trim().length &&
-        msg.trim().length &&
-        role.trim().length
-      )
+      senderId.trim().length <= 0 ||
+      receiverId.trim().length <= 0 ||
+      msg.trim().length <= 0 ||
+      role.trim().length <= 0
     ) {
       return updateToast(
         id,
@@ -97,6 +97,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
       );
       if (result.data.status === "Success") {
         updateToast(id, result.data.message, "success");
+        navigate("/Institute/searchIndividual");
       } else {
         updateToast(id, result.data.message, "error");
       }
@@ -154,8 +155,13 @@ const SendRequest = ({ drizzle, drizzleState }) => {
               onChange={updateRole}
               required
             >
+              <option value="">Select a role</option>
               {roles.map((e) => {
-                return <option key={e}>{e}</option>;
+                return (
+                  <option key={e} value={e}>
+                    {e}
+                  </option>
+                );
               })}
             </select>
           </div>

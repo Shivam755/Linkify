@@ -76,8 +76,10 @@ const Dashboard = ({ drizzle, drizzleState }) => {
     });
     console.log(result);
     if (!result) {
+      return null;
       // setSenderName(result.data.name);
     }
+    return result.data.names[0];
     updateToast(id, "Data fetch complete", "success", false, 500);
   };
 
@@ -108,7 +110,9 @@ const Dashboard = ({ drizzle, drizzleState }) => {
     );
   }
   for (let i in res.sent) {
-    res.sent[i].receiverName = fetchName(res.sent[i].receiverId);
+    res.sent[i].receiverName = fetchName(res.sent[i].receiverId).then(
+      (data) => data
+    );
   }
   for (let i in res.received) {
     res.received[i].senderName = fetchName(res.received[i].senderId);
@@ -162,16 +166,17 @@ const Dashboard = ({ drizzle, drizzleState }) => {
             <div className="text-3xl h-1/6">
               Sent {res.sent.length > 0 && res.sent.length}
             </div>
+            <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
             <div
               id="sentList "
               className="flex flex-col m-2 p-2 justify-center items-center w-full text-lg h-5/6 hide-scroll"
             >
-              <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
               {res.sent.map((element) => {
+                console.log(element.receiverName);
                 return (
                   <div>
                     <div>
-                      Request Made to: {element.receiverName}(
+                      Request Made to: {element.receiverName.name}(
                       {element.receiverId})
                     </div>
                     <div>For Role: {element.role}</div>

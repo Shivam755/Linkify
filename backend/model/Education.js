@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 const Education = new mongoose.Schema({
   course: { type: String, required: true },
@@ -11,6 +12,6 @@ const Education = new mongoose.Schema({
   CreditsGained: { type: Number, required: true },
   finalGrade: { type: Number, required: true },
   finalGradeUnit: { type: String, required: true },
-  finalMarksheet: { type: String, required: true },
+  finalMarksheet: { type: ObjectId, required: true },
 });
 module.exports = mongoose.model("Education", Education, "Education");

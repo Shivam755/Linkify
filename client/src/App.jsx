@@ -14,6 +14,7 @@ import Home from "./pages/home";
 import ChangePassword from "./pages/changePassword";
 import Dashboard from "./pages/dashboard";
 import Forbidden from "./pages/Forbidden";
+import ViewTransactions from "./pages/viewTransactions";
 //Individual pages
 import Individual from "./pages/Individual/individual";
 import IndividualSignUp from "./pages/Individual/individualSignup";
@@ -347,6 +348,19 @@ function App() {
                       <ProtectedRoute
                         element={
                           <SendRequest
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
+                      />
+                    }
+                  />
+                  <Route
+                    path="/viewTransactions"
+                    element={
+                      <ProtectedRoute
+                        element={
+                          <ViewTransactions
                             drizzle={drizzle}
                             drizzleState={drizzleState}
                           />

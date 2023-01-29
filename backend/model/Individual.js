@@ -10,7 +10,7 @@ const Individual = new mongoose.Schema({
   qualification: { type: String, required: true },
   designation: { type: String, required: true },
   password: { type: String, required: true },
-  documentList: [String],
+  documentList: [ObjectId],
   prevId: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });

@@ -5,8 +5,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import { getToken } from "../../utilities/tokenSlice";
-import { client } from "../../utilities/ipfs";
-import { gradeUnits } from "../../utilities/defaultValues";
+import { Buffer } from "buffer";
+import client from "../../utilities/ipfs";
+import {
+  gradeUnits,
+  validFileTypes,
+  maxFileSize,
+} from "../../utilities/defaultValues";
+import { Blob } from "nft.storage";
 
 const AddEducation = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
@@ -44,6 +50,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
     setInstituteId(e.target.value);
     if (e.target.value.trim().length > 0) {
       hide("institName");
+      setInstituteName(e.target.selectedOptions[0].text);
     } else {
       show("institName");
       setInstituteName("");
@@ -83,10 +90,20 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const onDrop = (files) => {
     if (files.length > 0) {
       setSelectedFiles(files);
-      console.log(files);
+      console.log(typeof files);
     }
   };
-
+  const retrieveFile = (file) => {
+    // const data = e.target.files[0];
+    const reader = new window.FileReader();
+    // reader.rea;
+    reader.readAsArrayBuffer(file);
+    reader.onloadend = () => {
+      console.log(reader.result);
+      console.log("Buffer data: ", Buffer(reader.result));
+      setFile(Buffer(reader.result));
+    };
+  };
   const upload = async () => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
@@ -94,7 +111,8 @@ const AddEducation = ({ drizzle, drizzleState }) => {
 
       setProgress(0);
       setFile(currentFile);
-      console.log(selectedFiles);
+      // retrieveFile(currentFile);
+      console.log(currentFile);
       let res = await handleSubmit();
       if (res) {
         updateToast(toastId, "Document saved successfully!!", "success");
@@ -111,11 +129,9 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const handleSubmit = async () => {
     try {
       console.log("handle submit started");
-      console.log(client);
-      const created = await client.add(file);
-      console.log(created);
+      let blobFile = new Blob(file);
+      const created = await client.storeBlob(blobFile);
       const url = `https://ipfs.infura.io/ipfs/${created.path}`;
-      console.log(url);
       docId.current = created.path;
       docUrl.current = url;
       return true;
@@ -327,9 +343,24 @@ const AddEducation = ({ drizzle, drizzleState }) => {
           {/* Final Marksheet */}
           <div className="m-1 flex items-center justify-between">
             Marksheet file:
-            <Dropzone onDrop={onDrop} multiple={false}>
-              {({ getRootProps, getInputProps }) => (
-                <section>
+            <Dropzone
+              onDrop={onDrop}
+              accept={validFileTypes}
+              minSize={0}
+              maxSize={maxFileSize}
+              multiple={false}
+            >
+              {({
+                getRootProps,
+                getInputProps,
+                isDragActive,
+                isDragReject,
+                rejectedFiles,
+              }) => {
+                // const isFileTooLarge =
+                //   rejectedFiles.length > 0 &&
+                //   rejectedFiles[0].size > maxFileSize;
+                return (
                   <div
                     {...getRootProps({
                       className:
@@ -350,9 +381,15 @@ const AddEducation = ({ drizzle, drizzleState }) => {
                     ) : (
                       "Drag and drop file here, or click to select file"
                     )}
+                    {!isDragActive && "Click here or drop a file to upload!"}
+                    {isDragActive && !isDragReject && "Drop it like it's hot!"}
+                    {isDragReject && "File type not accepted, sorry!"}
+                    {/* {isFileTooLarge && (
+                      <div className="text-danger mt-2">File is too large.</div>
+                    )} */}
                   </div>
-                </section>
-              )}
+                );
+              }}
             </Dropzone>
           </div>
 

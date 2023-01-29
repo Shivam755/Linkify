@@ -7,12 +7,14 @@ const noLogin = [
 const Individual = [
   { text: "DashBoard", link: "/dashboard/Individual" },
   { text: "Find Institutes", link: "/Individual/searchInstitutes" },
+  { text: "Transaction History", link: "/viewTransactions" },
 ];
 
 const Institute = [
   { text: "Dashboard", link: "/dashboard/Institute" },
   { text: "Find Individuals", link: "/Institute/searchIndividuals" },
   { text: "View Members", link: "/Institute/viewMembers" },
+  { text: "Transaction History", link: "/viewTransactions" },
 ];
 
 const institLogin = () => {

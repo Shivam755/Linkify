@@ -677,7 +677,7 @@ app.post(
     let body = {
       senderId,
       receiverId,
-      msg,
+      message: msg,
       role,
       type: type,
       status: RequestStatus.Pending,
@@ -696,7 +696,7 @@ app.post(
       console.log(error);
       return res.send({
         status: FAILED,
-        message: err,
+        message: error,
       });
     }
   }
@@ -886,7 +886,7 @@ app.post(
       };
       let docResult = await Documents.create(body);
       docResult = await docResult.save();
-      console.log(docResult);
+      console.log(docResult._id);
       body = {
         DoneBy: id,
         course,
@@ -899,7 +899,7 @@ app.post(
         CreditsGained,
         finalGrade,
         finalGradeUnit,
-        finalMarksheet: finalMarksheet.id,
+        finalMarksheet: docResult._id,
       };
       let edResult = await Education.create(body);
       await edResult.save();
@@ -911,10 +911,24 @@ app.post(
         })
         .limit(1);
       console.log(indivResult);
-      let temp = indivResult[0].documentList.push(finalMarksheet.id);
+      indivResult[0].documentList.push(docResult._id);
       console.log(indivResult[0].documentList);
+      body = {
+        metamaskId: indivResult[0].metamaskId,
+        name: indivResult[0].name,
+        birthDate: indivResult[0].birthDate,
+        qualification: indivResult[0].qualification,
+        designation: indivResult[0].designation,
+        password: req.body.new,
+        documentList: indivResult[0].documentList,
+        prevId: indivResult[0]._id,
+      };
+      let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
+
       // indivResult[0].update({documentList:});
       indivResult.save();
+      let result = await Individual.create({ _id: digest, ...body });
+      result.save();
 
       if (instituteId.trim() !== "") {
         // TODO add a new verification type request
