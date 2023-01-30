@@ -15,6 +15,7 @@ import Home from "./pages/home";
 import ChangePassword from "./pages/changePassword";
 import Dashboard from "./pages/dashboard";
 import Forbidden from "./pages/Forbidden";
+import PageNotFound from "./pages/404";
 import ViewDocuments from "./pages/viewDocuments";
 import ViewTransactions from "./pages/viewTransactions";
 //Individual pages
@@ -389,6 +390,7 @@ function App() {
                     }
                   />
                   <Route path="/403/Forbidden" element={<Forbidden />} />
+                  <Route path="*" element={<PageNotFound />} />
                 </Routes>
                 <ToastContainer
                   draggable={true}

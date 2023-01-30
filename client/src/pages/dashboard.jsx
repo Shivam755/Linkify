@@ -19,6 +19,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
           process.env.REACT_APP_SERVER_HOST + "/api/getDashboardInfo",
           {
             id: drizzleState.accounts[0],
+            type,
           },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -112,6 +113,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
       <Title title="Dashboard" />
       {res !== null && (
         <div className="flex flex-col justify-around items-center w-full h-5/6">
+          {/* Received Request */}
           <div
             id="received"
             // onClick={() => show("recList", "received")}
@@ -158,6 +160,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
               {res.received.length <= 0 && <div>No Requests received!</div>}
             </div>
           </div>
+          {/* Sent Request */}
           <div
             id="sent"
             className="flex flex-col w-9/12 min-h-1/6 max-h-1/2  m-1 p-4  justify-center items-center neumorphism-plain hide-scroll"

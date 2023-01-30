@@ -800,7 +800,7 @@ app.post(
   "/api/getDashboardInfo",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    let id = req.body.id;
+    let { id, type } = req.body;
     console.log(id);
     if (!id) {
       return res.send({
@@ -819,7 +819,23 @@ app.post(
         senderId: id,
         status: RequestStatus.Pending,
       });
-
+      if (type === validUserTypes[1]) {
+        let verifyEd = await Education.find({
+          InstituteId: id,
+          isVerified: false,
+        });
+        let verifyWork = await WorkExperience.find({
+          InstituteId: id,
+          isVerified: false,
+        });
+        return res.send({
+          status: SUCCESS,
+          received,
+          sent,
+          verifyEd,
+          verifyWork,
+        });
+      }
       return res.send({
         status: SUCCESS,
         received,
