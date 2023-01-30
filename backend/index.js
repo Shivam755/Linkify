@@ -765,19 +765,85 @@ app.post(
           msg: "Invalid status for a request",
         });
       }
-
-      if (status === RequestStatus.Rejected) {
-        //updating document
-        result.status = status;
-        await result.save();
-      } else {
+      //updating request
+      result.status = status;
+      await result.save();
+      if (status === RequestStatus.Accepted) {
+        let instit, indiv;
         // updating individual
         // updating institute
-        // updating request
         // adding work experience
-        if (result.type === validRequestTypes[0]) {
-        } else {
-          //
+        switch (result.type) {
+          case validRequestTypes[0]:
+            instit = await Institute.find({ metamaskId: result.senderId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            indiv = await Individual.find({ metamaskId: result.receiverId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            instit[0].members.push(indiv[0]._id);
+            await instit[0].save();
+
+            indiv[0].designation = result.role;
+            await indiv[0].save();
+            break;
+
+          case validRequestTypes[1]:
+            instit = await Institute.find({ metamaskId: result.receiverId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            indiv = await Individual.find({ metamaskId: result.senderId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            instit[0].members.push(indiv[0]._id);
+            await instit[0].save();
+
+            indiv[0].designation = result.role;
+            await indiv[0].save();
+            break;
+
+          case validRequestTypes[2]:
+            instit = await Institute.find({ metamaskId: result.receiverId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            indiv = await Individual.find({ metamaskId: result.senderId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            instit[0].members.slice(instit[0].members.indexOf(indiv[0]._id), 1);
+            await instit[0].save();
+
+            indiv[0].designation = "Unemployed";
+            await indiv[0].save();
+            break;
+          case validRequestTypes[3]:
+            instit = await Institute.find({ metamaskId: result.senderId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            indiv = await Individual.find({ metamaskId: result.receiverId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+            instit[0].members.slice(instit[0].members.indexOf(indiv[0]._id), 1);
+            await instit[0].save();
+
+            indiv[0].designation = "Unemployed";
+            await indiv[0].save();
+            break;
         }
       }
 
