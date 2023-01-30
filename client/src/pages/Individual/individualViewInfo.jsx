@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import Axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import { getToken } from "../../utilities/tokenSlice";
@@ -10,6 +10,7 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
   let { id } = useParams();
   const [res, setRes] = useState(null);
   const [state, setState] = useState({});
+  const joined = useRef(false);
 
   let token = getToken();
   useEffect(() => {
@@ -54,13 +55,36 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
       });
       console.log(result);
       if (result) {
+        const { Account } = drizzle.contracts;
+        let hash = await Account.methods
+          .institData(drizzleState.accounts[0])
+          .call();
+        console.log(hash);
+        let institRes = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/api/profile",
+          {
+            hash: hash.slice(2),
+            type: "Institute",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        console.log(institRes);
+        for (let i = 0; i < institRes.data.profile.members.length; i++) {
+          if (
+            institRes.data.profile.members[i].id === result.data.profile._id
+          ) {
+            joined.current = true;
+          }
+        }
         setRes(result.data.profile);
         console.log(result.data.profile.name);
         setState({
           senderId: drizzleState.accounts[0],
           receiverId: result.data.profile.metamaskId,
           receiverName: result.data.profile.name,
-          type: "Recruiting",
+          type: joined ? "Firing" : "Recruiting",
           roles: roles.data.roles,
         });
         updateToast(toastId, "Data fetch complete", "success", false, 500);
@@ -89,7 +113,7 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
               to="/makeRequest"
               state={state}
             >
-              Recruit
+              {joined ? "Fire" : "Recruit"}
             </Link>
           </div>
           <div>Date of Birth: {res.birthDate}</div>

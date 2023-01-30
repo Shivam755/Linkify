@@ -776,6 +776,7 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     let id = req.body.id;
+    console.log(id);
     if (!id) {
       return res.send({
         status: FAILED,

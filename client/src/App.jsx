@@ -4,8 +4,9 @@ import { Drizzle } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import NavBar from "./components/navbar";
+import NavBar, { updateNav } from "./components/navbar";
 import "./App.css";
+import { deleteToken, getToken } from "./utilities/tokenSlice";
 import Loading from "./components/loading";
 import Account from "./contracts/Account.json";
 import ProtectedRoute from "./components/protectedRoute";
@@ -76,6 +77,11 @@ function App() {
         {(drizzleContext) => {
           const { drizzle, drizzleState, initialized } = drizzleContext;
           window.ethereum.on("accountsChanged", (accounts) => {
+            let token = getToken();
+            if (token !== null) {
+              deleteToken();
+              updateNav();
+            }
             if (accounts.length <= 0) {
               setMetaConnect(false);
             } else {

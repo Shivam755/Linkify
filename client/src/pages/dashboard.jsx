@@ -132,7 +132,8 @@ const Dashboard = ({ drizzle, drizzleState }) => {
                       Request Made by: {element.senderName} ({element.senderId})
                     </div>
                     <div>For Role: {element.role}</div>
-                    <div>Message: {element.msg}</div>
+                    <div>type: {element.type}</div>
+                    <div>Message: {element.message}</div>
                     <div>
                       <button
                         onClick={() => {
@@ -178,7 +179,8 @@ const Dashboard = ({ drizzle, drizzleState }) => {
                       {element.receiverId})
                     </div>
                     <div>For Role: {element.role}</div>
-                    <div>Message: {element.msg}</div>
+                    <div>Type: {element.type}</div>
+                    <div>Message: {element.message}</div>
                     <div>Status: {element.status}</div>
                   </div>
                 );

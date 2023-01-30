@@ -111,7 +111,7 @@ const validateInstituteJson = (data) => {
   }
 };
 const validUserTypes = ["Individual", "Institute"];
-const validRequestTypes = ["Recruiting", "Joining"];
+const validRequestTypes = ["Recruiting", "Joining", "Leaving", "Firing"];
 const RequestStatus = {
   Accepted: "Accepted",
   Pending: "Pending",

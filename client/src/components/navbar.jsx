@@ -40,6 +40,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
 
   const fetchdata = async (type) => {
     let hash;
+    console.log(drizzle);
     const { Account } = drizzle.contracts;
     if (type === "Individual") {
       hash = await Account.methods.indivData(drizzleState.accounts[0]).call();

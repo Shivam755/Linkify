@@ -22,7 +22,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
       const { Account } = drizzle.contracts;
       let hash;
       console.log(type);
-      if (type === "Recruiting") {
+      if (type === "Recruiting" || type === "Firing") {
         hash = await Account.methods.institData(senderId).call();
       } else {
         hash = await Account.methods.indivData(senderId).call();
@@ -99,7 +99,11 @@ const SendRequest = ({ drizzle, drizzleState }) => {
       );
       if (result.data.status === "Success") {
         updateToast(id, result.data.message, "success");
-        navigate("/Institute/searchIndividual");
+        if (type === "Recruiting" || type === "Firing") {
+          navigate("/Institute/searchIndividuals");
+        } else {
+          navigate("/Individual/searchInstitutes");
+        }
       } else {
         updateToast(id, result.data.message, "error");
       }
@@ -149,24 +153,26 @@ const SendRequest = ({ drizzle, drizzleState }) => {
             />
           </div>
           {/* Role */}
-          <div className="m-1 flex items-center justify-between">
-            Role:
-            <select
-              className="m-1 neumorphism-pressed px-4 py-2"
-              name="qualification"
-              onChange={updateRole}
-              required
-            >
-              <option value="">Select a role</option>
-              {roles.map((e) => {
-                return (
-                  <option key={e} value={e}>
-                    {e}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+          {(type === "Joining" || type === "Recruiting") && (
+            <div className="m-1 flex items-center justify-between">
+              Role:
+              <select
+                className="m-1 neumorphism-pressed px-4 py-2"
+                name="qualification"
+                onChange={updateRole}
+                required
+              >
+                <option value="">Select a role</option>
+                {roles.map((e) => {
+                  return (
+                    <option key={e} value={e}>
+                      {e}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          )}
           {/* Message */}
           <div className="m-1 flex items-center justify-between">
             Message:
