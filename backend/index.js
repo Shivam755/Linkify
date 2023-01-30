@@ -8,7 +8,7 @@ const {
   toHex,
   validateIndividualJson,
   validateInstituteJson,
-  validInstitTypes,
+  validUserTypes,
   validRequestTypes,
   RequestStatus,
   SUCCESS,
@@ -60,7 +60,7 @@ app.post(
   async (req, res) => {
     let type = req.body.type;
     //verifying if type of user is valid
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -69,7 +69,7 @@ app.post(
 
     try {
       let result;
-      if (type === validInstitTypes[0]) {
+      if (type === validUserTypes[0]) {
         result = await Individual.find();
       } else {
         let subType = req.body.subType;
@@ -98,7 +98,7 @@ app.post(
 app.post("/api/createUser", async (req, res) => {
   let type = req.body.type;
   //verifying if type of user is valid
-  if (!validInstitTypes.includes(type)) {
+  if (!validUserTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -107,7 +107,7 @@ app.post("/api/createUser", async (req, res) => {
   try {
     //Validation
     let error;
-    if (type == validInstitTypes[0]) {
+    if (type == validUserTypes[0]) {
       error = validateIndividualJson(req.body);
     } else {
       error = validateInstituteJson(req.body);
@@ -121,7 +121,7 @@ app.post("/api/createUser", async (req, res) => {
     }
 
     let body;
-    if (type == validInstitTypes[0]) {
+    if (type == validUserTypes[0]) {
       body = {
         metamaskId: req.body.metamaskId,
         name: req.body.name,
@@ -149,7 +149,7 @@ app.post("/api/createUser", async (req, res) => {
     //Calculating the hash
     let result;
     let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-    if (type == validInstitTypes[0]) {
+    if (type == validUserTypes[0]) {
       result = await Individual.create({ _id: digest, ...body });
     } else {
       result = await Institute.create({ _id: digest, ...body });
@@ -174,7 +174,7 @@ app.post("/api/createUser", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   let hash = req.body.hash;
   let type = req.body.type;
-  if (!validInstitTypes.includes(type)) {
+  if (!validUserTypes.includes(type)) {
     return res.send({
       status: FAILED,
       msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -182,7 +182,7 @@ app.post("/api/login", async (req, res) => {
   }
   try {
     let result;
-    if (type === validInstitTypes[0]) {
+    if (type === validUserTypes[0]) {
       result = await Individual.findOne({ _id: hash });
     } else {
       result = await Institute.findOne({ _id: hash });
@@ -236,7 +236,7 @@ app.post(
   async (req, res) => {
     let hash = req.body.hash;
     let type = req.body.type;
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -244,7 +244,7 @@ app.post(
     }
 
     try {
-      if (hash.length < 0) {
+      if (hash.length <= 0) {
         return res.send({
           status: FAILED,
           msg: "Provide atleast one id to find it's name",
@@ -258,11 +258,13 @@ app.post(
     }
     try {
       let results;
-      if (type === validInstitTypes[0]) {
+      console.log(hash);
+      if (type === validUserTypes[0]) {
         results = await Individual.find({ _id: { $in: hash } });
       } else {
         results = await Institute.find({ _id: { $in: hash } });
       }
+      console.log(results);
       if (results) {
         let names = [];
         for (let result in results) {
@@ -294,7 +296,7 @@ app.post(
   async (req, res) => {
     let Id = req.body.Id;
     let type = req.body.type;
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -317,7 +319,7 @@ app.post(
     try {
       let results = [];
       for (let id in Id) {
-        if (type === validInstitTypes[0]) {
+        if (type === validUserTypes[0]) {
           results.push(
             await Individual.find({ metamaskId: Id[id] })
               .sort({
@@ -367,7 +369,7 @@ app.post(
   async (req, res) => {
     let type = req.body.type;
     let hash = req.body.hash;
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -376,7 +378,7 @@ app.post(
     try {
       // const collection = nodeApp.collection(type);
       let result;
-      if (type === validInstitTypes[0]) {
+      if (type === validUserTypes[0]) {
         result = await Individual.findOne({ _id: hash });
       } else {
         result = await Institute.findOne({ _id: hash });
@@ -411,7 +413,7 @@ app.post(
   async (request, response) => {
     let type = request.body.type;
     //verifying if type of user is valid
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -420,7 +422,7 @@ app.post(
     try {
       //Validation
       let error;
-      if (type == validInstitTypes[0]) {
+      if (type == validUserTypes[0]) {
         error = validateIndividualJson(request.body);
       } else {
         error = validateInstituteJson(request.body);
@@ -434,7 +436,7 @@ app.post(
       }
       let result;
       let body;
-      if (type == validInstitTypes[0]) {
+      if (type == validUserTypes[0]) {
         result = await Individual.findOne({ _id: request.body._id });
         body = body = {
           metamaskId: request.body.metamaskId,
@@ -462,7 +464,7 @@ app.post(
       }
       //Calculating the hash
       let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-      if (type == validInstitTypes[0]) {
+      if (type == validUserTypes[0]) {
         result = await Individual.create({ _id: digest, ...body });
         result = await result.save();
         await Individual.updateOne(
@@ -500,7 +502,7 @@ app.post(
     let { type, id, old, confirm } = req.body;
     const newPass = req.body.new;
     //verifying if type of user is valid
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -525,7 +527,7 @@ app.post(
     try {
       //fetching the user data
       let result;
-      if (type === validInstitTypes[0]) {
+      if (type === validUserTypes[0]) {
         result = await Individual.findOne({ _id: id });
       } else {
         result = await Institute.findOne({ _id: id });
@@ -565,7 +567,7 @@ app.post(
 
       //updating password
       let body;
-      if (type === validInstitTypes[0]) {
+      if (type === validUserTypes[0]) {
         body = {
           metamaskId: result.metamaskId,
           name: result.name,
@@ -592,7 +594,7 @@ app.post(
       //Calculating the hash
       let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
       //saving changes to database
-      if (type === validInstitTypes[0]) {
+      if (type === validUserTypes[0]) {
         result = await Individual.create({ _id: digest, ...body });
       } else {
         result = await Institute.create({ _id: digest, ...body });
@@ -622,7 +624,7 @@ app.post(
     let type = req.body.type;
     let query = req.body.query;
     //verifying if type of user is valid
-    if (!validInstitTypes.includes(type)) {
+    if (!validUserTypes.includes(type)) {
       return res.send({
         status: FAILED,
         msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
@@ -631,7 +633,7 @@ app.post(
     try {
       // finding results
       let result;
-      if (type === validInstitTypes[0]) {
+      if (type === validUserTypes[0]) {
         result = await Individual.find({ $text: { $search: query } });
       } else {
         result = await Institute.find({ $text: { $search: query } });
@@ -814,14 +816,14 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      let result = await Institute.findOne({ _id: req.hash });
+      let result = await Institute.findOne({ _id: req.body.hash });
       if (!result) {
         return res.send({
           status: FAILED,
           msg: "No Account exists with the given wallet ID",
         });
       }
-      let memberIds = [result.members.map((e) => e.id)];
+      let memberIds = result.members.map((e) => e.id);
       let members = await Individual.find({ _id: { $in: memberIds } });
       let memberList = [];
       for (let i in memberIds) {
@@ -842,6 +844,111 @@ app.post(
       return res.send({
         status: FAILED,
         msg: "Some error occured!!",
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/addDocument",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let {
+      owner,
+      ownerType,
+      docId,
+      docUrl,
+      docName,
+      assignedById,
+      assignedByIdType,
+    } = req.body;
+    // verifying owner Id
+    let ownerResult;
+    if (ownerType === validUserTypes[0]) {
+      ownerResult = await Individual.find({ metamaskId: owner })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+    } else {
+      ownerResult = await Institute.find({ metamaskId: owner })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+    }
+    if (!ownerResult) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid owner wallet ID",
+      });
+    }
+    // verifying assignBy
+    let assignByResult;
+    if (assignedByIdType === validUserTypes[0]) {
+      assignByResult = await Individual.find({ metamaskId: assignedById })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+    } else {
+      assignByResult = await Institute.find({ metamaskId: assignedById })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+    }
+    if (!assignByResult) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid Assign By wallet ID",
+      });
+    }
+    try {
+      // Saving Document
+      let body = {
+        docId,
+        owner,
+        docName,
+        docUrl,
+        assignedById,
+      };
+      let docResult = await Documents.create(body);
+      docResult = await docResult.save();
+      console.log(docResult._id);
+      return res.send({
+        status: SUCCESS,
+        message: "Document added Successfully",
+      });
+    } catch (err) {
+      console.log("Error in add Document: ");
+      console.log(err);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured!!",
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/getDocumentsById",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let { id } = req.body;
+    try {
+      let result = await Documents.find({ owner: id });
+
+      return res.send({
+        status: SUCCESS,
+        result,
+      });
+    } catch (error) {
+      console.log("Error in Fetch all: ");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        message: error,
       });
     }
   }

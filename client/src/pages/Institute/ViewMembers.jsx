@@ -27,6 +27,7 @@ const ViewMembers = ({ drizzle, drizzleState }) => {
         }
       ).catch((err) => console.log(err));
       setRes(result.data.members);
+      console.log(result.data);
       updateToast(id, "Data fetch complete", "success", false, 500);
     };
     fetchdata();
@@ -43,17 +44,23 @@ const ViewMembers = ({ drizzle, drizzleState }) => {
         )}
         {res &&
           res.map((e) => {
-            <div
-              key={e._id}
-              className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain"
-            >
-              <p>e.name</p>
-              <p>e.metamaskId</p>
-              <p>e.role</p>
-              <Link to={"/Institute/assignDoc/" + e._id}>
-                Assign a document
-              </Link>
-            </div>;
+            console.log(e);
+            return (
+              <div
+                key={e._id}
+                className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain"
+              >
+                <p>{e.name}</p>
+                <p>{e.metamaskId}</p>
+                <p>{e.role}</p>
+                <Link
+                  className="m-2 neumorphism-plain px-4 py-2"
+                  to={"/Institute/assignDoc/" + e.metamaskId}
+                >
+                  Assign a document
+                </Link>
+              </div>
+            );
           })}
       </div>
     </div>

@@ -1,144 +1,226 @@
-import React from "react";
-import { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-import client from "../../utilities/ipfs";
+import React, { useEffect, useState, useRef } from "react";
+import { toast } from "react-toastify";
+import Axios from "axios";
 import Dropzone from "react-dropzone";
+import { useNavigate, useParams } from "react-router-dom";
+import { updateToast } from "../../utilities/toastify";
+import { getToken } from "../../utilities/tokenSlice";
+import client from "../../utilities/ipfs";
 
-const UploadFile = () => {
+import { validFileTypes, maxFileSize } from "../../utilities/defaultValues";
+
+const UploadFile = ({ drizzle, drizzleState }) => {
+  let token = getToken();
+  const navigate = useNavigate();
+  const [recName, setRecName] = useState("");
+  const [fileName, setFileName] = useState("");
   const [file, setFile] = useState("");
-  const [progress, setProgress] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState("");
-  const [urlArr, setUrlArr] = useState([]);
+  const docUrl = useRef("");
 
+  const docId = useRef("");
+  const { id } = useParams();
+  const updateFileName = (e) => {
+    setFileName(e.target.value);
+  };
   const onDrop = (files) => {
     if (files.length > 0) {
       setSelectedFiles(files);
       console.log(files);
     }
   };
-  const upload = () => {
-    let currentFile = selectedFiles[0];
-
-    setProgress(0);
-    setFile(currentFile);
-    console.log(selectedFiles);
-    // UploadService.upload(currentFile, (event) => {
-    //   .setState({
-    //     progress: Math.round((100 * event.loaded) / event.total),
-    //   });
-    // })
-    //   .then((response) => {
-    //     .setState({
-    //       message: response.data.message,
-    //     });
-    //     return UploadService.getFiles();
-    //   })
-    //   .then((files) => {
-    //     .setState({
-    //       fileInfos: files.data,
-    //     });
-    //   })
-    //   .catch(() => {
-    //     .setState({
-    //       progress: 0,
-    //       message: "Could not upload the file!",
-    //       currentFile: undefined,
-    //     });
-    //   });
-  };
-  const retrieveFile = (e) => {
-    const data = e.target.files[0];
-    const reader = new window.FileReader();
-    reader.readAsArrayBuffer(data);
-    reader.onloadend = () => {
-      console.log(reader.result);
-      console.log("Buffer data: ", Buffer(reader.result));
-      setFile(Buffer(reader.result));
-    };
-
-    e.preventDefault();
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const upload = async () => {
+    let toastId = toast.loading("Saving document on IPFS..");
     try {
-      const created = await client.add(file);
-      const url = `https://ipfs.infura.io/ipfs/${created.path}`;
-      setUrlArr((prev) => [...prev, url]);
+      let currentFile = selectedFiles[0][0];
+
+      setFile(currentFile);
+      let res = await handleSubmit();
+      if (res) {
+        updateToast(toastId, "Document saved successfully!!", "success");
+      } else {
+        updateToast(toastId, "Document could not be uploaded!", "error");
+      }
+      return res;
     } catch (error) {
-      console.log(error.message);
+      updateToast(toastId, error, "error");
+      return false;
     }
   };
+  const handleSubmit = async () => {
+    try {
+      let blobFile = new Blob([file]);
+      const created = await client.storeBlob(blobFile);
+      const url = `ipfs/${created}`;
+      docId.current = created;
+      docUrl.current = url;
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
+
+  const saveData = async () => {
+    if (fileName.trim().length <= 0 || selectedFiles.length <= 0) {
+      return toast.warning("Please fill all the required fields!");
+    }
+
+    let toastId = toast.loading("Saving Information...");
+    let res = await upload();
+    if (!res) {
+      updateToast(toastId, "Saving data failed", "error");
+      return res;
+    }
+
+    let body = {
+      owner: id,
+      assignedById: drizzleState.accounts[0],
+      docId: docId.current,
+      docUrl: docUrl.current,
+      docName: fileName,
+    };
+
+    try {
+      let result = await Axios.post(
+        process.env.REACT_APP_SERVER_HOST + "/api/addDocument",
+        body,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      ).catch((err) => console.log(err));
+      if (result.data.status !== "Success") {
+        return updateToast(
+          toastId,
+          "There was some problem in the backend. Please try again!",
+          "error"
+        );
+      }
+      updateToast(toastId, "Document saved Successfully!!", "success");
+      navigate("/Institute/viewMembers");
+    } catch (error) {
+      updateToast(toastId, error, "error");
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const toastId = toast.loading("Fetching Info!");
+      try {
+        const { Account } = drizzle.contracts;
+        let hash = await Account.methods.indivData(id).call();
+
+        let result = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/api/getName",
+          {
+            hash: [hash.slice(2)],
+            type: "Individual",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!result) {
+          return updateToast(
+            toastId,
+            "No data recieved from backend!",
+            "error"
+          );
+        }
+        if (result.data.status === "Failed") {
+          return updateToast(toastId, result.data.msg, "error");
+        }
+        console.log(result.data);
+        setRecName(result.data.names[0]);
+        updateToast(toastId, "Data fetch successful", "success", false, 500);
+      } catch (error) {
+        console.log(error);
+        return updateToast(
+          toastId,
+          "Some error occured while fetching data",
+          "error"
+        );
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <div>
-      <h1>Upload File</h1>
-      {file && (
-        <div className="progress mb-3">
-          <div
-            className="progress-bar progress-bar-info progress-bar-striped"
-            role="progressbar"
-            aria-valuenow={progress}
-            aria-valuemin="0"
-            aria-valuemax="100"
-            style={{ width: progress + "%" }}
-          >
-            {progress}%
-          </div>
-        </div>
-      )}
-
-      <Dropzone onDrop={onDrop} multiple={false}>
-        {({ getRootProps, getInputProps }) => (
-          <section>
-            <div
-              {...getRootProps({
-                className:
-                  "dropzone neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3",
-              })}
-            >
-              <input
-                {...getInputProps({
+    <div className="flex flex-col justify-center items-center">
+      <h1>Assign Document</h1>
+      {/* Receiver Name */}
+      <div className="m-1 flex items-center justify-between">
+        Assign To:
+        <input
+          type="text"
+          className="m-1 neumorphism-pressed px-4 py-2"
+          value={recName}
+          disabled={true}
+          required
+        />
+      </div>
+      {/* name */}
+      <div className="m-1 flex items-center justify-between">
+        File Name:
+        <input
+          type="text"
+          className="m-1 neumorphism-pressed px-4 py-2"
+          value={fileName}
+          placeholder="Course name"
+          onChange={updateFileName}
+          required
+        />
+      </div>
+      {/* File */}
+      <div className="m-1 flex items-center justify-between">
+        File:
+        <Dropzone
+          onDrop={onDrop}
+          accept={validFileTypes}
+          minSize={0}
+          maxSize={maxFileSize}
+          multiple={false}
+        >
+          {({
+            getRootProps,
+            getInputProps,
+            isDragActive,
+            isDragReject,
+            rejectedFiles,
+          }) => {
+            return (
+              <div
+                {...getRootProps({
                   className:
-                    "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
+                    "neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3 ",
                 })}
-              />
-              {selectedFiles && selectedFiles[0].name ? (
-                <div className="selected-file">
-                  {selectedFiles && selectedFiles[0].name}
-                </div>
-              ) : (
-                "Drag and drop file here, or click to select file"
-              )}
-            </div>
-            <aside className="selected-file-wrapper">
-              <button
-                className="btn btn-success"
-                disabled={!selectedFiles}
-                onClick={upload}
               >
-                Upload
-              </button>
-            </aside>
-          </section>
-        )}
-      </Dropzone>
-
-      {/* <div className="alert alert-light" role="alert">
-        {message}
-      </div> */}
-
-      {urlArr.length > 0 && (
-        <div className="card">
-          <div className="card-header">List of Files</div>
-          <ul className="list-group list-group-flush">
-            {urlArr.map((file, index) => (
-              <li className="list-group-item" key={index}>
-                <a href={file.url}>{file.name}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                <input
+                  {...getInputProps({
+                    className:
+                      "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
+                  })}
+                />
+                {selectedFiles && selectedFiles[0].name ? (
+                  <div>
+                    <b>Selected File: </b>
+                    {selectedFiles && selectedFiles[0].name}
+                  </div>
+                ) : (
+                  "Drag and drop file here, or click to select file"
+                )}
+                {!isDragActive && "Click here or drop a file to upload!"}
+                {isDragActive && !isDragReject && "Drop it like it's hot!"}
+                {isDragReject && "File type not accepted, sorry!"}
+              </div>
+            );
+          }}
+        </Dropzone>
+      </div>
+      <div className="m-2 neumorphism-plain px-4 py-2" onClick={saveData}>
+        Save Document
+      </div>
     </div>
   );
 };

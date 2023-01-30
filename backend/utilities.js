@@ -110,7 +110,7 @@ const validateInstituteJson = (data) => {
     return false;
   }
 };
-const validInstitTypes = ["Individual", "Institute"];
+const validUserTypes = ["Individual", "Institute"];
 const validRequestTypes = ["Recruiting", "Joining"];
 const RequestStatus = {
   Accepted: "Accepted",
@@ -125,7 +125,7 @@ module.exports = {
   toHex,
   validateIndividualJson,
   validateInstituteJson,
-  validInstitTypes,
+  validUserTypes,
   validRequestTypes,
   validGradingUnits,
   RequestStatus,
