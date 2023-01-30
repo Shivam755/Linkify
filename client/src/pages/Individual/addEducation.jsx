@@ -113,7 +113,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
     try {
       let blobFile = new Blob([file]);
       const created = await client.storeBlob(blobFile);
-      const url = `ipfs/${created}`;
+      const url = `ipfs://${created}`;
       docId.current = created;
       docUrl.current = url;
       return true;

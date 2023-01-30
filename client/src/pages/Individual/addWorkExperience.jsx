@@ -140,7 +140,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
       let blobFile = new Blob([reliefLetter]);
       const created = await client.storeBlob(blobFile);
       console.log(created);
-      const url = `ipfs/${created}`;
+      const url = `ipfs://${created}`;
       console.log(url);
       reliefDocId.current = created;
       reliefDocUrl.current = url;
@@ -156,7 +156,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
       let blobFile = new Blob([offerLetter]);
       const created = await client.storeBlob(blobFile);
       console.log(created);
-      const url = `ipfs/${created}`;
+      const url = `ipfs://${created}`;
       console.log(url);
       offerDocId.current = created;
       offerDocUrl.current = url;

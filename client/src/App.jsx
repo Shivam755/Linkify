@@ -14,6 +14,7 @@ import Home from "./pages/home";
 import ChangePassword from "./pages/changePassword";
 import Dashboard from "./pages/dashboard";
 import Forbidden from "./pages/Forbidden";
+import ViewDocuments from "./pages/viewDocuments";
 import ViewTransactions from "./pages/viewTransactions";
 //Individual pages
 import Individual from "./pages/Individual/individual";
@@ -22,6 +23,8 @@ import IndividualLogin from "./pages/Individual/individualLogin";
 import IndividualProfile from "./pages/Individual/individualProfile";
 import IndividualUpdateProfile from "./pages/Individual/individualUpdateProfile";
 import SearchInstitutes from "./pages/Individual/searchInstitutes";
+import AddEducation from "./pages/Individual/addEducation";
+import AddWorkExperience from "./pages/Individual/addWorkExperience";
 //Institute pages
 import Institute from "./pages/Institute/institute";
 import InstituteSignup from "./pages/Institute/instituteSignup";
@@ -35,8 +38,6 @@ import ViewMembers from "./pages/Institute/ViewMembers";
 import SendRequest from "./pages/sendRequest";
 import AddRole from "./pages/Institute/addRole";
 import UploadFile from "./pages/Institute/addFile";
-import AddEducation from "./pages/Individual/addEducation";
-import AddWorkExperience from "./pages/Individual/addWorkExperience";
 
 const drizzleOptions = {
   contracts: [Account],
@@ -361,6 +362,19 @@ function App() {
                       <ProtectedRoute
                         element={
                           <ViewTransactions
+                            drizzle={drizzle}
+                            drizzleState={drizzleState}
+                          />
+                        }
+                      />
+                    }
+                  />
+                  <Route
+                    path="/viewDocuments"
+                    element={
+                      <ProtectedRoute
+                        element={
+                          <ViewDocuments
                             drizzle={drizzle}
                             drizzleState={drizzleState}
                           />

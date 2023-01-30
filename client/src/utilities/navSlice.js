@@ -8,6 +8,7 @@ const Individual = [
   { text: "DashBoard", link: "/dashboard/Individual" },
   { text: "Find Institutes", link: "/Individual/searchInstitutes" },
   { text: "Transaction History", link: "/viewTransactions" },
+  { text: "Owned Documents", link: "/viewDocuments" },
 ];
 
 const Institute = [
@@ -15,6 +16,7 @@ const Institute = [
   { text: "Find Individuals", link: "/Institute/searchIndividuals" },
   { text: "View Members", link: "/Institute/viewMembers" },
   { text: "Transaction History", link: "/viewTransactions" },
+  { text: "Owned Documents", link: "/viewDocuments" },
 ];
 
 const institLogin = () => {

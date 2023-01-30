@@ -935,10 +935,10 @@ app.post(
   "/api/getDocumentsById",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    let { id } = req.body;
+    let id = req.body.id;
     try {
       let result = await Documents.find({ owner: id });
-
+      console.log(result);
       return res.send({
         status: SUCCESS,
         result,

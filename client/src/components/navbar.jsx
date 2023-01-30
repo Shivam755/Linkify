@@ -57,7 +57,6 @@ const NavBar = ({ drizzle, drizzleState }) => {
     ).catch((err) => console.log(err));
     setRes(result.data);
   };
-  console.log(token, links);
   if (token && res === null && type !== null) {
     fetchdata(type);
   } else if (!token && links === null) {
