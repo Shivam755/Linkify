@@ -1,6 +1,5 @@
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { updateToast } from "./../utilities/toastify";
 import { getToken } from "./../utilities/tokenSlice";
@@ -34,7 +33,7 @@ const ViewDocuments = ({ drizzleState }) => {
     <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex flex-col h-5/6 justify-center items-center">
         <h1 className="text-5xl p-2 m-2 bold">Members List</h1>
-        {!res && <>No Documents to show.</>}
+        {(!res || res.length <= 0) && <>No Documents to show.</>}
         {res &&
           res.map((e) => {
             return (
@@ -46,6 +45,7 @@ const ViewDocuments = ({ drizzleState }) => {
                 <a
                   target="_blank"
                   href={e.docUrl}
+                  rel="noreferrer"
                   className="m-2 neumorphism-plain px-4 py-2"
                 >
                   View document

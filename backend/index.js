@@ -54,6 +54,7 @@ app.post(
   }
 );
 
+// Fetching bulk info from tables
 app.post(
   "/api/fetchAll",
   passport.authenticate("jwt", { session: false }),
@@ -95,6 +96,139 @@ app.post(
   }
 );
 
+app.post(
+  "/api/getLatestHashes",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let Id = req.body.Id;
+    let type = req.body.type;
+    if (!validUserTypes.includes(type)) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+      });
+    }
+
+    try {
+      if (Id.length < 0) {
+        return res.send({
+          status: FAILED,
+          msg: "Provide atleast one id to find it's hash",
+        });
+      }
+    } catch (error) {
+      return res.send({
+        status: FAILED,
+        msg: "Id must be an array of metamsk Ids, containing atleast one Id",
+      });
+    }
+    try {
+      let results = [];
+      for (let id in Id) {
+        if (type === validUserTypes[0]) {
+          results.push(
+            await Individual.find({ metamaskId: Id[id] })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1)
+          );
+        } else {
+          results.push(
+            await Institute.find({ metamaskId: Id[id] })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1)
+          );
+        }
+      }
+      if (results) {
+        let hashes = [];
+        console.log("List of hashes: " + results);
+        for (let result in results) {
+          hashes.push(results[result][0]._id);
+        }
+        return res.send({
+          status: SUCCESS,
+          hashes: hashes,
+        });
+      }
+      return res.send({
+        status: FAILED,
+        msg: "No Account exists with the given wallet ID",
+      });
+    } catch (err) {
+      console.log("Error in Get latest Hashes: ");
+      console.log(err);
+      res.send({
+        status: FAILED,
+        msg: err,
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/getDocumentsById",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let id = req.body.id;
+    try {
+      let result = await Documents.find({ owner: id });
+      console.log(result);
+      return res.send({
+        status: SUCCESS,
+        result,
+      });
+    } catch (error) {
+      console.log("Error in Fetch all: ");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        message: error,
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/fetchResult",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let type = req.body.type;
+    let query = req.body.query;
+    //verifying if type of user is valid
+    if (!validUserTypes.includes(type)) {
+      return res.send({
+        status: FAILED,
+        msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
+      });
+    }
+    try {
+      // finding results
+      let result;
+      if (type === validUserTypes[0]) {
+        result = await Individual.find({ $text: { $search: query } });
+      } else {
+        result = await Institute.find({ $text: { $search: query } });
+      }
+      return res.send({
+        status: SUCCESS,
+        results: result,
+      });
+    } catch (error) {
+      console.log("Error in Fetch result: ");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured. Please contact backend",
+      });
+    }
+  }
+);
+
+// Common functionalities
 app.post("/api/createUser", async (req, res) => {
   let type = req.body.type;
   //verifying if type of user is valid
@@ -281,79 +415,6 @@ app.post(
       });
     } catch (err) {
       console.log("Error in get Name: ");
-      console.log(err);
-      res.send({
-        status: FAILED,
-        msg: err,
-      });
-    }
-  }
-);
-
-app.post(
-  "/api/getLatestHashes",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let Id = req.body.Id;
-    let type = req.body.type;
-    if (!validUserTypes.includes(type)) {
-      return res.send({
-        status: FAILED,
-        msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
-      });
-    }
-
-    try {
-      if (Id.length < 0) {
-        return res.send({
-          status: FAILED,
-          msg: "Provide atleast one id to find it's hash",
-        });
-      }
-    } catch (error) {
-      return res.send({
-        status: FAILED,
-        msg: "Id must be an array of metamsk Ids, containing atleast one Id",
-      });
-    }
-    try {
-      let results = [];
-      for (let id in Id) {
-        if (type === validUserTypes[0]) {
-          results.push(
-            await Individual.find({ metamaskId: Id[id] })
-              .sort({
-                createdAt: -1,
-              })
-              .limit(1)
-          );
-        } else {
-          results.push(
-            await Institute.find({ metamaskId: Id[id] })
-              .sort({
-                createdAt: -1,
-              })
-              .limit(1)
-          );
-        }
-      }
-      if (results) {
-        let hashes = [];
-        console.log("List of hashes: " + results);
-        for (let result in results) {
-          hashes.push(results[result][0]._id);
-        }
-        return res.send({
-          status: SUCCESS,
-          hashes: hashes,
-        });
-      }
-      return res.send({
-        status: FAILED,
-        msg: "No Account exists with the given wallet ID",
-      });
-    } catch (err) {
-      console.log("Error in Get latest Hashes: ");
       console.log(err);
       res.send({
         status: FAILED,
@@ -612,42 +673,6 @@ app.post(
       return res.send({
         status: FAILED,
         msg: "some error occured!!",
-      });
-    }
-  }
-);
-
-app.post(
-  "/api/fetchResult",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let type = req.body.type;
-    let query = req.body.query;
-    //verifying if type of user is valid
-    if (!validUserTypes.includes(type)) {
-      return res.send({
-        status: FAILED,
-        msg: "Invalid account type!!!\nPossbile types are 'Individual' or 'Institute'.",
-      });
-    }
-    try {
-      // finding results
-      let result;
-      if (type === validUserTypes[0]) {
-        result = await Individual.find({ $text: { $search: query } });
-      } else {
-        result = await Institute.find({ $text: { $search: query } });
-      }
-      return res.send({
-        status: SUCCESS,
-        results: result,
-      });
-    } catch (error) {
-      console.log("Error in Fetch result: ");
-      console.log(error);
-      return res.send({
-        status: FAILED,
-        msg: "Some error occured. Please contact backend",
       });
     }
   }
@@ -933,29 +958,6 @@ app.post(
 );
 
 app.post(
-  "/api/getDocumentsById",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let id = req.body.id;
-    try {
-      let result = await Documents.find({ owner: id });
-      console.log(result);
-      return res.send({
-        status: SUCCESS,
-        result,
-      });
-    } catch (error) {
-      console.log("Error in Fetch all: ");
-      console.log(error);
-      return res.send({
-        status: FAILED,
-        message: error,
-      });
-    }
-  }
-);
-
-app.post(
   "/api/getRoles",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
@@ -1179,6 +1181,51 @@ app.post(
       });
     } catch (error) {
       console.log("Error in add Work Experience:");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        msg: error,
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/getEducation",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let id = req.body.id;
+    try {
+      let result = await Education.find({ DoneBy: id });
+
+      return res.send({
+        status: SUCCESS,
+        result: result,
+      });
+    } catch (error) {
+      console.log("Error in get Education:");
+      console.log(error);
+      return res.send({
+        status: FAILED,
+        msg: error,
+      });
+    }
+  }
+);
+app.post(
+  "/api/getWorkExperience",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let id = req.body.id;
+    try {
+      let result = await WorkExperience.find({ DoneBy: id });
+
+      return res.send({
+        status: SUCCESS,
+        result: result,
+      });
+    } catch (error) {
+      console.log("Error in get Work Experience:");
       console.log(error);
       return res.send({
         status: FAILED,

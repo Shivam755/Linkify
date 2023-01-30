@@ -10,6 +10,9 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
   let { id } = useParams();
   const [res, setRes] = useState(null);
   const [state, setState] = useState({});
+  const [education, setEducation] = useState([]);
+  const [work, setWork] = useState([]);
+  const totalCredits = useRef(0);
   const joined = useRef(false);
 
   let token = getToken();
@@ -53,6 +56,37 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
         updateToast(toastId, "Some error in data fetch", "error", false, 500);
         // return null;
       });
+      let edRes = await Axios.post(
+        process.env.REACT_APP_SERVER_HOST + "/api/getEducation",
+        {
+          id: result.data.profile.metamaskId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      ).catch((err) => {
+        console.log(err);
+        updateToast(toastId, "Some error in data fetch", "error", false, 500);
+        // return null;
+      });
+      for (let i = 0; i < edRes.data.result.length; i++) {
+        totalCredits.current += edRes.data.result[i].CreditsGained;
+      }
+      setEducation(edRes.data.result);
+      let workRes = await Axios.post(
+        process.env.REACT_APP_SERVER_HOST + "/api/getWorkExperience",
+        {
+          id: result.data.profile.metamaskId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      ).catch((err) => {
+        console.log(err);
+        updateToast(toastId, "Some error in data fetch", "error", false, 500);
+        // return null;
+      });
+      setWork(workRes.data.result);
       console.log(result);
       if (result) {
         const { Account } = drizzle.contracts;
@@ -105,7 +139,7 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
   return (
     <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex h-5/6 justify-center items-center">
-        <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
+        <form className="p-6 w-5/6 flex flex-col justify-center items-center neumorphism-plain">
           <div className="p-2 w-3/5 flex items-center justify-between">
             <Title title={res.name} />
             <Link
@@ -117,6 +151,44 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
             </Link>
           </div>
           <div>Date of Birth: {res.birthDate}</div>
+          <div>Total Credits: {totalCredits.current}</div>
+          <div className="flex justify-center items-around w-5/6">
+            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain hide-scroll">
+              <h1>Education</h1>
+              {education.map((element) => (
+                <div>
+                  <div>
+                    {element.verified ? "Verified By Institute" : "Unverified"}
+                  </div>
+                  <div>Course: {element.course}</div>
+                  <div>Institute Name: {element.instituteName}</div>
+                  {/* <div>
+                  {element.startDate.getYear()} - {element.endDate()}
+                </div> */}
+                  <div>
+                    Final Grade: {element.finalGrade} {element.finalGradeUnit}
+                  </div>
+                  <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                </div>
+              ))}
+            </div>
+            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain hide-scroll">
+              <h1>Work Experience</h1>
+              {work.map((element) => (
+                <div>
+                  <div>
+                    {element.verified ? "Verified By Institute" : "Unverified"}
+                  </div>
+                  <div>Designation: {element.role}</div>
+                  <div>Institute Name: {element.instituteName}</div>
+                  {/* <div>
+                  {element.startDate.getYear()} - {element.endDate.getYear()}
+                </div> */}
+                  <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                </div>
+              ))}
+            </div>
+          </div>
         </form>
       </div>
     </div>

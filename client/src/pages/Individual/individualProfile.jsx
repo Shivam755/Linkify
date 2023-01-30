@@ -1,5 +1,5 @@
 import Axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -11,6 +11,9 @@ import { getToken, deleteToken } from "../../utilities/tokenSlice";
 const IndividualProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
   const navigate = useNavigate();
+  const [education, setEducation] = useState([]);
+  const [work, setWork] = useState([]);
+  const totalCredits = useRef(0);
   // let { id } = useParams();
   let token = getToken();
   useEffect(() => {
@@ -36,6 +39,37 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
         if (!result.data.profile) {
           return updateToast(toastId, "Data fetch failed", "error");
         }
+        let edRes = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/api/getEducation",
+          {
+            id: result.data.profile.metamaskId,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ).catch((err) => {
+          console.log(err);
+          updateToast(toastId, "Some error in data fetch", "error", false, 500);
+          // return null;
+        });
+        for (let i = 0; i < edRes.data.result.length; i++) {
+          totalCredits.current += edRes.data.result[i].CreditsGained;
+        }
+        setEducation(edRes.data.result);
+        let workRes = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/api/getWorkExperience",
+          {
+            id: result.data.profile.metamaskId,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ).catch((err) => {
+          console.log(err);
+          updateToast(toastId, "Some error in data fetch", "error", false, 500);
+          // return null;
+        });
+        setWork(workRes.data.result);
         setRes(result.data.profile);
         console.log(result);
         return updateToast(toastId, "Data fetch successful!", "success");
@@ -93,7 +127,7 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
   return (
     <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex h-5/6 justify-center items-center">
-        <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
+        <form className="p-6 w-5/6 flex flex-col justify-center items-center neumorphism-plain">
           <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
           {res !== null &&
             Object.keys(res).map((keyName, keyIndex) => {
@@ -113,6 +147,43 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
                 </div>
               );
             })}
+          <div className="flex justify-center items-around w-5/6">
+            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain hide-scroll">
+              <h1>Education</h1>
+              {education.map((element) => (
+                <div>
+                  <div>
+                    {element.verified ? "Verified By Institute" : "Unverified"}
+                  </div>
+                  <div>Course: {element.course}</div>
+                  <div>Institute Name: {element.instituteName}</div>
+                  {/* <div>
+                  {element.startDate.getYear()} - {element.endDate()}
+                </div> */}
+                  <div>
+                    Final Grade: {element.finalGrade} {element.finalGradeUnit}
+                  </div>
+                  <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                </div>
+              ))}
+            </div>
+            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain hide-scroll">
+              <h1>Work Experience</h1>
+              {work.map((element) => (
+                <div>
+                  <div>
+                    {element.verified ? "Verified By Institute" : "Unverified"}
+                  </div>
+                  <div>Designation: {element.role}</div>
+                  <div>Institute Name: {element.instituteName}</div>
+                  {/* <div>
+                  {element.startDate.getYear()} - {element.endDate.getYear()}
+                </div> */}
+                  <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="flex flex-wrap">
             <Link
               className="neumorphism-plain px-5 py-3 m-2"
