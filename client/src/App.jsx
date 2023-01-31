@@ -43,7 +43,18 @@ import UploadFile from "./pages/Institute/addFile";
 
 const drizzleOptions = {
   contracts: [Account],
-  // events: [],
+  events: {
+    Account: [
+      "IndividualAdded",
+      "InstituteAdded",
+      "IndividualUpdated",
+      "InstituteUpdated",
+      "IndividualDeleted",
+      "InstituteDeleted",
+      "passwordChanged",
+      "roleAdded",
+    ],
+  },
   web3: {
     fallback: {
       type: "http",

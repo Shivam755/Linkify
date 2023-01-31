@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Title from "../components/title";
 
 const ViewTransactions = ({ drizzle, drizzleState }) => {
   const { web3 } = drizzle;
@@ -6,30 +7,30 @@ const ViewTransactions = ({ drizzle, drizzleState }) => {
   const [transactions, setTransactions] = useState([]);
   const [eventHistory, setEventHistory] = useState([]);
 
+  console.log(drizzleState.contracts.Account.events);
   useEffect(() => {
     async function fetchTransactions() {
+      let temp = [];
       let latestBlock = await web3.eth.getBlockNumber();
       for (let i = 0; i < latestBlock; i++) {
         let block = await web3.eth.getBlock(i, true);
-        block.transactions.forEach(async function (transaction) {
-          if (
-            transaction.from === walletAddress ||
-            transaction.to === walletAddress
-          ) {
-            let tx = await web3.eth.getTransaction(transaction.hash);
-            transactions.push(tx);
+        block.transactions.forEach(async function (trans) {
+          if (trans.from === walletAddress || trans.to === walletAddress) {
+            let tx = await web3.eth.getTransaction(trans.hash);
+            temp.push(tx);
           }
         });
       }
-      console.log(transactions);
-      setTransactions(transactions);
+      console.log(temp);
+      setTransactions(temp);
     }
     fetchTransactions();
   }, [walletAddress]);
 
   return (
     <div>
-      <h1>Transactions for {walletAddress}</h1>
+      <Title title={`Transactions for ${walletAddress}`} />
+      <h1></h1>
       <ul>
         {transactions.map((tx) => (
           <li key={tx.transactionHash}>
