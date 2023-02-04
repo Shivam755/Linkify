@@ -1,23 +1,52 @@
 .neumorphism-plain {
   border-radius: 76px;
-  background: #e0e0e0;
-  box-shadow: 5px 5px 16px #bebebe, -5px -5px 16px #ffffff;
+  background: var(--secondary);
+  box-shadow: 5px 5px 16px var(--shadow-dark),
+    -5px -5px 16px var(--shadow-light);
 }
 .neumorphism-pressed {
   border-radius: 76px;
-  background: #e0e0e0;
-  box-shadow: inset 5px 5px 16px #bebebe, inset -5px -5px 16px #ffffff;
+  background: var(--secondary);
+  box-shadow: inset 5px 5px 16px var(--shadow-light),
+    inset -5px -5px 16px var(--shadow-dark);
+}
+.active-neumorphism-plain {
+  border-radius: 76px;
+  background: var(--accent);
+  box-shadow: 5px 5px 16px var(--accent-shadow-dark),
+    -5px -5px 16px var(--accent-shadow-light);
+}
+.red-neumorphism-plain {
+  border-radius: 76px;
+  background: var(--danger);
+  box-shadow: 5px 5px 16px var(--danger-shadow-dark),
+    -5px -5px 16px var(--danger-shadow-light);
+}
+.active-neumorphism-pressed {
+  border-radius: 76px;
+  background: var(--accent);
+  box-shadow: inset 5px 5px 16px var(--accent-shadow-dark),
+    inset -5px -5px 16px var(--accent-shadow-light);
 }
 .neumorphism-plate {
   border-radius: 76px;
   background: linear-gradient(145deg, #cacaca, #f0f0f0);
-  box-shadow: 5px 5px 16px #bebebe, -5px -5px 16px #ffffff;
+  box-shadow: 5px 5px 16px var(--accent-shadow-dark),
+    -5px -5px 16px var(--accent-shadow-light);
 }
 
 .neumorphism-button {
   border-radius: 76px;
   background: linear-gradient(145deg, #f0f0f0, #cacaca);
-  box-shadow: 5px 5px 16px #bebebe, -5px -5px 16px #ffffff;
+  box-shadow: 5px 5px 16px var(---shadow-dark),
+    -5px -5px 16px var(---shadow-light);
+}
+
+.active-neumorphism-button {
+  border-radius: 76px;
+  background: linear-gradient(145deg, #099cdf, #0783bb);
+  box-shadow: 5px 5px 16px var(--accent-shadow-dark),
+    -5px -5px 16px var(--accent-shadow-light);
 }
 
 .hide-scroll {
@@ -26,4 +55,44 @@
 
 .hide-scroll::-webkit-scrollbar {
   width: 0;
+}
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+  display: none;
+}
+
+.container {
+  --size: 50px;
+  width: var(--size);
+  height: var(--size);
+  background-color: #191a1e;
+  border-radius: 100%;
+  cursor: pointer;
+  padding: 5px;
+  box-shadow: 1.5px 1.5px 3px #0e0e0e, -1.5px -1.5px 3px rgb(95 94 94 / 25%),
+    inset 0px 0px 0px #0e0e0e, inset 0px -0px 0px #5f5e5e;
+}
+
+.container .checkmark {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 1.5px 1.5px 3px #0e0e0e, -1.5px -1.5px 3px rgb(95 94 94 / 25%),
+    inset 0px 0px 0px #0e0e0e, inset 0px -0px 0px #5f5e5e;
+  transition: all ease 0.3s;
+  padding: 8px;
+}
+
+.container .checkmark svg {
+  opacity: 0;
+  transition: all ease 0.3s;
+}
+
+.container input:checked + .checkmark {
+  box-shadow: 0px 0px 0px #0e0e0e, 0px 0px 0px rgb(95 94 94 / 25%),
+    inset 1.5px 1.5px 3px #0e0e0e, inset -1.5px -1.5px 3px #5f5e5e;
 }

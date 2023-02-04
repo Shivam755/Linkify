@@ -5,13 +5,13 @@ const Education = new mongoose.Schema({
   DoneBy: { type: String, required: true },
   InstituteId: { type: String },
   InstituteName: { type: String, required: true },
-  isVerified: { type: Boolean, required: true },
+  isVerified: { type: String, required: true },
   completed: { type: Boolean, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date },
   CreditsGained: { type: Number, required: true },
   finalGrade: { type: Number, required: true },
-  finalGradeUnit: { type: String, required: true },
+  finalGradeUnit: { type: String },
   finalMarksheet: { type: ObjectId, required: true },
 });
 module.exports = mongoose.model("Education", Education, "Education");

@@ -177,12 +177,35 @@ app.post(
     try {
       let result = await Documents.find({ owner: id });
       console.log(result);
+      // Adding Individual name
+      for (let i in result) {
+        let indiv = await Individual.find({
+          metamaskId: result[i].assignedById,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(1);
+        if (indiv.length <= 0) {
+          let instit = await Institute.find({
+            metamaskId: result[i].assignedById,
+          })
+            .sort({
+              createdAt: -1,
+            })
+            .limit(1);
+          result[i] = { assignByName: instit[0].name, ...result[i]._doc };
+        } else {
+          result[i] = { assignByName: indiv[0].name, ...result[i]._doc };
+        }
+      }
+
       return res.send({
         status: SUCCESS,
         result,
       });
     } catch (error) {
-      console.log("Error in Fetch all: ");
+      console.log("Error in get document by ID: ");
       console.log(error);
       return res.send({
         status: FAILED,
@@ -886,14 +909,86 @@ app.post(
         status: RequestStatus.Pending,
       });
       if (type === validUserTypes[1]) {
+        // fetching institute name
+        let instit = await Institute.find({
+          metamaskId: { $regex: `^${id}$`, $options: "i" },
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(1);
+        //fetching education verification
         let verifyEd = await Education.find({
-          InstituteId: id,
-          isVerified: false,
+          $and: [
+            {
+              $or: [
+                {
+                  InstituteId: id,
+                },
+                { InstituteName: instit[0].name },
+              ],
+            },
+            { isVerified: "Pending" },
+          ],
         });
+
+        for (let i in verifyEd) {
+          let indiv = await Individual.find({ metamaskId: verifyEd[i].DoneBy })
+            .sort({
+              createdAt: -1,
+            })
+            .limit(1);
+
+          let Marksheet = await Documents.findById(verifyEd[i].finalMarksheet);
+          verifyEd[i] = {
+            DoneByName: indiv[0].name,
+            finalMarksheetLink: Marksheet.docUrl,
+            ...verifyEd[i]._doc,
+          };
+        }
+
+        //fetching work experience verification
         let verifyWork = await WorkExperience.find({
-          InstituteId: id,
-          isVerified: false,
+          $and: [
+            {
+              $or: [
+                {
+                  InstituteId: id,
+                },
+                { InstituteName: instit[0].name },
+              ],
+            },
+            { isVerified: "Pending" },
+          ],
         });
+        for (let i in verifyWork) {
+          let indiv = await Individual.find({
+            metamaskId: verifyWork[i].DoneBy,
+          })
+            .sort({
+              createdAt: -1,
+            })
+            .limit(1);
+          let OfferLetter = await Documents.findById(verifyWork[i].OfferLetter);
+          if (verifyWork[i].completed) {
+            let ReliefLetter = await Documents.findById(
+              verifyWork[i].ReliefLetter
+            );
+            verifyWork[i] = {
+              DoneByName: indiv[0].name,
+              ReliefLetterLink: ReliefLetter.docUrl,
+              OfferLetterLink: OfferLetter.docUrl,
+              ...verifyWork[i]._doc,
+            };
+          } else {
+            verifyWork[i] = {
+              DoneByName: indiv[0].name,
+              OfferLetterLink: OfferLetter.docUrl,
+              ...verifyWork[i]._doc,
+            };
+          }
+        }
+
         return res.send({
           status: SUCCESS,
           received,
@@ -1065,6 +1160,12 @@ app.post(
       });
     }
   }
+);
+
+app.post(
+  "/api/updateVerification",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {}
 );
 
 // methods specific to individuals
@@ -1279,7 +1380,20 @@ app.post(
     let id = req.body.id;
     try {
       let result = await Education.find({ DoneBy: id });
+      for (let i in result) {
+        let indiv = await Individual.find({ metamaskId: result[i].DoneBy })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(1);
 
+        let Marksheet = await Documents.findById(result[i].finalMarksheet);
+        result[i] = {
+          DoneByName: indiv[0].name,
+          finalMarksheetLink: Marksheet.docUrl,
+          ...result[i]._doc,
+        };
+      }
       return res.send({
         status: SUCCESS,
         result: result,
@@ -1301,7 +1415,31 @@ app.post(
     let id = req.body.id;
     try {
       let result = await WorkExperience.find({ DoneBy: id });
-
+      for (let i in result) {
+        let indiv = await Individual.find({
+          metamaskId: result[i].DoneBy,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(1);
+        let OfferLetter = await Documents.findById(result[i].OfferLetter);
+        if (result[i].completed) {
+          let ReliefLetter = await Documents.findById(result[i].ReliefLetter);
+          result[i] = {
+            DoneByName: indiv[0].name,
+            ReliefLetterLink: ReliefLetter.docUrl,
+            OfferLetterLink: OfferLetter.docUrl,
+            ...result[i]._doc,
+          };
+        } else {
+          result[i] = {
+            DoneByName: indiv[0].name,
+            OfferLetterLink: OfferLetter.docUrl,
+            ...result[i]._doc,
+          };
+        }
+      }
       return res.send({
         status: SUCCESS,
         result: result,

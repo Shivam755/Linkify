@@ -5,7 +5,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import { getToken } from "../../utilities/tokenSlice";
-import { Buffer } from "buffer";
 import client from "../../utilities/ipfs";
 import {
   gradeUnits,
@@ -13,6 +12,7 @@ import {
   maxFileSize,
 } from "../../utilities/defaultValues";
 import { Blob } from "nft.storage";
+import Title from "../../components/title";
 
 const AddEducation = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
@@ -93,7 +93,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const upload = async () => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
-      let currentFile = selectedFiles[0][0];
+      let currentFile = selectedFiles[0];
 
       setFile(currentFile);
       let res = await handleSubmit();
@@ -145,7 +145,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
       course,
       instituteId,
       instituteName,
-      isVerified: false,
+      isVerified: "Pending",
       startDate,
       completed,
       endDate: compDate,
@@ -216,14 +216,14 @@ const AddEducation = ({ drizzle, drizzleState }) => {
 
   if (instits.length > 0 && instituteId.trim().length > 0) hide("institName");
   if (completed) {
-    show("compDate");
-  } else hide("compDate");
+    show("compData");
+  } else hide("compData");
 
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen">
       <div className="flex h-5/6 justify-center items-center">
         <div className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-          <div className="p-3 m-4 font-bold text-6xl">AddEducation</div>
+          <Title title={"Add Education"} />
 
           {/* name */}
           <div className="m-1 flex items-center justify-between">
@@ -276,6 +276,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
           </div>
           {/* Completed */}
           <div className="m-1 flex items-center justify-between">
+            {/* <CheckBox value={completed} updateValue={updateCompleted} /> */}
             <input
               className="m-1 h-5 w-5"
               type="checkbox"
@@ -286,109 +287,122 @@ const AddEducation = ({ drizzle, drizzleState }) => {
             />
             <label htmlFor="completed">Course is completed</label>
           </div>
-          {/* Completion date */}
-          <div id="compDate" className="m-1 flex items-center justify-between">
-            Completion date:
-            <input
-              className="m-1 neumorphism-pressed px-4 py-2"
-              type="date"
-              onChange={updateCompDate}
-            />
-          </div>
-          {/* Credits */}
-          <div className="m-1 flex items-center justify-between">
-            Credits gained:
-            <input
-              type="number"
-              className="m-1 neumorphism-pressed px-4 py-2"
-              value={credits}
-              placeholder="credits"
-              onChange={updateCredits}
-              required
-            />
-          </div>
-          {/* Final Grade */}
-          <div className="m-1 flex items-center justify-between">
-            Final Grade:
-            <input
-              type="number"
-              className="m-1 neumorphism-pressed px-4 py-2"
-              value={finalGrade}
-              placeholder="Grade"
-              onChange={updateFinalGrade}
-              required
-            />
-            <select
-              className="m-1 neumorphism-pressed px-4 py-2"
-              name="gradeUnit"
-              onChange={updateFinalGradeUnit}
-              required
+          <div
+            id="compData"
+            className="flex flex-col justify-center items-center "
+          >
+            {/* Completion date */}
+            <div
+              id="compDate"
+              className="m-1 flex items-center justify-between"
             >
-              {gradeUnits.map((e) => {
-                return (
-                  <option key={e} value={e}>
-                    {e}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+              Completion date:
+              <input
+                className="m-1 neumorphism-pressed px-4 py-2"
+                type="date"
+                onChange={updateCompDate}
+              />
+            </div>
+            {/* Credits */}
+            <div className="m-1 flex items-center justify-between">
+              Credits gained:
+              <input
+                type="number"
+                className="m-1 neumorphism-pressed px-4 py-2"
+                value={credits}
+                placeholder="credits"
+                onChange={updateCredits}
+                required
+              />
+            </div>
+            {/* Final Grade */}
+            <div className="m-1 flex items-center justify-between">
+              Final Grade:
+              <input
+                type="number"
+                className="m-1 neumorphism-pressed px-4 py-2"
+                value={finalGrade}
+                placeholder="Grade"
+                onChange={updateFinalGrade}
+                required
+              />
+              <select
+                className="m-1 neumorphism-pressed px-4 py-2"
+                name="gradeUnit"
+                onChange={updateFinalGradeUnit}
+                required
+              >
+                {gradeUnits.map((e) => {
+                  return (
+                    <option key={e} value={e}>
+                      {e}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
 
-          {/* Final Marksheet */}
-          <div className="m-1 flex items-center justify-between">
-            Marksheet file:
-            <Dropzone
-              onDrop={onDrop}
-              accept={validFileTypes}
-              minSize={0}
-              maxSize={maxFileSize}
-              multiple={false}
-            >
-              {({
-                getRootProps,
-                getInputProps,
-                isDragActive,
-                isDragReject,
-                rejectedFiles,
-              }) => {
-                // const isFileTooLarge =
-                //   rejectedFiles.length > 0 &&
-                //   rejectedFiles[0].size > maxFileSize;
-                return (
-                  <div
-                    {...getRootProps({
-                      className:
-                        "neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3 ",
-                    })}
-                  >
-                    <input
-                      {...getInputProps({
+            {/* Final Marksheet */}
+            <div className="m-1 flex items-center justify-between">
+              Marksheet file:
+              <Dropzone
+                onDrop={onDrop}
+                accept={validFileTypes}
+                minSize={0}
+                maxSize={maxFileSize}
+                multiple={false}
+              >
+                {({
+                  getRootProps,
+                  getInputProps,
+                  isDragActive,
+                  isDragReject,
+                }) => {
+                  // const isFileTooLarge =
+                  //   rejectedFiles.length > 0 &&
+                  //   rejectedFiles[0].size > maxFileSize;
+                  return (
+                    <div
+                      {...getRootProps({
                         className:
-                          "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
+                          "neumorphism-pressed h-30 w-64 flex justify-center items-center p-5 m-3 ",
                       })}
-                    />
-                    {selectedFiles && selectedFiles[0].name ? (
-                      <div>
-                        <b>Selected File: </b>
-                        {selectedFiles && selectedFiles[0].name}
-                      </div>
-                    ) : (
-                      "Drag and drop file here, or click to select file"
-                    )}
-                    {!isDragActive && "Click here or drop a file to upload!"}
-                    {isDragActive && !isDragReject && "Drop it like it's hot!"}
-                    {isDragReject && "File type not accepted, sorry!"}
-                    {/* {isFileTooLarge && (
+                    >
+                      <input
+                        {...getInputProps({
+                          className:
+                            "dropinput h-30 w-64 flex justify-center items-center p-5 m-3",
+                        })}
+                      />
+                      {selectedFiles && selectedFiles[0].name ? (
+                        <div>
+                          <b>Selected File: </b>
+                          {selectedFiles && selectedFiles[0].name}
+                        </div>
+                      ) : (
+                        <div>
+                          "Drag and drop file here, or click to select file"
+                          {!isDragActive &&
+                            "Click here or drop a file to upload!"}
+                          {isDragActive &&
+                            !isDragReject &&
+                            "Drop it like it's hot!"}
+                          {isDragReject && "File type not accepted, sorry!"}
+                        </div>
+                      )}
+
+                      {/* {isFileTooLarge && (
                       <div className="text-danger mt-2">File is too large.</div>
                     )} */}
-                  </div>
-                );
-              }}
-            </Dropzone>
+                    </div>
+                  );
+                }}
+              </Dropzone>
+            </div>
           </div>
 
           <button
-            className="m-2 neumorphism-button px-4 py-2"
+            className="m-2 active-neumorphism-button px-4 py-2"
             onClick={saveData}
           >
             Save

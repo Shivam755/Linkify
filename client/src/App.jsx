@@ -4,7 +4,7 @@ import { Drizzle } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import NavBar, { updateNav } from "./components/navbar";
+import NavBar, { updateNav, logout } from "./components/navbar";
 import "./App.css";
 import { deleteToken, getToken } from "./utilities/tokenSlice";
 import Loading from "./components/loading";
@@ -68,7 +68,13 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [metaConnect, setMetaConnect] = useState(false);
   let reason;
-
+  const connect = async (e) => {
+    try {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     if (window.ethereum.selectedAddress !== null) {
       setMetaConnect(true);
@@ -91,25 +97,45 @@ function App() {
           window.ethereum.on("accountsChanged", (accounts) => {
             let token = getToken();
             if (token !== null) {
-              deleteToken();
-              updateNav();
+              logout();
+              toast.info(
+                "You've been logged out because of change in you current selected wallet address!"
+              );
             }
             if (accounts.length <= 0) {
               setMetaConnect(false);
             } else {
-              console.log(drizzleState);
               drizzleState.accounts = accounts;
               console.log(drizzleState);
               setMetaConnect(true);
             }
           });
+          if (drizzleState) {
+            if (drizzleState.accounts.length <= 0) {
+              setMetaConnect(false);
+            } else {
+              // drizzleState.accounts = daccounts;
+              console.log(drizzleState);
+              setMetaConnect(true);
+            }
+          }
+
           if (!initialized) {
             return <Loading />;
           } else if (!metaConnect) {
             return (
-              <div>
-                <Loading />
-                <p>Metamask NOt connected</p>
+              <div className="flex w-screen h-screen justify-center items-center">
+                <button
+                  onClick={connect}
+                  className="flex flex-row w-max justify-center items-center m-5 px-5 py-3 active-neumorphism-plain"
+                >
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
+                    alt="Metamask"
+                    className="h-5 mr-2"
+                  />
+                  Connect to Metamask
+                </button>
               </div>
             );
           }
@@ -406,6 +432,7 @@ function App() {
                 <ToastContainer
                   draggable={true}
                   position={toast.POSITION.BOTTOM_RIGHT}
+                  theme="dark"
                 />
               </div>
             </BrowserRouter>

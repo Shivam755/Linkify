@@ -7,6 +7,7 @@ import { InstitProfileOptions } from "../../utilities/defaultValues";
 import { updateToast } from "../../utilities/toastify";
 import { updateNav } from "../../components/navbar";
 import { getToken, deleteToken } from "../../utilities/tokenSlice";
+import Title from "../../components/title";
 
 const InstituteProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
@@ -63,8 +64,10 @@ const InstituteProfile = ({ drizzle, drizzleState }) => {
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
+      color: "#ffffff",
+      background: "#0a0a0b",
       customClass: {
-        actions: "neumorphism-plain",
+        // actions: "neumorphism-plain",
         cancelButton: "neumorphism-plain",
         confirmButton: "neumorphism-plain",
         denyButton: "neumorphism-plain",
@@ -78,10 +81,10 @@ const InstituteProfile = ({ drizzle, drizzleState }) => {
     });
   };
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen">
       <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-          <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
+          <Title title="Profile" />
           {res !== null &&
             Object.keys(res).map((keyName, keyIndex) => {
               if (!InstitProfileOptions.includes(keyName)) {
@@ -89,10 +92,12 @@ const InstituteProfile = ({ drizzle, drizzleState }) => {
               }
               return (
                 <div className="m-1 flex items-center justify-between">
-                  {keyName.charAt(0).toUpperCase() + keyName.slice(1)}:
+                  <span className="text-[#0892d0]">
+                    {keyName.charAt(0).toUpperCase() + keyName.slice(1)}:
+                  </span>
                   <input
                     type="text"
-                    className="m-1 neumorphism-pressed px-4 py-2"
+                    className="m-1 neumorphism-pressed px-4 py-2 bg-transparent"
                     value={res[keyName]}
                     placeholder={keyName}
                     disabled
@@ -102,26 +107,26 @@ const InstituteProfile = ({ drizzle, drizzleState }) => {
             })}
           <div className="flex">
             <Link
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
               to={"/Institute/updateProfile"}
             >
               Edit Profile
             </Link>
             <Link
               to="/changePassword/Institute/"
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
             >
               Change Password
             </Link>
             <Link
               to="/Institute/manageRoles"
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
             >
               Manage Roles
             </Link>
           </div>
           <button
-            className="neumorphism-plain px-5 py-3 m-2"
+            className="red-neumorphism-plain px-5 py-3 m-2"
             onClick={handleDelete}
           >
             Delete Account

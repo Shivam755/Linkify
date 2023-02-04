@@ -54,7 +54,7 @@ const ViewMembers = ({ drizzle, drizzleState }) => {
                 <p>{e.metamaskId}</p>
                 <p>{e.role}</p>
                 <Link
-                  className="m-2 neumorphism-plain px-4 py-2"
+                  className="m-2 active-neumorphism-plain px-4 py-2"
                   to={"/Institute/assignDoc/" + e.metamaskId}
                 >
                   Assign a document

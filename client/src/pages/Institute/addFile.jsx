@@ -8,6 +8,7 @@ import { getToken } from "../../utilities/tokenSlice";
 import client from "../../utilities/ipfs";
 
 import { validFileTypes, maxFileSize } from "../../utilities/defaultValues";
+import Title from "../../components/title";
 
 const UploadFile = ({ drizzle, drizzleState }) => {
   let token = getToken();
@@ -32,7 +33,7 @@ const UploadFile = ({ drizzle, drizzleState }) => {
   const upload = async () => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
-      let currentFile = selectedFiles[0][0];
+      let currentFile = selectedFiles[0];
 
       setFile(currentFile);
       let res = await handleSubmit();
@@ -148,7 +149,7 @@ const UploadFile = ({ drizzle, drizzleState }) => {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <h1>Assign Document</h1>
+      <Title title="Assign Document" />
       {/* Receiver Name */}
       <div className="m-1 flex items-center justify-between">
         Assign To:
@@ -193,13 +194,13 @@ const UploadFile = ({ drizzle, drizzleState }) => {
               <div
                 {...getRootProps({
                   className:
-                    "neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3 ",
+                    "neumorphism-pressed h-16 w-64 flex justify-center items-center p-5 m-3 ",
                 })}
               >
                 <input
                   {...getInputProps({
                     className:
-                      "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
+                      "dropinput h-16 w-64 flex justify-center items-center p-5 m-3",
                   })}
                 />
                 {selectedFiles && selectedFiles[0].name ? (
@@ -208,17 +209,22 @@ const UploadFile = ({ drizzle, drizzleState }) => {
                     {selectedFiles && selectedFiles[0].name}
                   </div>
                 ) : (
-                  "Drag and drop file here, or click to select file"
+                  <div>
+                    "Drag and drop file here, or click to select file"
+                    {!isDragActive && "Click here or drop a file to upload!"}
+                    {isDragActive && !isDragReject && "Drop it like it's hot!"}
+                    {isDragReject && "File type not accepted, sorry!"}
+                  </div>
                 )}
-                {!isDragActive && "Click here or drop a file to upload!"}
-                {isDragActive && !isDragReject && "Drop it like it's hot!"}
-                {isDragReject && "File type not accepted, sorry!"}
               </div>
             );
           }}
         </Dropzone>
       </div>
-      <div className="m-2 neumorphism-plain px-4 py-2" onClick={saveData}>
+      <div
+        className="m-2 active-neumorphism-plain px-4 py-2"
+        onClick={saveData}
+      >
         Save Document
       </div>
     </div>

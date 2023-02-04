@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useGeolocated } from "react-geolocated";
 import { updateToast } from "../../utilities/toastify";
 import { InstituteTypes } from "../../utilities/defaultValues";
+import Title from "../../components/title";
 
 const InstituteSignup = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
           foundationDate: foundationDate,
           ceoId: ceoId,
           instituteType: type,
-          roles: [],
+          roles: type === "Educational" ? ["Student"] : [],
           members: [],
           password: password,
           confirmPassword: confirmPassword,
@@ -119,10 +120,10 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
       We need geolocation for security reasons. Please enable geolocation!
     </div>
   ) : (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen ">
       <div className="flex flex-col h-screen justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-          <h1 className="p-3 m-4 font-bold text-6xl">Institute Sign Up</h1>
+          <Title title="Institute Sign Up" />
           {/* name */}
           <div className="m-1 flex items-center justify-between">
             Name:
@@ -195,7 +196,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
             />
           </div>
           <button
-            className="m-1 neumorphism-button px-4 py-2"
+            className="m-1 active-neumorphism-plain px-4 py-2"
             onClick={saveData}
           >
             Sign Up

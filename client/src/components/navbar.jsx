@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import Axios from "axios";
+import { LogOut, User } from "react-feather";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   navKey,
@@ -10,9 +11,10 @@ import {
   initValue,
 } from "../utilities/navSlice";
 import { getToken, deleteToken } from "../utilities/tokenSlice";
-import { LogOut, User } from "react-feather";
+import logo from "../assets/logo.png";
 
 let updateNav;
+let logout;
 
 const NavBar = ({ drizzle, drizzleState }) => {
   const [links, setLinks] = useState(
@@ -64,24 +66,28 @@ const NavBar = ({ drizzle, drizzleState }) => {
     updateNav();
   }
 
-  const logout = () => {
+  logout = () => {
+    deleteToken();
+    updateNav();
+    navigate("/");
+  };
+  const handleLogout = () => {
     Swal.fire({
       title: "Are you sure you want to logout?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
+      color: "#ffffff",
+      background: "#0a0a0b",
       customClass: {
-        actions: "neumorphism-plain",
         cancelButton: "neumorphism-plain",
         confirmButton: "neumorphism-plain",
         denyButton: "neumorphism-plain",
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteToken();
+        logout();
         token = null;
-        updateNav();
-        navigate("/");
         toast.success("Logout successful!!");
       } else if (result.isDenied) {
         toast.info("Logout Cancelled!!");
@@ -91,7 +97,8 @@ const NavBar = ({ drizzle, drizzleState }) => {
 
   return (
     <div className="flex justify-between items-center">
-      <div className="m-5 p-5 text-3xl font-black">logo</div>
+      {/* <div className="m-5 p-5 text-3xl font-black">logo</div> */}
+      <img src={logo} className="h-24" />
       <ul className="list-none flex justify-end items-center m-5 p-5 w-9/10">
         {links.map((e) => (
           <Link
@@ -99,7 +106,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
             key={e.text}
             className={`py-3 px-5 mx-5 ${
               e.link === location.pathname
-                ? "neumorphism-pressed"
+                ? "active-neumorphism-plain"
                 : "neumorphism-plain"
             } hover:underline`}
           >
@@ -113,7 +120,7 @@ const NavBar = ({ drizzle, drizzleState }) => {
               to={"/" + type + "/profile"}
               className={`py-3 px-5 mx-5 ${
                 "/" + type + "/profile" === location.pathname
-                  ? "neumorphism-pressed"
+                  ? "active-neumorphism-plain"
                   : "neumorphism-plain"
               } hover:underline flex flex-row`}
             >
@@ -121,8 +128,8 @@ const NavBar = ({ drizzle, drizzleState }) => {
               {res.profile.name}
             </Link>
             <button
-              onClick={logout}
-              className="h-10 w-10 p-3 mx-3 neumorphism-plain"
+              onClick={handleLogout}
+              className="h-10 w-10 p-3 mx-3 red-neumorphism-plain flex justify-center items-center"
             >
               <LogOut className="h-6 w-6" />
             </button>
@@ -134,4 +141,4 @@ const NavBar = ({ drizzle, drizzleState }) => {
 };
 
 export default NavBar;
-export { updateNav };
+export { updateNav, logout };

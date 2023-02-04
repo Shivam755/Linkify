@@ -27,37 +27,7 @@ const indivLogin = () => {
 };
 
 const initValue = () => {
-  // let value = JSON.parse(sessionStorage.getItem(navKey));
-  // if (!value) {
-  //   sessionStorage.setItem(navKey, JSON.stringify(noLogin));
-  // }
   sessionStorage.setItem(navKey, JSON.stringify(noLogin));
 };
 
 export { navKey, institLogin, indivLogin, initValue };
-
-// import { createSlice } from "@reduxjs/toolkit";
-
-// export const navSlice = createSlice({
-//   name: "nav",
-//   initialState: {
-//     value: noLogin,
-//   },
-//   reducers: {
-//     institLogin: (state) => {
-//       state.value = Institute;
-//     },
-//     indivLogin: (state) => {
-//       console.log("indivLogin");
-//       state.value = Individual;
-//     },
-//     logout: (state) => {
-//       state.value = noLogin;
-//     },
-//   },
-// });
-
-// // Action creators are generated for each case reducer function
-// export const { institLogin, indivLogin, logout } = navSlice.actions;
-
-// export default navSlice.reducer;

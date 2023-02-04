@@ -13952,11 +13952,6 @@ react-scripts@5.0.1:
   optionalDependencies:
     fsevents "^2.3.2"
 
-react-spinner-animated@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/react-spinner-animated/-/react-spinner-animated-3.1.1.tgz#2e8a589afe3c0bef95980ca00dd346d02d58bdd8"
-  integrity sha512-bv4YRVAKjAMahHmeQfLp9qD+Y4v/ZkV9L/kYzVeAOSvvjjVknqdTn9iNT0CBqsW4AU3oFZ/xTle/5C8qzOvvsg==
-
 react-toastify@^9.1.1:
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-9.1.1.tgz#9280caea4a13dc1739c350d90660a630807bf10b"
@@ -14904,6 +14899,11 @@ speedometer@~0.1.2:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/speedometer/-/speedometer-0.1.4.tgz#9876dbd2a169d3115402d48e6ea6329c8816a50d"
   integrity sha512-phdEoDlA6EUIVtzwq1UiNMXDUogczp204aYF/yfOhjNePWFfIpBJ1k5wLMuXQhEOOMjuTJEcc4vdZa+vuP+n/Q==
+
+spinners-react@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/spinners-react/-/spinners-react-1.0.7.tgz#237e3e6f5fe2e6319083eb8703372e728eb2a304"
+  integrity sha512-Xcgpc7Ybm6HOrpCVJjbH1G/NV852HaV4Zc9T1sJ2+S2hn05lGiBZS1dBOKGLc1kp8wv2sd3wtt94I/NNqDjs3Q==
 
 split2@^2.1.0:
   version "2.2.0"

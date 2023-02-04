@@ -6,6 +6,7 @@ import { updateNav } from "../../components/navbar";
 import { setToken } from "../../utilities/tokenSlice";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
+import Title from "../../components/title";
 
 const IndividualLogin = ({ drizzle, drizzleState }) => {
   const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
@@ -67,10 +68,10 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
     );
   }
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
-      <div className="flex w-screen h-5/6 justify-center items-center">
+    <div className="flex flex-col h-screen  w-screen">
+      <div className="flex h-5/6 justify-center items-center">
         <form className="w-1/2 flex flex-col justify-center items-center py-20 neumorphism-plain">
-          <h1 className="text-5xl p-2 m-2 bold">Individual Login</h1>
+          <Title title={"Individual Login"} />
           <div>
             MetamaskID:{" "}
             <input
@@ -90,7 +91,7 @@ const IndividualLogin = ({ drizzle, drizzleState }) => {
             />
           </div>
           <button
-            className="m-2 px-4 py-2 neumorphism-button outline-0 border-0"
+            className="m-2 px-4 py-2 active-neumorphism-button outline-0 border-0"
             onClick={Login}
           >
             Login

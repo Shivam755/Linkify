@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import { qualifications } from "../../utilities/defaultValues";
+import Title from "../../components/title";
 
 // import { numStringToBytes32 } from "../utilities/bytes32";
 
@@ -88,10 +89,10 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen">
       <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-          <h1 className="p-3 m-4 font-bold text-6xl">Individual Sign Up</h1>
+          <Title title={"Individual Signup"} />
           {/* name */}
           <div className="m-1 flex items-center justify-between">
             Name:
@@ -151,7 +152,7 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
             />
           </div>
           <button
-            className="m-2 neumorphism-button px-4 py-2"
+            className="m-2 active-neumorphism-button px-4 py-2"
             onClick={saveData}
           >
             Sign Up

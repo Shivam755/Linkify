@@ -6,6 +6,7 @@ import { updateToast } from "../../utilities/toastify";
 import { qualifications } from "../../utilities/defaultValues";
 import Loading from "../../components/loading";
 import { getToken } from "../../utilities/tokenSlice";
+import Title from "../../components/title";
 
 const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
@@ -111,10 +112,10 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="h-screen flex flex-col min-h-screen max-h-max">
       <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-          <h1 className="text-5xl p-2 m-2 bold">Update Profile</h1>
+          <Title title={"Update Profile"} />
           {/* name */}
           <div className="m-1 flex items-center justify-between">
             Name:
@@ -146,7 +147,7 @@ const IndividualUpdateProfile = ({ drizzle, drizzleState }) => {
             </select>
           </div>
           <button
-            className="m-2 neumorphism-button px-4 py-2"
+            className="m-2 active-neumorphism-button px-4 py-2"
             onClick={saveChanges}
           >
             save changes

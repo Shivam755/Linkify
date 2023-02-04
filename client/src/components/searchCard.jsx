@@ -12,7 +12,7 @@ const SearchCard = ({ type, info }) => {
   };
 
   return (
-    <div className="neumorphism-plain flex items-center justify-between  w-full px-10 py-4 my-4">
+    <div className="flex items-center justify-between  w-full px-10 py-4 my-4">
       <div>
         <div className="text-5xl font-bold">{info.name}</div>
         <div className="text-2xl ">{info.metamaskId}</div>
@@ -23,7 +23,7 @@ const SearchCard = ({ type, info }) => {
       <div>
         <button
           onClick={viewClick}
-          className="p-4 text-2xl neumorphism-button hover:underline"
+          className="p-4 text-2xl active-neumorphism-button hover:underline"
         >
           View Profile
         </button>

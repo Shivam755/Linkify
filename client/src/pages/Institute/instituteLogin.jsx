@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
+import Title from "../../components/title";
 import { setToken } from "../../utilities/tokenSlice";
 import { updateNav } from "../../components/navbar";
 
@@ -58,10 +59,10 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
     );
   }
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen">
       <div className="flex w-screen h-5/6 justify-center items-center">
         <form className="w-1/2 flex flex-col justify-center items-center py-20 neumorphism-plain">
-          <h1 className="text-5xl p-2 m-2 bold">Institute Login</h1>
+          <Title title="Institute Login" />
           <div>
             MetamaskID:{" "}
             <input
@@ -81,7 +82,7 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
             />
           </div>
           <button
-            className="m-2 px-4 py-2 neumorphism-button outline-0 border-0"
+            className="m-2 px-4 py-2 active-neumorphism-button outline-0 border-0"
             onClick={Login}
           >
             Login

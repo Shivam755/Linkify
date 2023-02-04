@@ -89,14 +89,14 @@ const MetamaskConnect = ({ type, drizzle, drizzleState }) => {
     <div className="flex justify-center content-center">
       <button
         onClick={connect}
-        className="flex flex-row w-max justify-center items-center m-5 px-5 py-3 neumorphism-plain"
+        className="flex flex-row w-max justify-center items-center m-5 px-5 py-3 active-neumorphism-plain"
       >
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
           alt="Metamask"
           className="h-5 mr-2"
         />
-        Connect to Metamask
+        Verify address
       </button>
     </div>
   );

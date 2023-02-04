@@ -137,8 +137,9 @@ const AddRole = ({ drizzle, drizzleState }) => {
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
+      color: "#ffffff",
+      background: "#0a0a0b",
       customClass: {
-        actions: "neumorphism-plain",
         cancelButton: "neumorphism-plain",
         confirmButton: "neumorphism-plain",
         denyButton: "neumorphism-plain",
@@ -169,7 +170,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
               required
             />
             <button
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
               onClick={addRole}
             >
               Add

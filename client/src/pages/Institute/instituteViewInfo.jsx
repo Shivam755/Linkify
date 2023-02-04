@@ -77,8 +77,14 @@ const InstituteViewInfo = ({ drizzle, drizzleState }) => {
               Apply to {joined ? "leave" : "join"}
             </Link>
           </div>
-          <div>Founded On: {res.foundationDate}</div>
-          <div>Member Count: {res.members.length}</div>
+          <div>
+            <span className="text-[#0892d0]">Founded On:</span>{" "}
+            {res.foundationDate}
+          </div>
+          <div>
+            <span className="text-[#0892d0]">Member Count:</span>{" "}
+            {res.members.length}
+          </div>
         </form>
       </div>
     </div>

@@ -21,6 +21,7 @@ const ViewDocuments = ({ drizzleState }) => {
             headers: { Authorization: `Bearer ${token}` },
           }
         ).catch((err) => console.log(err));
+        console.log(result.data.result);
         setRes(result.data.result);
         updateToast(toastId, "Data fetch complete", "success", false, 500);
       } catch (error) {
@@ -32,7 +33,7 @@ const ViewDocuments = ({ drizzleState }) => {
   return (
     <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex flex-col h-5/6 justify-center items-center">
-        <h1 className="text-5xl p-2 m-2 bold">Members List</h1>
+        <h1 className="text-5xl p-2 m-2 bold">Documents List</h1>
         {(!res || res.length <= 0) && <>No Documents to show.</>}
         {res &&
           res.map((e) => {
@@ -41,12 +42,19 @@ const ViewDocuments = ({ drizzleState }) => {
                 key={e._id}
                 className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain"
               >
-                <p>{e.docName}</p>
+                <p className="">
+                  <span className="text-[#0892d0]">Document Name: </span>
+                  {e.docName}
+                </p>
+                <p>
+                  <span className="text-[#0892d0]">Assigned By: </span>
+                  {e.assignByName}
+                </p>
                 <a
                   target="_blank"
                   href={e.docUrl}
                   rel="noreferrer"
-                  className="m-2 neumorphism-plain px-4 py-2"
+                  className="m-2 active-neumorphism-plain px-4 py-2"
                 >
                   View document
                 </a>

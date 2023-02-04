@@ -4,7 +4,7 @@ const WorkExperience = new mongoose.Schema({
   InstituteId: { type: String },
   InstituteName: { type: String, required: true },
   completed: { type: Boolean, required: true },
-  isVerified: { type: Boolean, required: true },
+  isVerified: { type: String, required: true },
   role: { type: String, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date },

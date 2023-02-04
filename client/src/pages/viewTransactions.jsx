@@ -10,6 +10,19 @@ const ViewTransactions = ({ drizzle, drizzleState }) => {
   console.log(drizzleState.contracts.Account.events);
   useEffect(() => {
     async function fetchTransactions() {
+      let events = drizzleState.contracts.Account.events;
+      events.forEach((eventName) => {
+        const event = drizzleState.contracts.Account.events[eventName](
+          { filter: { from: walletAddress } },
+          { fromBlock: 0, toBlock: "latest" }
+        );
+        event.on("data", (event) => {
+          setEventHistory((prevEvents) => [...prevEvents, event]);
+        });
+        event.on("error", console.error);
+        return () => event.unsubscribe();
+      });
+
       let temp = [];
       let latestBlock = await web3.eth.getBlockNumber();
       for (let i = 0; i < latestBlock; i++) {
@@ -28,9 +41,14 @@ const ViewTransactions = ({ drizzle, drizzleState }) => {
   }, [walletAddress]);
 
   return (
-    <div>
+    <div className="h-screen">
+      <Title title={`Events for ${walletAddress}`} />
+      <ul>
+        {eventHistory.map((event, index) => (
+          <li key={index}>{event.returnValues} ETH</li>
+        ))}
+      </ul>
       <Title title={`Transactions for ${walletAddress}`} />
-      <h1></h1>
       <ul>
         {transactions.map((tx) => (
           <li key={tx.transactionHash}>

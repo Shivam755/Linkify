@@ -7,6 +7,7 @@ import { updateToast } from "../../utilities/toastify";
 import { getToken } from "../../utilities/tokenSlice";
 import client from "../../utilities/ipfs";
 import { gradeUnits } from "../../utilities/defaultValues";
+import Title from "../../components/title";
 
 const AddWorkExperience = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
@@ -118,7 +119,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
     }
     let toastId = toast.loading("Saving relief Letter on IPFS..");
     try {
-      let currentFile = selectedRelief[0][0];
+      let currentFile = selectedRelief[0];
 
       setReliefLetter(currentFile);
       console.log(currentFile);
@@ -188,7 +189,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
       id: drizzleState.accounts[0],
       instituteId,
       instituteName,
-      isVerified: false,
+      isVerified: "Pending",
       startDate,
       completed,
       endDate: compDate,
@@ -263,8 +264,8 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
     hide("institName");
   }
   if (completed) {
-    show("compDate");
-  } else hide("compDate");
+    show("compData");
+  } else hide("compData");
 
   console.log(roleList);
   if (roleList.length < 0) {
@@ -272,10 +273,10 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
     hide("roleSelect");
   }
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen">
       <div className="flex h-5/6 justify-center items-center">
         <div className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
-          <div className="p-3 m-4 font-bold text-6xl">AddEducation</div>
+          <Title title={"Add Work Experience"} />
 
           {/* Institute */}
           <div className="m-1 flex items-center justify-between">
@@ -342,6 +343,50 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
               required
             />
           </div>
+          {/* Offer Letter */}
+          <div className="m-1 flex items-center justify-between">
+            Offer Letter file:
+            <Dropzone onDrop={onOfferDrop} multiple={false}>
+              {({
+                getRootProps,
+                getInputProps,
+                isDragActive,
+                isDragReject,
+              }) => (
+                <section>
+                  <div
+                    {...getRootProps({
+                      className:
+                        "neumorphism-pressed h-30 w-64 flex justify-center items-center p-5 m-3 ",
+                    })}
+                  >
+                    <input
+                      {...getInputProps({
+                        className:
+                          "dropinput h-30 w-64 flex justify-center items-center p-5 m-3",
+                      })}
+                    />
+                    {selectedOffer && selectedOffer[0].name ? (
+                      <div>
+                        <b>Selected File: </b>
+                        {selectedOffer && selectedOffer[0].name}
+                      </div>
+                    ) : (
+                      <div>
+                        "Drag and drop file here, or click to select file"
+                        {!isDragActive &&
+                          "Click here or drop a file to upload!"}
+                        {isDragActive &&
+                          !isDragReject &&
+                          "Drop it like it's hot!"}
+                        {isDragReject && "File type not accepted, sorry!"}
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+            </Dropzone>
+          </div>
           {/* Completed */}
           <div className="m-1 flex items-center justify-between">
             <input
@@ -354,81 +399,70 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
             />
             <label htmlFor="completed">Course is completed</label>
           </div>
-          {/* Completion date */}
-          <div id="compDate" className="m-1 flex items-center justify-between">
-            Completion date:
-            <input
-              className="m-1 neumorphism-pressed px-4 py-2"
-              type="date"
-              onChange={updateCompDate}
-            />
-          </div>
-
-          {/* Offer Letter */}
-          <div className="m-1 flex items-center justify-between">
-            Offer Letter file:
-            <Dropzone onDrop={onOfferDrop} multiple={false}>
-              {({ getRootProps, getInputProps }) => (
-                <section>
-                  <div
-                    {...getRootProps({
-                      className:
-                        "neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3 ",
-                    })}
-                  >
-                    <input
-                      {...getInputProps({
+          <div
+            id="compData"
+            className="flex flex-col justify-center items-center"
+          >
+            {/* Completion date */}
+            <div
+              id="compDate"
+              className="m-1 flex items-center justify-between"
+            >
+              Completion date:
+              <input
+                className="m-1 neumorphism-pressed px-4 py-2"
+                type="date"
+                onChange={updateCompDate}
+              />
+            </div>
+            {/* Relief Letter */}
+            <div className="m-1 flex items-center justify-between">
+              Offer Letter file:
+              <Dropzone onDrop={onReliefDrop} multiple={false}>
+                {({
+                  getRootProps,
+                  getInputProps,
+                  isDragActive,
+                  isDragReject,
+                }) => (
+                  <section>
+                    <div
+                      {...getRootProps({
                         className:
-                          "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
+                          "neumorphism-pressed h-30 w-64 flex justify-center items-center p-5 m-3 ",
                       })}
-                    />
-                    {selectedOffer && selectedOffer[0].name ? (
-                      <div>
-                        <b>Selected File: </b>
-                        {selectedOffer && selectedOffer[0].name}
-                      </div>
-                    ) : (
-                      "Drag and drop file here, or click to select file"
-                    )}
-                  </div>
-                </section>
-              )}
-            </Dropzone>
-          </div>
-          {/* Relief Letter */}
-          <div className="m-1 flex items-center justify-between">
-            Offer Letter file:
-            <Dropzone onDrop={onReliefDrop} multiple={false}>
-              {({ getRootProps, getInputProps }) => (
-                <section>
-                  <div
-                    {...getRootProps({
-                      className:
-                        "neumorphism-pressed h-64 w-64 flex justify-center items-center p-5 m-3 ",
-                    })}
-                  >
-                    <input
-                      {...getInputProps({
-                        className:
-                          "dropinput h-64 w-64 flex justify-center items-center p-5 m-3",
-                      })}
-                    />
-                    {selectedRelief && selectedRelief[0].name ? (
-                      <div>
-                        <b>Selected File: </b>
-                        {selectedRelief && selectedRelief[0].name}
-                      </div>
-                    ) : (
-                      "Drag and drop file here, or click to select file"
-                    )}
-                  </div>
-                </section>
-              )}
-            </Dropzone>
+                    >
+                      <input
+                        {...getInputProps({
+                          className:
+                            "dropinput h-30 w-64 flex justify-center items-center p-5 m-3",
+                        })}
+                      />
+                      {selectedRelief && selectedRelief[0].name ? (
+                        <div>
+                          <b>Selected File: </b>
+                          {selectedRelief && selectedRelief[0].name}
+                        </div>
+                      ) : (
+                        <div>
+                          "Drag and drop file here, or click to select file"
+                          {!isDragActive &&
+                            "Click here or drop a file to upload!"}
+                          {isDragActive &&
+                            !isDragReject &&
+                            "Drop it like it's hot!"}
+                          {isDragReject && "File type not accepted, sorry!"}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
+              </Dropzone>
+            </div>
           </div>
 
           <button
-            className="m-2 neumorphism-button px-4 py-2"
+            className="m-2 active-neumorphism-button px-4 py-2"
             onClick={saveData}
           >
             Save

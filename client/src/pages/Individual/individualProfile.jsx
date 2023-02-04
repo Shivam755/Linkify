@@ -7,6 +7,7 @@ import { IndivProfileOptions } from "../../utilities/defaultValues";
 import { updateToast } from "../../utilities/toastify";
 import { updateNav } from "../../components/navbar";
 import { getToken, deleteToken } from "../../utilities/tokenSlice";
+import Title from "../../components/title";
 
 const IndividualProfile = ({ drizzle, drizzleState }) => {
   const [res, setRes] = useState(null);
@@ -106,11 +107,15 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
     e.preventDefault();
     Swal.fire({
       title: "Do you really want to delete your account?",
+      text: "All your files and data will be deleted!!",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
+      color: "#ffffff",
+      background: "#0a0a0b",
+      // backdrop: "rgba(255,255,255,0.4)",
       customClass: {
-        actions: "neumorphism-plain",
+        // actions: "neumorphism-plain",
         cancelButton: "neumorphism-plain",
         confirmButton: "neumorphism-plain",
         denyButton: "neumorphism-plain",
@@ -125,10 +130,10 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen max-h-max">
+    <div className="flex flex-col h-screen">
       <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-5/6 flex flex-col justify-center items-center neumorphism-plain">
-          <h1 className="text-5xl p-2 m-2 bold">Profile</h1>
+          <Title title={"Profile"} />
           {res !== null &&
             Object.keys(res).map((keyName, keyIndex) => {
               if (!IndivProfileOptions.includes(keyName)) {
@@ -136,10 +141,13 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
               }
               return (
                 <div className="m-1 flex items-center justify-between">
-                  {keyName.charAt(0).toUpperCase() + keyName.slice(1)}:
+                  <label className="text-[#0892d0]">
+                    {keyName.charAt(0).toUpperCase() + keyName.slice(1)}
+                  </label>
+                  :
                   <input
                     type="text"
-                    className="m-1 px-4 py-2"
+                    className="m-1 px-4 py-2 bg-transparent"
                     value={res[keyName]}
                     placeholder={keyName}
                     disabled
@@ -148,70 +156,80 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
               );
             })}
           <div className="flex justify-center items-around w-5/6">
-            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain hide-scroll">
-              <h1>Education</h1>
+            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center hide-scroll">
+              <h1 className="text-[#0892d0] text-3xl m-2">Education</h1>
               {education.map((element) => (
                 <div>
                   <div>
-                    {element.verified ? "Verified By Institute" : "Unverified"}
+                    <span className="text-[#0892d0]">Verification:</span>{" "}
+                    {element.isVerified}
                   </div>
-                  <div>Course: {element.course}</div>
-                  <div>Institute Name: {element.instituteName}</div>
-                  {/* <div>
-                  {element.startDate.getYear()} - {element.endDate()}
-                </div> */}
                   <div>
-                    Final Grade: {element.finalGrade} {element.finalGradeUnit}
+                    <span className="text-[#0892d0]">Course:</span>{" "}
+                    {element.course}
                   </div>
-                  <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                  <div>
+                    <span className="text-[#0892d0]">Institute Name:</span>{" "}
+                    {element.InstituteName}
+                  </div>
+                  <div>
+                    <span className="text-[#0892d0]">Final Grade:</span>{" "}
+                    {element.finalGrade} {element.finalGradeUnit}
+                  </div>
+                  <hr className="w-full h-px my-3 bg-[#0892d0] border-0 dark:bg-[#0892d0]" />
                 </div>
               ))}
             </div>
-            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain hide-scroll">
-              <h1>Work Experience</h1>
+            <div className="m-2 p-6 w-1/2 flex flex-col justify-center items-center hide-scroll">
+              <h1 className="text-[#0892d0] text-3xl m-2">Work Experience</h1>
               {work.map((element) => (
                 <div>
                   <div>
-                    {element.verified ? "Verified By Institute" : "Unverified"}
+                    <span className="text-[#0892d0]">Verification:</span>{" "}
+                    {element.isVerified}
                   </div>
-                  <div>Designation: {element.role}</div>
-                  <div>Institute Name: {element.instituteName}</div>
-                  {/* <div>
-                  {element.startDate.getYear()} - {element.endDate.getYear()}
-                </div> */}
-                  <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+                  <div>
+                    <span className="text-[#0892d0]">Designation:</span>{" "}
+                    {element.role}
+                  </div>
+                  <div>
+                    <span className="text-[#0892d0]">Institute Name:</span>{" "}
+                    {element.InstituteName}
+                  </div>
+
+                  <hr className="w-full h-px my-8 bg-[#0892d0] border-0 dark:dark:bg-[#0892d0]" />
                 </div>
               ))}
             </div>
           </div>
           <div className="flex flex-wrap">
             <Link
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
               to={"/Individual/updateProfile"}
             >
               Edit Profile
             </Link>
             <Link
               to="/changePassword/Individual/"
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
             >
               Change Password
             </Link>
             <Link
               to="/Individual/addEducation"
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
             >
               Add Education
             </Link>
             <Link
               to="/Individual/addWorkExperience"
-              className="neumorphism-plain px-5 py-3 m-2"
+              className="active-neumorphism-plain px-5 py-3 m-2"
             >
               Add Work Experience
             </Link>
           </div>
           <button
-            className="neumorphism-plain px-5 py-3 m-2"
+            className="red-neumorphism-plain px-5 py-3 m-2"
             onClick={handleDelete}
           >
             Delete Account

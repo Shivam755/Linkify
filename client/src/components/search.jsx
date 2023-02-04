@@ -56,7 +56,7 @@ const SearchComp = ({ title, type }) => {
           />
           <button
             onClick={fetchData}
-            className="w-1/12 flex justify-center items-center neumorphism-plain"
+            className="w-1/12 flex justify-center items-center active-neumorphism-plain"
           >
             <Search />
           </button>
