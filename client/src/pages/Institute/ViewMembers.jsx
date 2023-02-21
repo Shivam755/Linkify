@@ -37,7 +37,7 @@ const ViewMembers = ({ drizzle, drizzleState }) => {
     <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex flex-col h-5/6 justify-center items-center">
         <h1 className="text-5xl p-2 m-2 bold">Members List</h1>
-        {!res && (
+        {(!res || res.length <= 0) && (
           <>
             No Members yet. <Link to={""}>Recruit some</Link>{" "}
           </>

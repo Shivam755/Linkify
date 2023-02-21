@@ -521,7 +521,7 @@ app.post(
       let result;
       let body;
       if (type == validUserTypes[0]) {
-        result = await Individual.findOne({ _id: request.body._id });
+        // result = await Individual.findOne({ _id: request.body._id });
         body = body = {
           metamaskId: request.body.metamaskId,
           name: request.body.name,
@@ -533,7 +533,7 @@ app.post(
           prevId: request.body._id,
         };
       } else {
-        result = await Institute.findOne({ _id: request.body._id });
+        // result = await Institute.findOne({ _id: request.body._id });
         body = {
           metamaskId: request.body.metamaskId,
           name: request.body.name,
@@ -1163,11 +1163,87 @@ app.post(
 );
 
 app.post(
+  "/api/updateRoles",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let id = req.body.hash;
+    let { roles } = req.body;
+    try {
+      let result = await Institute.findOne({ _id: id });
+      if (!result) {
+        return res.send({
+          status: FAILED,
+          msg: "No Account exists with the given wallet ID",
+        });
+      }
+      let body = {
+        metamaskId: result.metamaskId,
+        name: result.name,
+        foundationDate: result.foundationDate,
+        ceoId: result.ceoId,
+        instituteType: result.instituteType,
+        roles: roles,
+        password: result.password,
+        location: result.location,
+        prevId: result._id,
+      };
+      let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
+      result = await Institute.create({ _id: digest, ...body });
+      result = await result.save();
+      await Institute.updateOne({ _id: digest }, { password: result.password });
+      return res.send({
+        status: SUCCESS,
+        message: "Roles Updated successfully!!",
+        hash: digest,
+      });
+    } catch (err) {
+      console.log("Error in update Roles: ");
+      console.log(err);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured!!",
+      });
+    }
+  }
+);
+
+app.post(
   "/api/updateVerification",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {}
 );
 
+app.post(
+  "/api/getLocation",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let { id } = req.body;
+    try {
+      let result = await Institute.find({ metamaskId: id })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1);
+      if (!result || result === []) {
+        return res.send({
+          status: FAILED,
+          msg: "No Account exists with the given wallet ID",
+        });
+      }
+      return res.send({
+        status: SUCCESS,
+        location: result[0].location,
+      });
+    } catch (err) {
+      console.log("Error in Get Location: ");
+      console.log(err);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured!!",
+      });
+    }
+  }
+);
 // methods specific to individuals
 app.post(
   "/api/AddEducation",

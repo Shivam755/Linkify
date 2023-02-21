@@ -130,7 +130,7 @@ const Dashboard = ({ drizzle, drizzleState }) => {
   }
 
   return (
-    <div className="h-max">
+    <div className="min-h-screen max-h-max">
       <Title title="Dashboard" />
       {res !== null && (
         <div className="flex flex-col justify-around items-center w-full h-full">

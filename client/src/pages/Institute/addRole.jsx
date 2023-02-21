@@ -70,34 +70,15 @@ const AddRole = ({ drizzle, drizzleState }) => {
         .call();
       console.log(hash);
       let result = await Axios.post(
-        process.env.REACT_APP_SERVER_HOST + "/api/profile",
+        process.env.REACT_APP_SERVER_HOST + "/api/updateRoles",
         {
           hash: hash.slice(2),
-          type: "Institute",
+          roles: roleList,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       ).catch((err) => console.log(err));
-
-      result = await Axios.post(
-        process.env.REACT_APP_SERVER_HOST + "/api/updateUser",
-        {
-          type: "Institute",
-          _id: result.data._id,
-          metamaskId: drizzleState.accounts[0],
-          name: result.data.name,
-          ceoId: result.data.ceoId,
-          instituteType: result.data.instituteType,
-          foundationDate: result.data.foundationDate,
-          password: result.data.password,
-          roles: roleList,
-          location: result.data.location,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
       console.log(result);
       if (result.data.status === "Success") {
         let hash = result.data.hash;
@@ -115,7 +96,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
           // alert("User created Successfully!!");
           updateToast(toastId, "Roles updated Successfully!", "success");
           //   navigate("/Institute/profile/");
-          // alert(result.data.message);
+          // alert(result.data.profile.message);
         } catch (err) {
           console.log(err);
           updateToast(toastId, err, "error");

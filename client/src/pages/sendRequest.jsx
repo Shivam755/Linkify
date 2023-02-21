@@ -62,10 +62,6 @@ const SendRequest = ({ drizzle, drizzleState }) => {
   const sendRequest = async (e) => {
     const id = toast.loading("Sending Request!!");
     e.preventDefault();
-    console.log(senderId);
-    console.log(receiverId);
-    console.log(msg);
-    console.log(role);
     if (
       senderId.trim().length <= 0 ||
       receiverId.trim().length <= 0 ||
@@ -188,7 +184,7 @@ const SendRequest = ({ drizzle, drizzleState }) => {
             ></textarea>
           </div>
           <button
-            className="m-1 neumorphism-button px-4 py-2"
+            className="m-1 active-neumorphism-button px-4 py-2"
             onClick={sendRequest}
           >
             Submit request
