@@ -1,7 +1,7 @@
 import Axios from "axios";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useGeolocated } from "react-geolocated";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { toast } from "react-toastify";
 import { updateToast } from "../../utilities/toastify";
 import Title from "../../components/title";
@@ -11,6 +11,14 @@ import { updateNav } from "../../components/navbar";
 const InstituteLogin = ({ drizzle, drizzleState }) => {
   const [currentId, setCurrentId] = useState(drizzleState.accounts[0]);
   const [password, setPassword] = useState("");
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      userDecisionTimeout: 5000,
+    });
+  const ogCoords = useRef([]);
   // const [name, setName] = useState("");
   const navigate = useNavigate();
 
@@ -40,10 +48,36 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
       updateNav("Institute");
       navigate("/dashboard/Institute");
     } else {
-      updateToast(id, "Login failed!!", "error");
+      updateToast(id, result.data.msg, "error");
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      let toastId = toast.loading("Fetching Original location!");
+      try {
+        let result = await Axios.post(
+          process.env.REACT_APP_SERVER_HOST + "/api/getLocation",
+          {
+            id: drizzleState.accounts[0],
+          }
+        );
+        console.log(result);
+
+        if (result.data.status === "Failed") {
+          return updateToast(toastId, result.data.msg, "error");
+        }
+
+        ogCoords.current = result.data.location;
+        updateToast(toastId, "Data fetch successful", "success", false, 100);
+      } catch (error) {
+        console.log(error);
+        updateToast(toastId, "Some error occured while loading page!", "error");
+      }
+    };
+
+    fetchData();
+  }, []);
   // useEffect(() => {
   //   setCurrentId(window.ethereum.selectedAddress);
   // }, [drizzleState]);
@@ -53,12 +87,33 @@ const InstituteLogin = ({ drizzle, drizzleState }) => {
       <div>
         <h1>No accounts linked!!</h1>
         <p>
-          Please <Link to="/Individual"> Connect to Metamask </Link>
+          Please <Link to="/Institute"> Connect to Metamask </Link>
         </p>
       </div>
     );
+  } else if (coords !== null && coords) {
+    if (coords[0] !== ogCoords.current[0] || coords[1] !== ogCoords[1]) {
+      return (
+        <div>
+          <h1>Wrong location!!</h1>
+          <p>
+            You're logging in from wrong a different location!! This is not
+            allowed due to security reasons
+          </p>
+        </div>
+      );
+    }
   }
-  return (
+  return !isGeolocationAvailable ? (
+    <div className="flex flex-col h-screen justify-center items-center p-3 m-4 font-bold text-6xl">
+      Your browser doesn't support Geolocation. We need your geolocation for
+      security reasons.
+    </div>
+  ) : !isGeolocationEnabled ? (
+    <div className="flex flex-col h-screen justify-center items-center p-3 m-4 font-bold text-6xl">
+      We need geolocation for security reasons. Please enable geolocation!
+    </div>
+  ) : (
     <div className="flex flex-col h-screen">
       <div className="flex w-screen h-5/6 justify-center items-center">
         <form className="w-1/2 flex flex-col justify-center items-center py-20 neumorphism-plain">

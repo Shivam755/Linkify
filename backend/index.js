@@ -232,13 +232,41 @@ app.post(
       // finding results
       let result;
       if (type === validUserTypes[0]) {
-        result = await Individual.find({ $text: { $search: query } });
+        result = await Individual.find({
+          $search: { regex: "." + query + ".", path: ["name", "metamaskId"] },
+        });
       } else {
-        result = await Institute.find({ $text: { $search: query } });
+        result = await Institute.find({
+          $search: { regex: "." + query + ".", path: ["name", "metamaskId"] },
+        });
+      }
+      let maskList = [];
+      let accountList = [];
+      //Removing repeated accounts
+      for (let i in result) {
+        if (!maskList.includes(result[i].metamaskId)) {
+          let temp;
+          if (type === validUserTypes[0]) {
+            temp = await Individual.find({ metamaskId: result[i].metamaskId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+          } else {
+            temp = await Institute.find({ metamaskId: result[i].metamaskId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+          }
+          accountList.push(temp[0]._doc);
+          console.log(result[i].metamaskId);
+          maskList.push(result[i].metamaskId);
+        }
       }
       return res.send({
         status: SUCCESS,
-        results: result,
+        results: accountList,
       });
     } catch (error) {
       console.log("Error in Fetch result: ");
@@ -1188,8 +1216,8 @@ app.post(
         prevId: result._id,
       };
       let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-      result = await Institute.create({ _id: digest, ...body });
-      result = await result.save();
+      let output = await Institute.create({ _id: digest, ...body });
+      output = await output.save();
       await Institute.updateOne({ _id: digest }, { password: result.password });
       return res.send({
         status: SUCCESS,
@@ -1213,37 +1241,33 @@ app.post(
   async (req, res) => {}
 );
 
-app.post(
-  "/api/getLocation",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let { id } = req.body;
-    try {
-      let result = await Institute.find({ metamaskId: id })
-        .sort({
-          createdAt: -1,
-        })
-        .limit(1);
-      if (!result || result === []) {
-        return res.send({
-          status: FAILED,
-          msg: "No Account exists with the given wallet ID",
-        });
-      }
-      return res.send({
-        status: SUCCESS,
-        location: result[0].location,
-      });
-    } catch (err) {
-      console.log("Error in Get Location: ");
-      console.log(err);
+app.post("/api/getLocation", async (req, res) => {
+  let { id } = req.body;
+  try {
+    let result = await Institute.find({ metamaskId: id })
+      .sort({
+        createdAt: -1,
+      })
+      .limit(1);
+    if (!result || result === []) {
       return res.send({
         status: FAILED,
-        msg: "Some error occured!!",
+        msg: "No Account exists with the given wallet ID",
       });
     }
+    return res.send({
+      status: SUCCESS,
+      location: result[0].location,
+    });
+  } catch (err) {
+    console.log("Error in Get Location: ");
+    console.log(err);
+    return res.send({
+      status: FAILED,
+      msg: "Some error occured!!",
+    });
   }
-);
+});
 // methods specific to individuals
 app.post(
   "/api/AddEducation",

@@ -52,7 +52,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
     console.log(`Addrole: ${roleList.concat([role])}`);
     let temp = roleList.concat([role]);
     setRoleList(temp);
-    // setRole("");
+    setRole("");
   };
 
   const removeRole = (roleName) => {
@@ -164,7 +164,7 @@ const AddRole = ({ drizzle, drizzleState }) => {
           >
             Save Changes
           </button>
-          <div className="m-1 h-11/12 flex items-center justify-between overflow-y-scroll hide-scroll">
+          <div className="m-1 h-11/12 flex flex-col items-center justify-between overflow-y-scroll hide-scroll">
             {roleList.map((element) => {
               return (
                 <div>
