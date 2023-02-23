@@ -80,10 +80,32 @@ app.post(
           result = await Institute.find({ instituteType: subType });
         }
       }
-
+      let maskList = [];
+      let accountList = [];
+      //Removing repeated accounts
+      for (let i in result) {
+        if (!maskList.includes(result[i].metamaskId)) {
+          let temp;
+          if (type === validUserTypes[0]) {
+            temp = await Individual.find({ metamaskId: result[i].metamaskId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+          } else {
+            temp = await Institute.find({ metamaskId: result[i].metamaskId })
+              .sort({
+                createdAt: -1,
+              })
+              .limit(1);
+          }
+          accountList.push(temp[0]._doc);
+          maskList.push(result[i].metamaskId);
+        }
+      }
       return res.send({
         status: SUCCESS,
-        result,
+        result: accountList,
       });
     } catch (error) {
       console.log("Error in Fetch all: ");
@@ -232,13 +254,9 @@ app.post(
       // finding results
       let result;
       if (type === validUserTypes[0]) {
-        result = await Individual.find({
-          $search: { regex: "." + query + ".", path: ["name", "metamaskId"] },
-        });
+        result = await Individual.find({ $text: { $search: query } });
       } else {
-        result = await Institute.find({
-          $search: { regex: "." + query + ".", path: ["name", "metamaskId"] },
-        });
+        result = await Institute.find({ $text: { $search: query } });
       }
       let maskList = [];
       let accountList = [];
@@ -260,7 +278,6 @@ app.post(
               .limit(1);
           }
           accountList.push(temp[0]._doc);
-          console.log(result[i].metamaskId);
           maskList.push(result[i].metamaskId);
         }
       }
@@ -970,7 +987,7 @@ app.post(
           let Marksheet = await Documents.findById(verifyEd[i].finalMarksheet);
           verifyEd[i] = {
             DoneByName: indiv[0].name,
-            finalMarksheetLink: Marksheet.docUrl,
+            finalMarksheetLink: verifyEd[i].completed ? Marksheet.docUrl : "",
             ...verifyEd[i]._doc,
           };
         }
@@ -1238,7 +1255,30 @@ app.post(
 app.post(
   "/api/updateVerification",
   passport.authenticate("jwt", { session: false }),
-  async (req, res) => {}
+  async (req, res) => {
+    let { id, type, status } = req.body;
+    try {
+      let result;
+      if (type == "Education") {
+        result = await Education.findById(id);
+      } else {
+        result = await WorkExperience.findById(id);
+      }
+
+      await result.update({ isVerified: status });
+      return res.send({
+        status: SUCCESS,
+        msg: "Verification updated!",
+      });
+    } catch (error) {
+      console.log("Error in update Verification: ");
+      console.log(err);
+      return res.send({
+        status: FAILED,
+        msg: "Some error occured!!",
+      });
+    }
+  }
 );
 
 app.post("/api/getLocation", async (req, res) => {
@@ -1289,17 +1329,20 @@ app.post(
     } = req.body;
 
     try {
-      // Saving Document
-      let body = {
-        docId: finalMarksheet.id,
-        owner: id,
-        docName: course + "_Final_Marksheet",
-        docUrl: finalMarksheet.url,
-        assignedById: id,
-      };
-      let docResult = await Documents.create(body);
-      docResult = await docResult.save();
-      console.log(docResult._id);
+      let docResult;
+      if (completed) {
+        // Saving Document
+        let body = {
+          docId: finalMarksheet.id,
+          owner: id,
+          docName: course + "_Final_Marksheet",
+          docUrl: finalMarksheet.url,
+          assignedById: id,
+        };
+        docResult = await Documents.create(body);
+        docResult = await docResult.save();
+        console.log(docResult._id);
+      }
 
       //Saving education
       body = {
@@ -1314,39 +1357,39 @@ app.post(
         CreditsGained,
         finalGrade,
         finalGradeUnit,
-        finalMarksheet: docResult._id,
+        finalMarksheet: completed ? docResult._id : null,
       };
       let edResult = await Education.create(body);
       await edResult.save();
 
-      //Updating individual
-      let indivResult = await Individual.find({ metamaskId: id })
-        .sort({
-          createdAt: -1,
-        })
-        .limit(1);
-      console.log(indivResult);
-      indivResult[0].documentList.push(docResult._id);
-      console.log(indivResult[0].documentList);
-      body = {
-        metamaskId: indivResult[0].metamaskId,
-        name: indivResult[0].name,
-        birthDate: indivResult[0].birthDate,
-        qualification: indivResult[0].qualification,
-        designation: indivResult[0].designation,
-        password: indivResult[0].password,
-        documentList: indivResult[0].documentList,
-        prevId: indivResult[0]._id,
-      };
-      let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-      let result = await Individual.create({ _id: digest, ...body });
-      result.save();
-      await Individual.updateOne(
-        { _id: digest },
-        { password: indivResult[0].password }
-      );
-      if (instituteId.trim() !== "") {
-        // TODO add a new verification type request
+      let digest;
+      if (completed) {
+        //Updating individual
+        let indivResult = await Individual.find({ metamaskId: id })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(1);
+        console.log(indivResult);
+        indivResult[0].documentList.push(docResult._id);
+        console.log(indivResult[0].documentList);
+        body = {
+          metamaskId: indivResult[0].metamaskId,
+          name: indivResult[0].name,
+          birthDate: indivResult[0].birthDate,
+          qualification: indivResult[0].qualification,
+          designation: indivResult[0].designation,
+          password: indivResult[0].password,
+          documentList: indivResult[0].documentList,
+          prevId: indivResult[0]._id,
+        };
+        digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
+        let result = await Individual.create({ _id: digest, ...body });
+        result.save();
+        await Individual.updateOne(
+          { _id: digest },
+          { password: indivResult[0].password }
+        );
       }
       return res.send({
         status: SUCCESS,
@@ -1490,7 +1533,7 @@ app.post(
         let Marksheet = await Documents.findById(result[i].finalMarksheet);
         result[i] = {
           DoneByName: indiv[0].name,
-          finalMarksheetLink: Marksheet.docUrl,
+          finalMarksheetLink: Marksheet ? Marksheet.docUrl : "",
           ...result[i]._doc,
         };
       }

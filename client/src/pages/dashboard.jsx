@@ -113,7 +113,9 @@ const Dashboard = ({ drizzle, drizzleState }) => {
       if (result.data.status === "Failed") {
         return updateToast(toastId, result.data.message, "error");
       }
-      navigate(`/${type}/profile`);
+      console.log(result.data);
+      window.location.reload(false);
+      // navigate(`/${type}/profile`);
       return updateToast(toastId, "Verification Updated", "success");
     } catch (error) {
       updateToast(toastId, "Some error occured. Please try again", "error");

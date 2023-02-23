@@ -9,9 +9,9 @@ const Education = new mongoose.Schema({
   completed: { type: Boolean, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date },
-  CreditsGained: { type: Number, required: true },
-  finalGrade: { type: Number, required: true },
+  CreditsGained: { type: Number },
+  finalGrade: { type: Number },
   finalGradeUnit: { type: String },
-  finalMarksheet: { type: ObjectId, required: true },
+  finalMarksheet: { type: ObjectId },
 });
 module.exports = mongoose.model("Education", Education, "Education");

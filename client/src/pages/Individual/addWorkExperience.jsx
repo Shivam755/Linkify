@@ -23,12 +23,12 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
   const [selectedOffer, setSelectedOffer] = useState("");
   const offerDocUrl = useRef("");
   const offerDocId = useRef("");
-  const [offerLetter, setOfferLetter] = useState("");
+  const offerLetter = useRef("");
 
   const [selectedRelief, setSelectedRelief] = useState("");
   const reliefDocUrl = useRef("");
   const reliefDocId = useRef("");
-  const [reliefLetter, setReliefLetter] = useState("");
+  const reliefLetter = useRef("");
   let token = getToken();
   const show = (id) => {
     let element = document.getElementById(id);
@@ -98,8 +98,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
     let toastId = toast.loading("Saving Offer letter on IPFS..");
     try {
       let currentFile = selectedOffer[0];
-
-      setOfferLetter(currentFile);
+      offerLetter.current = currentFile;
       console.log(currentFile);
       let res = await handleSubmitOffer();
       if (res) {
@@ -121,7 +120,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
     try {
       let currentFile = selectedRelief[0];
 
-      setReliefLetter(currentFile);
+      reliefLetter.current = currentFile;
       console.log(currentFile);
       let res = await handleSubmitRelief();
       if (res) {
@@ -138,7 +137,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
 
   const handleSubmitRelief = async () => {
     try {
-      let blobFile = new Blob([reliefLetter]);
+      let blobFile = new Blob([reliefLetter.current]);
       const created = await client.storeBlob(blobFile);
       console.log(created);
       const url = `ipfs://${created}`;
@@ -154,7 +153,7 @@ const AddWorkExperience = ({ drizzle, drizzleState }) => {
   const handleSubmitOffer = async () => {
     try {
       console.log(client);
-      let blobFile = new Blob([offerLetter]);
+      let blobFile = new Blob([offerLetter.current]);
       const created = await client.storeBlob(blobFile);
       console.log(created);
       const url = `ipfs://${created}`;

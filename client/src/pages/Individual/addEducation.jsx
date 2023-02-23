@@ -29,7 +29,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
   const [selectedFiles, setSelectedFiles] = useState("");
   const docUrl = useRef("");
   const docId = useRef("");
-  const [file, setFile] = useState("");
+  const file = useRef("");
   let token = getToken();
 
   const show = (id) => {
@@ -94,8 +94,8 @@ const AddEducation = ({ drizzle, drizzleState }) => {
     let toastId = toast.loading("Saving document on IPFS..");
     try {
       let currentFile = selectedFiles[0];
-
-      setFile(currentFile);
+      file.current = currentFile;
+      // setFile(currentFile);
       let res = await handleSubmit();
       if (res) {
         updateToast(toastId, "Document saved successfully!!", "success");
@@ -111,7 +111,7 @@ const AddEducation = ({ drizzle, drizzleState }) => {
 
   const handleSubmit = async () => {
     try {
-      let blobFile = new Blob([file]);
+      let blobFile = new Blob([file.current]);
       const created = await client.storeBlob(blobFile);
       const url = `ipfs://${created}`;
       docId.current = created;
@@ -127,19 +127,27 @@ const AddEducation = ({ drizzle, drizzleState }) => {
     if (
       course.trim().length <= 0 ||
       instituteName.trim().length <= 0 ||
-      startDate.trim().length <= 0 ||
-      finalGradeUnit.trim().length <= 0 ||
-      selectedFiles.length <= 0
+      startDate.trim().length <= 0
     ) {
       return toast.warning("Please fill all the required fields!");
     }
 
     let toastId = toast.loading("Saving Information...");
-    let res = await upload();
-    if (!res) {
-      updateToast(toastId, "Saving data failed", "error");
-      return res;
+    if (completed) {
+      if (finalGradeUnit.trim().length <= 0 || selectedFiles.length <= 0) {
+        return updateToast(
+          toastId,
+          "Please fill all the required fields",
+          "warning"
+        );
+      }
+      let res = await upload();
+      if (!res) {
+        updateToast(toastId, "Saving data failed", "error");
+        return res;
+      }
     }
+
     let body = {
       id: drizzleState.accounts[0],
       course,
@@ -173,20 +181,24 @@ const AddEducation = ({ drizzle, drizzleState }) => {
           "error"
         );
       }
-      let hash = result.data.hash;
-      hash = "0x" + hash;
-      try {
-        const { Account } = drizzle.contracts;
-        let temp = Account.methods
-          .updateIndivData(drizzleState.accounts[0], hash)
-          .send();
+      if (completed) {
+        let hash = result.data.hash;
+        hash = "0x" + hash;
+        try {
+          const { Account } = drizzle.contracts;
+          let temp = Account.methods
+            .updateIndivData(drizzleState.accounts[0], hash)
+            .send();
 
-        updateToast(toastId, "Data saved Successfully!!", "success");
-        navigate("/Individual/profile");
-      } catch (err) {
-        console.log(err);
-        updateToast(toastId, err, "error");
+          updateToast(toastId, "Data saved Successfully!!", "success");
+          return navigate("/Individual/profile");
+        } catch (err) {
+          console.log(err);
+          return updateToast(toastId, err, "error");
+        }
       }
+      updateToast(toastId, "Data saved Successfully!!", "success");
+      navigate("/Individual/profile");
     } catch (error) {
       updateToast(toastId, error, "error");
     }

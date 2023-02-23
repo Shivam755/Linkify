@@ -15,7 +15,7 @@ const UploadFile = ({ drizzle, drizzleState }) => {
   const navigate = useNavigate();
   const [recName, setRecName] = useState("");
   const [fileName, setFileName] = useState("");
-  const [file, setFile] = useState("");
+  const file = useRef("");
   const [selectedFiles, setSelectedFiles] = useState("");
   const docUrl = useRef("");
 
@@ -35,7 +35,7 @@ const UploadFile = ({ drizzle, drizzleState }) => {
     try {
       let currentFile = selectedFiles[0];
 
-      setFile(currentFile);
+      file.current = currentFile;
       let res = await handleSubmit();
       if (res) {
         updateToast(toastId, "Document saved successfully!!", "success");
@@ -50,7 +50,7 @@ const UploadFile = ({ drizzle, drizzleState }) => {
   };
   const handleSubmit = async () => {
     try {
-      let blobFile = new Blob([file]);
+      let blobFile = new Blob([file.current]);
       const created = await client.storeBlob(blobFile);
       const url = `ipfs://${created}`;
       docId.current = created;

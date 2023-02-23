@@ -53,6 +53,7 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
           updateToast(toastId, "Some error in data fetch", "error", false, 500);
           // return null;
         });
+        console.log(edRes);
         for (let i = 0; i < edRes.data.result.length; i++) {
           totalCredits.current += edRes.data.result[i].CreditsGained;
         }
@@ -130,7 +131,7 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen max-h-max">
       <div className="flex h-5/6 justify-center items-center">
         <form className="p-6 w-5/6 flex flex-col justify-center items-center neumorphism-plain">
           <Title title={"Profile"} />
