@@ -118,7 +118,7 @@ const IndividualViewInfo = ({ drizzle, drizzleState }) => {
           senderId: drizzleState.accounts[0],
           receiverId: result.data.profile.metamaskId,
           receiverName: result.data.profile.name,
-          type: joined ? "Firing" : "Recruiting",
+          type: joined.current ? "Firing" : "Recruiting",
           roles: roles.data.roles,
         });
         updateToast(toastId, "Data fetch complete", "success", false, 500);

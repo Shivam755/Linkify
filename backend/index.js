@@ -87,13 +87,17 @@ app.post(
         if (!maskList.includes(result[i].metamaskId)) {
           let temp;
           if (type === validUserTypes[0]) {
-            temp = await Individual.find({ metamaskId: result[i].metamaskId })
+            temp = await Individual.find({
+              metamaskId: { $regex: result[i].metamaskId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
           } else {
-            temp = await Institute.find({ metamaskId: result[i].metamaskId })
+            temp = await Institute.find({
+              metamaskId: { $regex: result[i].metamaskId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
@@ -149,7 +153,9 @@ app.post(
       for (let id in Id) {
         if (type === validUserTypes[0]) {
           results.push(
-            await Individual.find({ metamaskId: Id[id] })
+            await Individual.find({
+              metamaskId: { $regex: Id[id], $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
@@ -157,7 +163,9 @@ app.post(
           );
         } else {
           results.push(
-            await Institute.find({ metamaskId: Id[id] })
+            await Institute.find({
+              metamaskId: { $regex: Id[id], $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
@@ -197,12 +205,13 @@ app.post(
   async (req, res) => {
     let id = req.body.id;
     try {
-      let result = await Documents.find({ owner: id });
-      console.log(result);
+      let result = await Documents.find({
+        owner: { $regex: id, $options: "i" },
+      });
       // Adding Individual name
       for (let i in result) {
         let indiv = await Individual.find({
-          metamaskId: result[i].assignedById,
+          metamaskId: { $regex: result[i].assignedById, $options: "i" },
         })
           .sort({
             createdAt: -1,
@@ -210,7 +219,7 @@ app.post(
           .limit(1);
         if (indiv.length <= 0) {
           let instit = await Institute.find({
-            metamaskId: result[i].assignedById,
+            metamaskId: { $regex: result[i].assignedById, $options: "i" },
           })
             .sort({
               createdAt: -1,
@@ -265,13 +274,17 @@ app.post(
         if (!maskList.includes(result[i].metamaskId)) {
           let temp;
           if (type === validUserTypes[0]) {
-            temp = await Individual.find({ metamaskId: result[i].metamaskId })
+            temp = await Individual.find({
+              metamaskId: { $regex: result[i].metamaskId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
           } else {
-            temp = await Institute.find({ metamaskId: result[i].metamaskId })
+            temp = await Institute.find({
+              metamaskId: { $regex: result[i].metamaskId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
@@ -460,13 +473,11 @@ app.post(
     }
     try {
       let results;
-      console.log(hash);
       if (type === validUserTypes[0]) {
         results = await Individual.find({ _id: { $in: hash } });
       } else {
         results = await Institute.find({ _id: { $in: hash } });
       }
-      console.log(results);
       if (results) {
         let names = [];
         for (let result in results) {
@@ -669,7 +680,7 @@ app.post(
       }
 
       //verifying old password
-      let answer = await result.comparePassword(
+      let wait = await result.comparePassword(
         req.body.old,
         async (err, isMatch = false) => {
           if (err) {
@@ -684,57 +695,59 @@ app.post(
               msg: "Wrong Old Password!!",
             });
           }
+          //verify new and confirm password
+          if (req.body.new !== req.body.confirm) {
+            return res.send({
+              status: FAILED,
+              msg: "New and Confirm Passwords don't match!!",
+            });
+          }
+
+          //updating password
+          let body;
+          if (type === validUserTypes[0]) {
+            body = {
+              metamaskId: result.metamaskId,
+              name: result.name,
+              birthDate: result.birthDate,
+              qualification: result.qualification,
+              designation: result.designation,
+              password: req.body.new,
+              documentList: result.documentList,
+              prevId: result._id,
+            };
+          } else {
+            body = {
+              metamaskId: result.metamaskId,
+              name: result.name,
+              foundationDate: result.foundationDate,
+              ceoId: result.ceoId,
+              instituteType: result.instituteType,
+              roles: result.roles,
+              password: req.body.new,
+              location: result.location,
+              prevId: result._id,
+            };
+          }
+          //Calculating the hash
+          let digest = hash("sha256")
+            .update(JSON.stringify(body))
+            .digest("hex");
+          //saving changes to database
+          if (type === validUserTypes[0]) {
+            result = await Individual.create({ _id: digest, ...body });
+          } else {
+            result = await Institute.create({ _id: digest, ...body });
+          }
+          result = await result.save();
+
+          return res.send({
+            status: SUCCESS,
+            message: "Password Changed successfully!!",
+            hash: digest,
+          });
         }
       );
-      //verify new and confirm password
-      if (req.body.new !== req.body.confirm) {
-        return res.send({
-          status: FAILED,
-          msg: "New and Confirm Passwords don't match!!",
-        });
-      }
-
-      //updating password
-      let body;
-      if (type === validUserTypes[0]) {
-        body = {
-          metamaskId: result.metamaskId,
-          name: result.name,
-          birthDate: result.birthDate,
-          qualification: result.qualification,
-          designation: result.designation,
-          password: req.body.new,
-          documentList: result.documentList,
-          prevId: result._id,
-        };
-      } else {
-        body = {
-          metamaskId: result.metamaskId,
-          name: result.name,
-          foundationDate: result.foundationDate,
-          ceoId: result.ceoId,
-          instituteType: result.instituteType,
-          roles: result.roles,
-          password: req.body.new,
-          location: result.location,
-          prevId: result._id,
-        };
-      }
-      //Calculating the hash
-      let digest = hash("sha256").update(JSON.stringify(body)).digest("hex");
-      //saving changes to database
-      if (type === validUserTypes[0]) {
-        result = await Individual.create({ _id: digest, ...body });
-      } else {
-        result = await Institute.create({ _id: digest, ...body });
-      }
-      result = await result.save();
-
-      return res.send({
-        status: SUCCESS,
-        message: "Password Changed successfully!!",
-        hash: digest,
-      });
     } catch (err) {
       console.log("Error in Change Password: ");
       console.log(err);
@@ -843,17 +856,21 @@ app.post(
         // adding work experience
         switch (result.type) {
           case validRequestTypes[0]:
-            instit = await Institute.find({ metamaskId: result.senderId })
+            instit = await Institute.find({
+              metamaskId: { $regex: result.senderId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
-            indiv = await Individual.find({ metamaskId: result.receiverId })
+            indiv = await Individual.find({
+              metamaskId: { $regex: result.receiverId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
-            instit[0].members.push(indiv[0]._id);
+            instit[0].members.push({ id: indiv[0]._id, role: result.role });
             await instit[0].save();
 
             indiv[0].designation = result.role;
@@ -861,17 +878,21 @@ app.post(
             break;
 
           case validRequestTypes[1]:
-            instit = await Institute.find({ metamaskId: result.receiverId })
+            instit = await Institute.find({
+              metamaskId: { $regex: result.receiverId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
-            indiv = await Individual.find({ metamaskId: result.senderId })
+            indiv = await Individual.find({
+              metamaskId: { $regex: result.senderId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
-            instit[0].members.push(indiv[0]._id);
+            instit[0].members.push({ id: indiv[0]._id, role: result.role });
             await instit[0].save();
 
             indiv[0].designation = result.role;
@@ -879,12 +900,16 @@ app.post(
             break;
 
           case validRequestTypes[2]:
-            instit = await Institute.find({ metamaskId: result.receiverId })
+            instit = await Institute.find({
+              metamaskId: { $regex: result.receiverId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
-            indiv = await Individual.find({ metamaskId: result.senderId })
+            indiv = await Individual.find({
+              metamaskId: { $regex: result.senderId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
@@ -896,12 +921,16 @@ app.post(
             await indiv[0].save();
             break;
           case validRequestTypes[3]:
-            instit = await Institute.find({ metamaskId: result.senderId })
+            instit = await Institute.find({
+              metamaskId: { $regex: result.senderId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
               .limit(1);
-            indiv = await Individual.find({ metamaskId: result.receiverId })
+            indiv = await Individual.find({
+              metamaskId: { $regex: result.receiverId, $options: "i" },
+            })
               .sort({
                 createdAt: -1,
               })
@@ -921,10 +950,10 @@ app.post(
       });
     } catch (error) {
       console.log("Error in Update Request status: ");
-      console.log(err);
+      console.log(error);
       return res.send({
         status: FAILED,
-        message: err,
+        message: error,
       });
     }
   }
@@ -935,7 +964,6 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     let { id, type } = req.body;
-    console.log(id);
     if (!id) {
       return res.send({
         status: FAILED,
@@ -945,12 +973,12 @@ app.post(
     try {
       //Fetching received requests
       let received = await Request.find({
-        receiverId: id,
+        receiverId: { $regex: id, $options: "i" },
         status: RequestStatus.Pending,
       });
       //Fetching sent requests
       let sent = await Request.find({
-        senderId: id,
+        senderId: { $regex: id, $options: "i" },
         status: RequestStatus.Pending,
       });
       if (type === validUserTypes[1]) {
@@ -968,7 +996,7 @@ app.post(
             {
               $or: [
                 {
-                  InstituteId: id,
+                  InstituteId: { $regex: id, $options: "i" },
                 },
                 { InstituteName: instit[0].name },
               ],
@@ -978,7 +1006,9 @@ app.post(
         });
 
         for (let i in verifyEd) {
-          let indiv = await Individual.find({ metamaskId: verifyEd[i].DoneBy })
+          let indiv = await Individual.find({
+            metamaskId: { $regex: verifyEd[i].DoneBy, $options: "i" },
+          })
             .sort({
               createdAt: -1,
             })
@@ -998,7 +1028,7 @@ app.post(
             {
               $or: [
                 {
-                  InstituteId: id,
+                  InstituteId: { $regex: id, $options: "i" },
                 },
                 { InstituteName: instit[0].name },
               ],
@@ -1008,7 +1038,7 @@ app.post(
         });
         for (let i in verifyWork) {
           let indiv = await Individual.find({
-            metamaskId: verifyWork[i].DoneBy,
+            metamaskId: { $regex: verifyWork[i].DoneBy, $options: "i" },
           })
             .sort({
               createdAt: -1,
@@ -1113,13 +1143,17 @@ app.post(
     // verifying owner Id
     let ownerResult;
     if (ownerType === validUserTypes[0]) {
-      ownerResult = await Individual.find({ metamaskId: owner })
+      ownerResult = await Individual.find({
+        metamaskId: { $regex: owner, $options: "i" },
+      })
         .sort({
           createdAt: -1,
         })
         .limit(1);
     } else {
-      ownerResult = await Institute.find({ metamaskId: owner })
+      ownerResult = await Institute.find({
+        metamaskId: { $regex: owner, $options: "i" },
+      })
         .sort({
           createdAt: -1,
         })
@@ -1134,13 +1168,17 @@ app.post(
     // verifying assignBy
     let assignByResult;
     if (assignedByIdType === validUserTypes[0]) {
-      assignByResult = await Individual.find({ metamaskId: assignedById })
+      assignByResult = await Individual.find({
+        metamaskId: { $regex: assignedById, $options: "i" },
+      })
         .sort({
           createdAt: -1,
         })
         .limit(1);
     } else {
-      assignByResult = await Institute.find({ metamaskId: assignedById })
+      assignByResult = await Institute.find({
+        metamaskId: { $regex: assignedById, $options: "i" },
+      })
         .sort({
           createdAt: -1,
         })
@@ -1163,7 +1201,6 @@ app.post(
       };
       let docResult = await Documents.create(body);
       docResult = await docResult.save();
-      console.log(docResult._id);
       return res.send({
         status: SUCCESS,
         message: "Document added Successfully",
@@ -1284,7 +1321,9 @@ app.post(
 app.post("/api/getLocation", async (req, res) => {
   let { id } = req.body;
   try {
-    let result = await Institute.find({ metamaskId: id })
+    let result = await Institute.find({
+      metamaskId: { $regex: id, $options: "i" },
+    })
       .sort({
         createdAt: -1,
       })
@@ -1341,7 +1380,6 @@ app.post(
         };
         docResult = await Documents.create(body);
         docResult = await docResult.save();
-        console.log(docResult._id);
       }
 
       //Saving education
@@ -1365,14 +1403,14 @@ app.post(
       let digest;
       if (completed) {
         //Updating individual
-        let indivResult = await Individual.find({ metamaskId: id })
+        let indivResult = await Individual.find({
+          metamaskId: { $regex: id, $options: "i" },
+        })
           .sort({
             createdAt: -1,
           })
           .limit(1);
-        console.log(indivResult);
         indivResult[0].documentList.push(docResult._id);
-        console.log(indivResult[0].documentList);
         body = {
           metamaskId: indivResult[0].metamaskId,
           name: indivResult[0].name,
@@ -1465,17 +1503,17 @@ app.post(
       result.save();
 
       //updating individual
-      let indivResult = await Individual.find({ metamaskId: id })
+      let indivResult = await Individual.find({
+        metamaskId: { $regex: id, $options: "i" },
+      })
         .sort({
           createdAt: -1,
         })
         .limit(1);
-      console.log(indivResult);
       indivResult[0].documentList.push(offerResult._id);
       if (reliefLetter.id.trim().length >= 0) {
         indivResult[0].documentList.push(reliefResult._id);
       }
-      console.log(indivResult[0].documentList);
       body = {
         metamaskId: indivResult[0].metamaskId,
         name: indivResult[0].name,
@@ -1524,7 +1562,9 @@ app.post(
     try {
       let result = await Education.find({ DoneBy: id });
       for (let i in result) {
-        let indiv = await Individual.find({ metamaskId: result[i].DoneBy })
+        let indiv = await Individual.find({
+          metamaskId: { $regex: result[i].DoneBy, $options: "i" },
+        })
           .sort({
             createdAt: -1,
           })
@@ -1557,10 +1597,12 @@ app.post(
   async (req, res) => {
     let id = req.body.id;
     try {
-      let result = await WorkExperience.find({ DoneBy: id });
+      let result = await WorkExperience.find({
+        DoneBy: { $regex: id, $options: "i" },
+      });
       for (let i in result) {
         let indiv = await Individual.find({
-          metamaskId: result[i].DoneBy,
+          metamaskId: { $regex: result[i].DoneBy, $options: "i" },
         })
           .sort({
             createdAt: -1,

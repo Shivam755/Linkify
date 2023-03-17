@@ -148,84 +148,91 @@ const UploadFile = ({ drizzle, drizzleState }) => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center">
-      <Title title="Assign Document" />
-      {/* Receiver Name */}
-      <div className="m-1 flex items-center justify-between">
-        Assign To:
-        <input
-          type="text"
-          className="m-1 neumorphism-pressed px-4 py-2"
-          value={recName}
-          disabled={true}
-          required
-        />
-      </div>
-      {/* name */}
-      <div className="m-1 flex items-center justify-between">
-        File Name:
-        <input
-          type="text"
-          className="m-1 neumorphism-pressed px-4 py-2"
-          value={fileName}
-          placeholder="Course name"
-          onChange={updateFileName}
-          required
-        />
-      </div>
-      {/* File */}
-      <div className="m-1 flex items-center justify-between">
-        File:
-        <Dropzone
-          onDrop={onDrop}
-          accept={validFileTypes}
-          minSize={0}
-          maxSize={maxFileSize}
-          multiple={false}
-        >
-          {({
-            getRootProps,
-            getInputProps,
-            isDragActive,
-            isDragReject,
-            rejectedFiles,
-          }) => {
-            return (
-              <div
-                {...getRootProps({
-                  className:
-                    "neumorphism-pressed h-16 w-64 flex justify-center items-center p-5 m-3 ",
-                })}
-              >
-                <input
-                  {...getInputProps({
-                    className:
-                      "dropinput h-16 w-64 flex justify-center items-center p-5 m-3",
-                  })}
-                />
-                {selectedFiles && selectedFiles[0].name ? (
-                  <div>
-                    <b>Selected File: </b>
-                    {selectedFiles && selectedFiles[0].name}
+    <div className="flex flex-col min-h-screen max-h-max">
+      <div className="flex flex-col h-screen justify-center items-center">
+        <div className="p-6 w-1/2 flex flex-col justify-center items-center neumorphism-plain">
+          <Title title="Assign Document" />
+          {/* Receiver Name */}
+          <div className="m-1 flex items-center justify-between">
+            Assign To:
+            <input
+              type="text"
+              className="m-1 neumorphism-pressed px-4 py-2"
+              value={recName}
+              disabled={true}
+              required
+            />
+          </div>
+          {/* name */}
+          <div className="m-1 flex items-center justify-between">
+            File Name:
+            <input
+              type="text"
+              className="m-1 neumorphism-pressed px-4 py-2"
+              value={fileName}
+              placeholder="File name"
+              onChange={updateFileName}
+              required
+            />
+          </div>
+          {/* File */}
+          <div className="m-1 flex items-center justify-between">
+            File:
+            <Dropzone
+              onDrop={onDrop}
+              accept={validFileTypes}
+              minSize={0}
+              maxSize={maxFileSize}
+              multiple={false}
+            >
+              {({
+                getRootProps,
+                getInputProps,
+                isDragActive,
+                isDragReject,
+                rejectedFiles,
+              }) => {
+                return (
+                  <div
+                    {...getRootProps({
+                      className:
+                        "neumorphism-pressed h-16 w-64 flex justify-center items-center p-5 m-3 ",
+                    })}
+                  >
+                    <input
+                      {...getInputProps({
+                        className:
+                          "dropinput h-16 w-64 flex justify-center items-center p-5 m-3",
+                      })}
+                    />
+                    {selectedFiles && selectedFiles[0].name ? (
+                      <div>
+                        <b>Selected File: </b>
+                        {selectedFiles && selectedFiles[0].name}
+                      </div>
+                    ) : (
+                      <div>
+                        "Drag and drop file here, or click to select file"
+                        {!isDragActive &&
+                          "Click here or drop a file to upload!"}
+                        {isDragActive &&
+                          !isDragReject &&
+                          "Drop it like it's hot!"}
+                        {isDragReject && "File type not accepted, sorry!"}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div>
-                    "Drag and drop file here, or click to select file"
-                    {!isDragActive && "Click here or drop a file to upload!"}
-                    {isDragActive && !isDragReject && "Drop it like it's hot!"}
-                    {isDragReject && "File type not accepted, sorry!"}
-                  </div>
-                )}
-              </div>
-            );
-          }}
-        </Dropzone>
-      </div>
-      <div
-        className="m-2 active-neumorphism-plain px-4 py-2"
-        onClick={saveData}
-      >
-        Save Document
+                );
+              }}
+            </Dropzone>
+          </div>
+          <div
+            className="m-2 active-neumorphism-plain px-4 py-2"
+            onClick={saveData}
+          >
+            Save Document
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
   const [name, setName] = useState("");
   const [ceoId, setCeoId] = useState("");
   const [type, setType] = useState("");
-  const [foundationDate, setFoundationDate] = useState();
+  const [foundationDate, setFoundationDate] = useState(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
@@ -47,8 +47,20 @@ const InstituteSignup = ({ drizzle, drizzleState }) => {
 
   // create a new user!
   const saveData = async (e) => {
-    const id = toast.loading("Creating account!!");
     e.preventDefault();
+    if (
+      name.trim().length === 0 ||
+      ceoId.trim().length === 0 ||
+      foundationDate === null ||
+      type === "Select a value" ||
+      type.trim().length <= 0 ||
+      password.trim().length === 0 ||
+      confirmPassword.trim().length === 0
+    ) {
+      return toast.warning("Please fill all the fields");
+    }
+    const id = toast.loading("Creating account!!");
+
     if (password !== confirmPassword) {
       // alert("Password and confirm Password don't match!!!");
       updateToast(

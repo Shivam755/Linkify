@@ -32,7 +32,10 @@ const SendRequest = ({ drizzle, drizzleState }) => {
         process.env.REACT_APP_SERVER_HOST + "/api/getName",
         {
           hash: [hash.slice(2)],
-          type: type === "Recruiting" ? "Institute" : "Individual",
+          type:
+            type === "Recruiting" || type === "Firing"
+              ? "Institute"
+              : "Individual",
         },
         {
           headers: { Authorization: `Bearer ${token}` },

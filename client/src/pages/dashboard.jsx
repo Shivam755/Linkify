@@ -113,8 +113,26 @@ const Dashboard = ({ drizzle, drizzleState }) => {
       if (result.data.status === "Failed") {
         return updateToast(toastId, result.data.message, "error");
       }
-      console.log(result.data);
-      window.location.reload(false);
+      // window.location.reload(false);
+      let copy;
+      if (type === "Education") {
+        copy = res.verifyEd;
+        for (let i in copy) {
+          if (copy[i]._id === id) {
+            copy.splice(i, 1);
+          }
+        }
+        setRes({ verifyEd: copy, ...res });
+      } else {
+        copy = res.verifyWork;
+        for (let i in copy) {
+          if (copy[i]._id === id) {
+            copy.splice(i, 1);
+          }
+        }
+        setRes({ verifyWork: copy, ...res });
+      }
+
       // navigate(`/${type}/profile`);
       return updateToast(toastId, "Verification Updated", "success");
     } catch (error) {

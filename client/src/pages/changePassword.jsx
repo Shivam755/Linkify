@@ -72,7 +72,7 @@ const ChangePassword = ({ drizzle, drizzleState }) => {
         }
         if (temp) {
           updateToast(id, "Password Changed Successfully!", "success");
-          navigate("/" + type + "/profile/");
+          return navigate("/" + type + "/profile/");
         }
         updateToast(id, "Password Changing Failed!!", "error");
       } catch (err) {

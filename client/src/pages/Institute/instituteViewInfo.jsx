@@ -46,7 +46,7 @@ const InstituteViewInfo = ({ drizzle, drizzleState }) => {
           senderId: drizzleState.accounts[0],
           receiverId: result.data.profile.metamaskId,
           receiverName: result.data.profile.name,
-          type: joined ? "Leaving" : "Joining",
+          type: joined ? "Joining" : "Leaving",
           roles: result.data.profile.roles,
         });
 
@@ -70,11 +70,11 @@ const InstituteViewInfo = ({ drizzle, drizzleState }) => {
           <div className="p-2 w-3/5 flex items-center justify-between">
             <Title title={res.name} />
             <Link
-              className="neumorphism-plain px-4 py-3 w-1/2 text-center"
+              className="active-neumorphism-plain px-4 py-3 w-1/2 text-center"
               to="/makeRequest"
               state={state}
             >
-              Apply to {joined ? "leave" : "join"}
+              Apply to {joined.current ? "join" : "leave"}
             </Link>
           </div>
           <div>

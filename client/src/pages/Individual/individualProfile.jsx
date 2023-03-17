@@ -73,7 +73,7 @@ const IndividualProfile = ({ drizzle, drizzleState }) => {
         });
         setWork(workRes.data.result);
         setRes(result.data.profile);
-        console.log(result);
+        console.log(workRes);
         return updateToast(toastId, "Data fetch successful!", "success");
       } catch (error) {
         return updateToast(toastId, error, "error");

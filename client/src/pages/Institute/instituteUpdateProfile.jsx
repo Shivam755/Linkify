@@ -63,6 +63,16 @@ const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
   const saveChanges = async (e) => {
     e.preventDefault();
     const id = toast.loading("Updating profile!");
+    if (
+      !(
+        name !== res.name ||
+        ceoId !== res.ceoId ||
+        institType !== res.instituteType
+      )
+    ) {
+      updateToast(id, "No changes were made", "info");
+      return navigate("/Institute/profile");
+    }
     if (!isAddress(ceoId)) {
       updateToast(id, "Invalid CEO wallet ID", "warning");
       // alert("Invalid CEO wallet ID");
@@ -160,7 +170,7 @@ const InstituteUpdateProfile = ({ drizzle, drizzleState }) => {
             />
           </div>
           <button
-            className="m-2 neumorphism-button px-4 py-2"
+            className="m-2 active-neumorphism-button px-4 py-2"
             onClick={saveChanges}
           >
             save changes

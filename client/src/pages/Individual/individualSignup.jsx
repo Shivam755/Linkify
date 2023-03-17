@@ -16,7 +16,7 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   // const [differenPassword, setDifferentPassword] = useState(false);
-  const [dob, setDOB] = useState();
+  const [dob, setDOB] = useState(null);
 
   // update states
   const updateQualification = (e) => {
@@ -38,6 +38,16 @@ const IndividualSignUp = ({ drizzle, drizzleState }) => {
   // create a new user!
   const saveData = async (e) => {
     e.preventDefault();
+    if (
+      name.trim().length === 0 ||
+      dob === null ||
+      qualification === "Select a value" ||
+      qualification.trim().length <= 0 ||
+      password.trim().length === 0 ||
+      confirmPassword.trim().length === 0
+    ) {
+      return toast.warning("Please fill all the fields");
+    }
     const id = toast.loading("Creating user!");
     if (password !== confirmPassword) {
       // alert("Password and confirm Password don't match!!!");
